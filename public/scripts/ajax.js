@@ -5,6 +5,7 @@ function ajaxRequest(formID, action, type, placement) {
         let that = $(this),
             formData = new FormData(),
             checkboxes = [],
+            radios = [],
             typeArr = ['file', 'checkbox', 'submit'];
         formData.append('action', action);
 
@@ -21,6 +22,11 @@ function ajaxRequest(formID, action, type, placement) {
             if (type == 'checkbox' && this.checked == true) {
                 checkboxes.push(that.val());
                 formData.append('checked_checkboxes', checkboxes);
+            }
+            
+            if (type == 'radio' && this.checked == true) {
+                radios.push(that.val());
+                formData.append('checked_radios', radios);
             }
 
             if (!typeArr.includes(type)) {
