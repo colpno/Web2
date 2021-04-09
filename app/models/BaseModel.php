@@ -8,6 +8,12 @@ class BaseModel extends Database
         $this->conn = $this->connect();
     }
 
+    protected function countMethod($tableName, $col)
+    {
+        $sql = 'SELECT COUNT(' . $col . ') FROM ' . $tableName;
+        return $this->conn->query($sql);
+    }
+
     protected function postMethod($tableName, $data = [])
     {
         $dataStringValues = array_map(function ($value) {
@@ -57,13 +63,28 @@ class BaseModel extends Database
 
         $sql = 'UPDATE ' . $tableName . ' SET ' . $result . ' WHERE ' . $colID . ' = ' . $id;
         $this->conn->query($sql);
+        echo $sql;
     }
 
-    protected function deleteMethod($tableName, $column, $id)
+    protected function deleteMethod($tableName, $column, $data)
     {
-        $idString = implode(",", $id);
-        $sql = 'DELETE FROM ' . $tableName . ' WHERE ' . $column . ' IN ' . $idString;
-        $this->conn->query($sql);
+        $sql = 'DELETE FROM ' . $tableName . ' WHERE ' . $column . ' IN (' . $data['id'] . ')';
+        $alert = new Other();
+        if ($this->conn->query($sql)) {
+            $filePath = substr($data['imgPath'], strpos($data['imgPath'], "public"));
+
+            if (strpos($data['id'], ',')) {
+                $idArr = explode(',', $data['id']);
+                foreach ($data['id'] as $key => $value) {
+                    unlink(__DIR__ . '/../../' . $filePath);
+                }
+            } else {
+                unlink(__DIR__ . '/../../' . $filePath);
+            }
+            $alert->alert('Delete success');
+        } else {
+            $alert->alert('Query failed');
+        }
     }
 
     protected function findMethod($tableName, $findValues, $page)

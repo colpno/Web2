@@ -4,7 +4,9 @@ function ajaxRequest(formID, action, type, placement) {
 
         let that = $(this),
             formData = new FormData(),
-            data = {};
+            checkboxes = [],
+            typeArr = ['file', 'checkbox', 'submit'];
+        formData.append('action', action);
 
         that.find('[name]').each(function (i, value) {
             let that = $(this),
@@ -12,15 +14,18 @@ function ajaxRequest(formID, action, type, placement) {
                 type = that.attr('type');
 
             if (type == 'file') {
-                let files = $('#uploadImage')[0].files[0];
+                let files = this.files[0];
                 formData.append(name, files);
             }
 
-            console.log(value);
-            if (type != 'submit' && type != 'file') {
+            if (type == 'checkbox' && this.checked == true) {
+                checkboxes.push(that.val());
+                formData.append('checked_checkboxes', checkboxes);
+            }
+
+            if (!typeArr.includes(type)) {
                 value = that.val();
                 formData.append(name, value);
-                data[name] = value;
             }
         });
 
@@ -34,8 +39,7 @@ function ajaxRequest(formID, action, type, placement) {
             contentType: false,
             processData: false,
             success: function (data) {
-                // $(`${placement}`).html(data);
-                $('#preview').html(data);
+                $(`${placement}`).html(data);
             },
         });
     });

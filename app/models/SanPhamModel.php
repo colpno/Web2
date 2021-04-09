@@ -2,17 +2,26 @@
 class SanPhamModel extends BaseModel
 {
     private const TABLE_NAME = 'sanpham';
-    private $idCol;
+    private $primaryCol;
     private $findValues;
 
     public function __construct()
     {
         parent::__construct();
-        $this->idCol = $this->getPrimaryCol(self::TABLE_NAME);
+        $this->primaryCol = $this->getPrimaryCol(self::TABLE_NAME);
 
         $this->findValues = [
             'searchingCol' => 'tenSP'
         ];
+    }
+
+    public function countCol($col = null)
+    {
+        if ($col == null) {
+            return $this->countMethod(self::TABLE_NAME, $this->primaryCol);
+        } else {
+            return $this->countMethod(self::TABLE_NAME, $col);
+        }
     }
 
     public function post($data = [])
@@ -27,12 +36,12 @@ class SanPhamModel extends BaseModel
 
     public function update($data = [], $id)
     {
-        return $this->updateMethod(self::TABLE_NAME, $data, $this->idCol, $id);
+        return $this->updateMethod(self::TABLE_NAME, $data, $this->primaryCol, $id);
     }
 
     public function delete($id = [])
     {
-        return $this->deleteMethod(self::TABLE_NAME, $this->idCol, $id);
+        return $this->deleteMethod(self::TABLE_NAME, $this->primaryCol, $id);
     }
 
     public function find($searchingText, $page)

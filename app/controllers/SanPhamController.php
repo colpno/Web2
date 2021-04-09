@@ -4,6 +4,7 @@ class SanPhamController extends BaseController
     private $sanPhamModel;
     private $page;
     private $uploadInstance;
+    private $count;
 
     public function __construct()
     {
@@ -28,8 +29,8 @@ class SanPhamController extends BaseController
     protected function get()
     {
         $sanPham = $this->sanPhamModel->get($this->page);
-        $this->count = count($sanPham);
-        $numOfPages = $this->getNumOfPages($sanPham);
+        $this->count = $this->sanPhamModel->countCol();
+        $numOfPages = $this->getNumOfPages();
 
         $this->dieIfPageNotValid($numOfPages);
 
@@ -41,23 +42,30 @@ class SanPhamController extends BaseController
 
     public function add($data)
     {
-        // $this->uploadInstance->upload("SP-1");
+        if (!$this->count) {
+            $this->count = $this->sanPhamModel->countCol();
+        }
+        $this->uploadInstance->upload("SP-" . $this->count + 1);
 
-        // $values = $this->getValues($data);
-        // $this->sanPhamModel->post($values);
+        $values = $this->getValues($data);
+        $this->sanPhamModel->post($values);
     }
 
     public function update($data)
     {
-        $values = $this->getValues($data);
         $id = $data['maSP'];
+        $this->uploadInstance->upload("SP-" . $id);
+        $values = $this->getValues($data);
         $this->sanPhamModel->update($values, $id);
     }
 
     public function delete($data)
     {
-        $id = $data['checked_id'];
-        $this->sanPhamModel->delete($id);
+        $remove = [
+            'id' => $data['checked_checkboxes'],
+            'imgPath' => $data['anhDaiDien']
+        ];
+        $this->sanPhamModel->delete($remove);
     }
 
     public function find($data)
@@ -168,7 +176,7 @@ class SanPhamController extends BaseController
             'donGia' => $data['donGia'],
             'donViTinh' => $data['donViTinh'],
             'soLuong' => $data['soLuong'],
-            'anhDaiDien' => $this->uploadInstance->duongDanDenFile,
+            'anhDaiDien' => $this->uploadInstance->noiChuaFile,
         ];
     }
 
@@ -189,9 +197,9 @@ class SanPhamController extends BaseController
         ];
     }
 
-    private function getNumOfPages($list)
+    private function getNumOfPages()
     {
-        return ceil(count($list) / $this->page['limit']);
+        return ceil($this->count / $this->page['limit']);
     }
 
     private function dieIfPageNotValid($numOfPages)

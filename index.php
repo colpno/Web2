@@ -15,73 +15,26 @@
 </head>
 
 <body>
-    <!-- <form id="form" enctype="multipart/form-data"> -->
-    <!-- <input type="text" name="maLoai">
+
+    <form id="form" enctype="multipart/form-data">
+        <!-- <input type="text" name="maLoai">
         <input type="text" name="maNSX">
         <input type="text" name="tenSP">
         <input type="text" name="donGia">
         <input type="text" name="donViTinh">
         <input type="text" name="soLuong"> -->
-    <!-- <input type="file" name="anhDaiDien" id="anhDaiDien">
-        <input type="submit" value="Submit" name="submit">
-    </form> -->
-    <!-- <form method="POST" enctype="multipart/form-data">
-        <input type="file" name="img" id="img">
-        <button class="submit">OK</button>
-    </form> -->
-    <div id="testing">
-    </div>
+        <!-- <input id="anhDaiDien" type="file" accept="image/*" name="anhDaiDien" /> -->
+        <input type="text" name="anhDaiDien" value="C:\xampp\htdocs\Web2\common\..\public\images\SanPham\SP-1.png">
+        <input type="checkbox" name="maSP" value="1"><input type="checkbox" name="maSP" value="2"><input type="checkbox" name="maSP" value="3"><input type="checkbox" name="maSP" value="4">
+        <input class="btn btn-success" type="submit" value="Upload">
+    </form>
 
-    <div class="container">
-        <div class="row">
-            <div class="col-md-8">
-                <form id="form" action="ajaxupload.php" method="post" enctype="multipart/form-data">
-                    <input type="text" name="tenSP">
-                    <input id="uploadImage" type="file" accept="image/*" name="image" />
-                    <div id="preview"><img src="filed.png" /></div><br>
-                    <input class="btn btn-success" type="submit" value="Upload">
-                </form>
-                <div id="err"></div>
-                <hr>
-            </div>
-        </div>
+    <div id="testing">
     </div>
 
     <script src="public/scripts/ajax.js"></script>
     <script>
-        ajaxRequest("form", "add", "POST", "#testing");
-
-        // $(document).ready(function(e) {
-        //     $("#form").on('submit', (function(e) {
-        //         e.preventDefault();
-
-        //         $.ajax({
-        //             url: "app/index.php",
-        //             type: "POST",
-        //             data: new FormData(this),
-        //             contentType: false,
-        //             cache: false,
-        //             processData: false,
-        //             beforeSend: function() {
-        //                 //$("#preview").fadeOut();
-        //                 $("#err").fadeOut();
-        //             },
-        //             success: function(data) {
-        //                 if (data == 'invalid') {
-        //                     // invalid file format.
-        //                     $("#err").html("Invalid File !").fadeIn();
-        //                 } else {
-        //                     // view uploaded file.
-        //                     $("#preview").html(data).fadeIn();
-        //                     $("#form")[0].reset();
-        //                 }
-        //             },
-        //             error: function(e) {
-        //                 $("#err").html(e).fadeIn();
-        //             }
-        //         });
-        //     }));
-        // });
+        ajaxRequest("form", "delete", "POST", "#testing");
     </script>
 </body>
 

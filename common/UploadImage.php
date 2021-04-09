@@ -1,32 +1,36 @@
 <?php
 class UploadImage
 {
-    private $noiChuaFile;
-    public $duongDanDenFile;
+    public $noiChuaFile;
+    private $duongDanDenFile;
     private $fileTam;
     private $trangThai;
     private $loaiFile;
 
     public function __construct($folder)
     {
-        $this->noiChuaFile = __DIR__ . '/../public/images/' . $folder . '/';
+        $this->noiChuaFile = '/../public/images/' . $folder . '/';
         $this->trangThai = 1;
     }
     public function upload($fileName)
     {
-        if ($_FILES['image']) {
-            $img = $_FILES['image']['name'];
+        $alert = new Other();
+        if ($_FILES) {
+            $img = $_FILES['anhDaiDien']['name'];
+
             $this->loaiFile = strtolower(pathinfo($img, PATHINFO_EXTENSION));
-            $this->fileTam = $_FILES['image']['tmp_name'];
-            $this->duongDanDenFile = $this->noiChuaFile . $fileName . '.' . $this->loaiFile;
+            $this->noiChuaFile = $this->noiChuaFile . $fileName . '.' . $this->loaiFile;
+            $this->duongDanDenFile = __DIR__ . $this->noiChuaFile;
+            $this->fileTam = $_FILES['anhDaiDien']['tmp_name'];
 
             if ($this->checkSuccess()) {
                 if (move_uploaded_file($this->fileTam, $this->duongDanDenFile)) {
-                    echo "Upload success !!!";
-                } else echo "wrong";
+                } else {
+                    $alert->alert('Error while upload file');
+                }
             }
         } else {
-            echo "Failed";
+            $alert->alert('$_FILES empty');
         }
     }
 
