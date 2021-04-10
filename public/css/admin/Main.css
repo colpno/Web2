@@ -9,11 +9,11 @@ p {
     display: flex;
 }
 
-.product-manage__row p {
+.report-item p {
     font-weight: 100;
     letter-spacing: 1px;
 }
-.product-manage__row span {
+.report-item__text span {
     flex: 1;
     font-weight: bold;
     font-size: 30px;

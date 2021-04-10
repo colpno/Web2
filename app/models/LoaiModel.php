@@ -1,7 +1,7 @@
 <?php
-class SanPhamModel extends BaseModel
+class LoaiModel extends BaseModel
 {
-    private const TABLE_NAME = 'sanpham';
+    private const TABLE_NAME = 'loaisanpham';
     private $primaryCol;
     private $findValues;
 
@@ -11,7 +11,7 @@ class SanPhamModel extends BaseModel
         $this->primaryCol = $this->getPrimaryCol(self::TABLE_NAME);
 
         $this->findValues = [
-            'searchingCol' => 'tenSP'
+            'searchingCol' => 'tenLoai'
         ];
     }
 

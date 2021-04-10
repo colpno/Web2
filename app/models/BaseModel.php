@@ -2,41 +2,48 @@
 class BaseModel extends Database
 {
     protected $conn;
+    private $alert;
 
     protected function __construct()
     {
         $this->conn = $this->connect();
+        $this->alert = new Other();
     }
 
-    protected function countMethod($tableName, $col)
+    protected function countRowMethod($tableName, $primaryCol)
     {
-        $sql = 'SELECT COUNT(' . $col . ') FROM ' . $tableName;
-        return $this->conn->query($sql);
+        $sql = 'SELECT COUNT(' . $primaryCol . ') FROM ' . $tableName;
+        $query = $this->conn->query($sql);
+
+        while ($row = mysqli_fetch_assoc($query)) {
+            return $row;
+        }
     }
 
-    protected function postMethod($tableName, $data = [])
+    protected function getRowMethod($tableName, $col, $value)
     {
-        $dataStringValues = array_map(function ($value) {
-            return "'$value'";
-        }, array_values($data));
-        $values = implode(",", array_values($dataStringValues));
-        $columns = implode(",", array_keys($data));
+        $sql = 'SELECT * FROM ' . $tableName . ' WHERE ' . $col . ' = ' . $value;
+        $query = $this->conn->query($sql);
 
-        $sql = "INSERT INTO $tableName($columns) VALUES ($values)";
-        $this->conn->query($sql);
+        while ($row = mysqli_fetch_assoc($query)) {
+            return $row;
+        }
+    }
+
+    protected function getMaxIDCol($tableName, $primaryCol)
+    {
+        $sql = 'SELECT ' . $primaryCol . ' FROM ' . $tableName . ' GROUP BY ' . $primaryCol . ' desc LIMIT 1';
+        $query = $this->conn->query($sql);
+
+        while ($row = mysqli_fetch_assoc($query)) {
+            return $row;
+        }
     }
 
     protected function getMethod($tableName, $page)
     {
         $sql = 'SELECT * FROM ' . $tableName . ' LIMIT ' . $page['limit'] . ' OFFSET ' . ($page['current'] - 1) * $page['limit'];
-        $query = $this->conn->query($sql);
-        $data = [];
-
-        while ($row = mysqli_fetch_assoc($query)) {
-            array_push($data, $row);
-        }
-
-        return $data;
+        return $this->returnBackValues($sql);
     }
 
     protected function getPrimaryCol($tableName)
@@ -53,6 +60,25 @@ class BaseModel extends Database
         return $key[0];
     }
 
+    protected function postMethod($tableName, $data = [], $number)
+    {
+        $dataStringValues = array_map(function ($value) {
+            return "'$value'";
+        }, array_values($data));
+        $values = implode(",", array_values($dataStringValues));
+        $columns = implode(",", array_keys($data));
+
+        $resetAI = 'ALTER TABLE ' . $tableName . ' AUTO_INCREMENT = ' . $number;
+        $this->conn->query($resetAI);
+
+        $sql = "INSERT INTO $tableName($columns) VALUES ($values)";
+        if ($this->conn->query($sql)) {
+            $this->alert->alert('Add succeed');
+        } else {
+            $this->alert->alert('Add failed');
+        }
+    }
+
     protected function updateMethod($tableName, $data, $colID, $id)
     {
         $result = [];
@@ -62,28 +88,39 @@ class BaseModel extends Database
         $result = implode(',', $result);
 
         $sql = 'UPDATE ' . $tableName . ' SET ' . $result . ' WHERE ' . $colID . ' = ' . $id;
-        $this->conn->query($sql);
-        echo $sql;
+        if ($this->conn->query($sql)) {
+            $this->alert->alert('Update succeed');
+        } else {
+            $this->alert->alert('Update failed');
+        }
     }
 
     protected function deleteMethod($tableName, $column, $data)
     {
         $sql = 'DELETE FROM ' . $tableName . ' WHERE ' . $column . ' IN (' . $data['id'] . ')';
-        $alert = new Other();
         if ($this->conn->query($sql)) {
-            $filePath = substr($data['imgPath'], strpos($data['imgPath'], "public"));
-
+            $status = 0;
             if (strpos($data['id'], ',')) {
+                $pos = strpos($data['imgPath'], "public");
+                $filePath = substr($data['imgPath'], $pos, strpos($data['imgPath'], "-") - $pos + 1);
+                $ext = substr($data['imgPath'], strrpos($data['imgPath'], "."));
                 $idArr = explode(',', $data['id']);
-                foreach ($data['id'] as $key => $value) {
-                    unlink(__DIR__ . '/../../' . $filePath);
+                foreach ($idArr as $key => $value) {
+                    if (unlink(__DIR__ . '/../../' . $filePath . $value .  $ext)) $status = 1;
+                    else $status = 0;
                 }
             } else {
-                unlink(__DIR__ . '/../../' . $filePath);
+                $filePath = substr($data['imgPath'], strpos($data['imgPath'], "public"));
+                if (unlink(__DIR__ . '/../../' . $filePath)) $status = 1;
+                else $status = 0;
             }
-            $alert->alert('Delete success');
+            if ($status == 1) {
+                $this->alert->alert('Delete succeed');
+            } else {
+                $this->alert->alert('No such file or directory');
+            }
         } else {
-            $alert->alert('Query failed');
+            $this->alert->alert('Delete failed');
         }
     }
 
@@ -132,11 +169,6 @@ class BaseModel extends Database
             ' AND ' . $filterValues['filterCol'] . ' <= ' . $filterValues['to'] .
             ' LIMIT ' . $page['limit'] . ' OFFSET ' . ($page['current'] - 1) * $page['limit'];
 
-        $query = $this->conn->query($sql);
-        $data = [];
-        while ($row = mysqli_fetch_assoc($query)) {
-            array_push($data, $row);
-        }
         return $this->returnBackValues($sql);
     }
 
@@ -146,15 +178,10 @@ class BaseModel extends Database
             ' ORDER BY ' . $sortValues['sortCol'] . ' ' . $sortValues['order'] .
             ' LIMIT ' . $page['limit'] . ' OFFSET ' . ($page['current'] - 1) * $page['limit'];
 
-        $query = $this->conn->query($sql);
-        $data = [];
-        while ($row = mysqli_fetch_assoc($query)) {
-            array_push($data, $row);
-        }
         return $this->returnBackValues($sql);
     }
 
-    protected function sortAndFilterMethod($tableName, $sortValues = [], $filterValues = [], $page)
+    protected function filterAndSortMethod($tableName, $sortValues = [], $filterValues = [], $page)
     {
         $sql = 'SELECT * FROM ' . $tableName .
             ' WHERE ' . $filterValues['filterCol'] . ' >= ' . $filterValues['from'] .

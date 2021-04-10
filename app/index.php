@@ -10,17 +10,20 @@ $controllerName = $splitUri[1] == '' ? 'SanPhamController' :  "${param}Controlle
 $modelName = $splitUri[1] == '' ? 'SanPhamModel' :  "${param}Model";
 $actionName = strtolower($_REQUEST['f'] ?? 'index');
 
-require_once "$dir/../config/database/Database.php";
-require_once "$dir/controllers/BaseController.php";
-require_once "$dir/controllers/$controllerName.php";
-require_once "$dir/models/BaseModel.php";
-require_once "$dir/models/$modelName.php";
+require "$dir/../config/database/Database.php";
+require "$dir/controllers/BaseController.php";
+require "$dir/controllers/$controllerName.php";
+require "$dir/models/BaseModel.php";
+require "$dir/models/$modelName.php";
 
-require_once "$dir/../common/UploadImage.php";
-require_once "$dir/../common/Other.php";
+require "$dir/../common/UploadImage.php";
+require "$dir/../common/Other.php";
 
 $controllerObject = new $controllerName;
-if (isset($_POST)) {
+if (!isset($_POST['action'])) {
+    $controllerObject->index();
+}
+if (isset($_POST['action'])) {
     $data = $_POST;
     if (array_key_exists('anhDaiDien', $_FILES)) {
         $data['anhDaiDien'] = $_FILES['anhDaiDien'];
@@ -59,7 +62,7 @@ if (isset($_POST)) {
                 $controllerObject->filter($data);
                 break;
             }
-        case "sortAndFilter": {
+        case "filterAndSort": {
                 $sortCol = $_GET['sortCol'];
                 $order = $_GET['order'];
                 $controllerObject->sortAndFilter($data);
@@ -71,5 +74,3 @@ if (isset($_POST)) {
 if (isset($_GET['order'], $_GET['sortCol'])) {
     $controllerObject->sort();
 }
-
-// $controllerObject->index();

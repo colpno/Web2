@@ -15,26 +15,13 @@
 </head>
 
 <body>
-
-    <form id="form" enctype="multipart/form-data">
-        <!-- <input type="text" name="maLoai">
-        <input type="text" name="maNSX">
-        <input type="text" name="tenSP">
-        <input type="text" name="donGia">
-        <input type="text" name="donViTinh">
-        <input type="text" name="soLuong"> -->
-        <!-- <input id="anhDaiDien" type="file" accept="image/*" name="anhDaiDien" /> -->
-        <input type="text" name="anhDaiDien" value="C:\xampp\htdocs\Web2\common\..\public\images\SanPham\SP-1.png">
-        <input type="checkbox" name="maSP" value="1"><input type="checkbox" name="maSP" value="2"><input type="checkbox" name="maSP" value="3"><input type="checkbox" name="maSP" value="4">
-        <input class="btn btn-success" type="submit" value="Upload">
-    </form>
-
-    <div id="testing">
+    <div id="app">
+        <?php require_once 'app/index.php' ?>
     </div>
 
     <script src="public/scripts/ajax.js"></script>
     <script>
-        ajaxRequest("form", "delete", "POST", "#testing");
+        ajaxRequest("form", "find", "POST", "#app");
     </script>
 </body>
 

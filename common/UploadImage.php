@@ -9,7 +9,7 @@ class UploadImage
 
     public function __construct($folder)
     {
-        $this->noiChuaFile = '/../public/images/' . $folder . '/';
+        $this->noiChuaFile = 'public/images/' . $folder . '/';
         $this->trangThai = 1;
     }
     public function upload($fileName)
@@ -20,13 +20,22 @@ class UploadImage
 
             $this->loaiFile = strtolower(pathinfo($img, PATHINFO_EXTENSION));
             $this->noiChuaFile = $this->noiChuaFile . $fileName . '.' . $this->loaiFile;
-            $this->duongDanDenFile = __DIR__ . $this->noiChuaFile;
+            $this->duongDanDenFile = __DIR__ . '/../' . $this->noiChuaFile;
             $this->fileTam = $_FILES['anhDaiDien']['tmp_name'];
 
-            if ($this->checkSuccess()) {
-                if (move_uploaded_file($this->fileTam, $this->duongDanDenFile)) {
-                } else {
-                    $alert->alert('Error while upload file');
+            if (!file_exists($this->duongDanDenFile)) {
+                if ($this->checkSuccess()) {
+                    if (move_uploaded_file($this->fileTam, $this->duongDanDenFile)) {
+                    } else {
+                        $alert->alert('Error while upload file');
+                    }
+                }
+            } else {
+                if (unlink($this->duongDanDenFile)) {
+                    if (move_uploaded_file($this->fileTam, $this->duongDanDenFile)) {
+                    } else {
+                        $alert->alert('Error while upload file');
+                    }
                 }
             }
         } else {
