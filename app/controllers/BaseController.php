@@ -4,20 +4,28 @@ class BaseController
     private const VIEW_PATH = __DIR__ . '/../views/';
     private const MODEL_PATH = __DIR__ . '/../models/';
 
-    protected function view($fileName, array $data = [], $print = true)
+    protected function view($view, array $data = [], $json = false)
     {
-        $fileName = self::VIEW_PATH . $fileName . '.php';
+        // foreach ($data as $key => $value) {
+        //     $$key = $value;
+        // }
+        if ($json == true) {
+            json_encode($data);
+        }
 
-        $output = NULL;
-        if (file_exists($fileName)) {
-            extract($data);
-            ob_start();
-            include $fileName;
-            $output = ob_get_clean();
+        $filePath = self::VIEW_PATH . $view . '.php';
+        if (file_exists($filePath)) {
+            require_once $filePath;
         }
-        if ($print) {
-            print $output;
+    }
+
+    protected function model($model)
+    {
+        $completeFileName = $model . 'Model';
+        $filePath = self::MODEL_PATH . $completeFileName . '.php';
+        if (file_exists($filePath)) {
+            require_once $filePath;
+            return new $completeFileName;
         }
-        return $output;
     }
 }

@@ -12,7 +12,7 @@ class BaseModel extends Database
 
     protected function countRowMethod($tableName, $primaryCol)
     {
-        $sql = 'SELECT COUNT(' . $primaryCol . ') FROM ' . $tableName;
+        $sql = 'SELECT COUNT(' . $primaryCol . ') as tongSoLuong FROM ' . $tableName;
         $query = $this->conn->query($sql);
 
         while ($row = mysqli_fetch_assoc($query)) {
@@ -22,7 +22,19 @@ class BaseModel extends Database
 
     protected function getRowMethod($tableName, $col, $value)
     {
-        $sql = 'SELECT * FROM ' . $tableName . ' WHERE ' . $col . ' = ' . $value;
+        if ($value != null) {
+            $sql = 'SELECT * FROM ' . $tableName . ' WHERE ' . $col . ' = ' . $value;
+            $query = $this->conn->query($sql);
+
+            while ($row = mysqli_fetch_assoc($query)) {
+                return $row;
+            }
+        }
+    }
+
+    protected function getMaxMethod($tableName, $col)
+    {
+        $sql = 'SELECT ' . $col . ' FROM ' . $tableName . ' GROUP BY ' . $col . ' desc LIMIT 1';
         $query = $this->conn->query($sql);
 
         while ($row = mysqli_fetch_assoc($query)) {
@@ -30,9 +42,9 @@ class BaseModel extends Database
         }
     }
 
-    protected function getMaxIDCol($tableName, $primaryCol)
+    protected function getMinMethod($tableName, $col)
     {
-        $sql = 'SELECT ' . $primaryCol . ' FROM ' . $tableName . ' GROUP BY ' . $primaryCol . ' desc LIMIT 1';
+        $sql = 'SELECT ' . $col . ' FROM ' . $tableName . ' GROUP BY ' . $col . ' asc LIMIT 1';
         $query = $this->conn->query($sql);
 
         while ($row = mysqli_fetch_assoc($query)) {
@@ -57,10 +69,13 @@ class BaseModel extends Database
         }
         $key = array_column($data, 'Column_name');
 
-        return $key[0];
+        if (isset($key[0])) {
+            return $key[0];
+        }
+        return null;
     }
 
-    protected function postMethod($tableName, $data = [], $number)
+    protected function postMethod($tableName, $data = [])
     {
         $dataStringValues = array_map(function ($value) {
             return "'$value'";
@@ -68,7 +83,7 @@ class BaseModel extends Database
         $values = implode(",", array_values($dataStringValues));
         $columns = implode(",", array_keys($data));
 
-        $resetAI = 'ALTER TABLE ' . $tableName . ' AUTO_INCREMENT = ' . $number;
+        $resetAI = 'ALTER TABLE ' . $tableName . ' AUTO_INCREMENT = 1';
         $this->conn->query($resetAI);
 
         $sql = "INSERT INTO $tableName($columns) VALUES ($values)";
@@ -88,31 +103,67 @@ class BaseModel extends Database
         $result = implode(',', $result);
 
         $sql = 'UPDATE ' . $tableName . ' SET ' . $result . ' WHERE ' . $colID . ' = ' . $id;
-        if ($this->conn->query($sql)) {
-            $this->alert->alert('Update succeed');
-        } else {
-            $this->alert->alert('Update failed');
-        }
+        // if ($this->conn->query($sql)) {
+        //     $this->alert->alert('Update succeed');
+        // } else {
+        //     $this->alert->alert('Update failed');
+        // }
+        echo $sql;
+    }
+
+    protected function updateQuCNMethod($data)
+    {
+        $reset = 'UPDATE quyenchucnang SET hienthi = 0 WHERE hienThi = 1 AND maQuyen = ' . $data['maQuyen'];
+        $this->conn->query($reset);
+
+        $sql = 'UPDATE quyenchucnang SET hienthi = 1 WHERE maQuyen = ' . $data['maQuyen'] . ' AND maCN = ' . $data['maCN'];
+        $this->conn->query($sql);
     }
 
     protected function deleteMethod($tableName, $column, $data)
     {
-        $sql = 'DELETE FROM ' . $tableName . ' WHERE ' . $column . ' IN (' . $data['id'] . ')';
+        $id = '';
+        if (isset($data['id']) && is_array($data['id'])) {
+            $length = count($data['id']);
+            for ($i = 0; $i < $length; $i++) {
+                $id = $id . $data['id'][$i];
+                if ($i != $length - 1) {
+                    $id = $id . ',';
+                }
+            }
+        } else
+        if (isset($data['id']) && !is_array($data['id'])) {
+            $id = $id . $data['id'];
+        } else {
+            $length = count($data);
+            for ($i = 0; $i < $length; $i++) {
+                $id = $id . $data[$i];
+                if ($i != $length - 1) {
+                    $id = $id . ',';
+                }
+            }
+        }
+        $sql = 'DELETE FROM ' . $tableName . ' WHERE ' . $column . ' IN (' . $id . ')';
+        // echo $sql;
+
         if ($this->conn->query($sql)) {
             $status = 0;
-            if (strpos($data['id'], ',')) {
-                $pos = strpos($data['imgPath'], "public");
-                $filePath = substr($data['imgPath'], $pos, strpos($data['imgPath'], "-") - $pos + 1);
-                $ext = substr($data['imgPath'], strrpos($data['imgPath'], "."));
-                $idArr = explode(',', $data['id']);
-                foreach ($idArr as $key => $value) {
-                    if (unlink(__DIR__ . '/../../' . $filePath . $value .  $ext)) $status = 1;
-                    else $status = 0;
+            if (isset($data['imgPath']) && $data['imgPath'] != null) {
+                $pos = strpos($data['imgPath'][0], "public");
+                $filePath = substr($data['imgPath'][0], $pos, strpos($data['imgPath'][0], "-") - $pos + 1);
+                $ext = substr($data['imgPath'][0], strrpos($data['imgPath'][0], "."));
+                if (is_array($data['id'])) {
+                    foreach ($data['id'] as $key => $value) {
+                        // if (unlink(__DIR__ . '/../../' . $filePath . $value .  $ext)) $status = 1;
+                        // else $status = 0;
+                        // echo (__DIR__ . '/../../' . $filePath . $value .  $ext);
+                    }
+                } else {
+                    $filePath = substr($data['imgPath'], strpos($data['imgPath'], "public"));
+                    // if (unlink(__DIR__ . '/../../' . $filePath)) $status = 1;
+                    // else $status = 0;
+                    // echo __DIR__ . '/../../' . $filePath;
                 }
-            } else {
-                $filePath = substr($data['imgPath'], strpos($data['imgPath'], "public"));
-                if (unlink(__DIR__ . '/../../' . $filePath)) $status = 1;
-                else $status = 0;
             }
             if ($status == 1) {
                 $this->alert->alert('Delete succeed');
@@ -120,7 +171,7 @@ class BaseModel extends Database
                 $this->alert->alert('No such file or directory');
             }
         } else {
-            $this->alert->alert('Delete failed');
+            print_r(json_encode(array('response' => (($this->conn->error)))));
         }
     }
 

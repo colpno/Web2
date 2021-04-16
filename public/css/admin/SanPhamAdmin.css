@@ -1,0 +1,119 @@
+.report-item {
+    padding: 25px;
+    box-shadow: 0 0 2px 0.05px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    line-height: 1.2rem;
+    min-height: 130px;
+}
+
+.product-report__row__report:last-child .report-item {
+    background-color: var(--primary-color);
+    color: #fff;
+}
+
+.product-report__row__report .report-item p {
+    margin: 0;
+    margin-right: 50px;
+}
+
+.report-item__text {
+    display: flex;
+}
+
+.report-item p {
+    font-weight: 100;
+    letter-spacing: 1px;
+}
+.report-item__text span {
+    flex: 1;
+    font-weight: bold;
+    font-size: 30px;
+}
+.icon {
+    color: var(--main-color);
+    font-size: 40px;
+}
+
+.title--border {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-left: none;
+    border-right: none;
+    padding: 7px 0 7px 0;
+}
+
+.content--show h6 {
+    margin: 0;
+}
+
+.content--show .row span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.product__row,
+.category__row,
+.promotion__row,
+.detail-promotion__row {
+    background-color: #fff;
+}
+
+.checkbox {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.checkbox input {
+    margin-right: 4px;
+}
+
+.checkbox i {
+    cursor: pointer;
+}
+
+.content-item__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 13px 0 13px;
+    margin-top: var(--padding-main-top);
+}
+
+.content-item__header span {
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.content-item__header button {
+    height: 35px;
+    width: 90px;
+    border-radius: 10px;
+    background-color: var(--primary-color);
+    color: #fff;
+    outline: none;
+    border: none;
+    margin: 12px 0 12px 0;
+    font-size: 0.95rem;
+    font-weight: 200;
+}
+
+.content-item__pagination {
+    padding: 10px 0 10px 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.content-item__pagination button {
+    width: 30px;
+    height: 30px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.content-item__pagination button:hover:not(.current-page) {
+    background-color: #fae4ec;
+}
+
+.current-page {
+    background-color: var(--primary-color);
+    color: #fff;
+}

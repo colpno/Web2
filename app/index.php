@@ -1,76 +1,90 @@
 <?php
 $dir = __DIR__;
-$uriGetParam = isset($_GET['uri']) ? '/' . $_GET['uri'] : '/';
-$splitUri = explode('/', $uriGetParam);
-$upperCaseUri = preg_replace_callback("/^(.)|\_./", function ($match) {
-    return strtoupper($match[0]);
-}, $splitUri[1]);
-$param = str_replace('_', '', $upperCaseUri);
-$controllerName = $splitUri[1] == '' ? 'SanPhamController' :  "${param}Controller";
-$modelName = $splitUri[1] == '' ? 'SanPhamModel' :  "${param}Model";
-$actionName = strtolower($_REQUEST['f'] ?? 'index');
 
 require "$dir/../config/database/Database.php";
 require "$dir/controllers/BaseController.php";
-require "$dir/controllers/$controllerName.php";
 require "$dir/models/BaseModel.php";
-require "$dir/models/$modelName.php";
 
 require "$dir/../common/UploadImage.php";
 require "$dir/../common/Other.php";
 
-$controllerObject = new $controllerName;
+$uriGetParam = isset($_GET['uri']) ?  $_GET['uri'] : '/';
+$splitUri = explode('/', $uriGetParam);
+$splitUri = array_values($splitUri);
+
+$controller = 'Admin';
+$action = 'SanPham';
+$params = [];
+$controllerObject = null;
+
+$controllerName = $splitUri[0];
+if (file_exists('app/controllers/' . $controllerName . '.php')) {
+    $controller = $controllerName;
+}
+unset($splitUri[0]);
+require_once($dir . '/controllers/' . $controller . '.php');
+
+$controllerObject = new $controller;
+
 if (!isset($_POST['action'])) {
-    $controllerObject->index();
+    session_start();
+
+    require_once($dir . '/views/' . $controller . '.php');
+    $actionName = $splitUri[1];
+    if (isset($actionName) && method_exists($controller, $actionName)) {
+        $action = $actionName;
+    }
+    unset($splitUri[1]);
+    $_SESSION['get'] = $controllerObject->$action();
+
+    $params = $splitUri ? array_values($splitUri) : [];
 }
+
 if (isset($_POST['action'])) {
-    $data = $_POST;
-    if (array_key_exists('anhDaiDien', $_FILES)) {
-        $data['anhDaiDien'] = $_FILES['anhDaiDien'];
+    switch ($controller) {
+        case 'Admin': {
+                ($controllerObject->SanPham($_POST));
+            }
+            // case "add": {
+            //         $controllerObject->add($data);
+            //         break;
+            //     }
+            // case "update": {
+            //         $controllerObject->update($data);
+            //         break;
+            //     }
+            // case "delete": {
+            //         $controllerObject->delete($data);
+            //         break;
+            //     }
+            // case "find": {
+            //         $controllerObject->find($data);
+            //         break;
+            //     }
+            // case "findWithSort": {
+            //         $controllerObject->findWithSort($data);
+            //         break;
+            //     }
+            // case "findWithFilter": {
+            //         $controllerObject->findWithFilter($data);
+            //         break;
+            //     }
+            // case "findWithFilterAndSort": {
+            //         $controllerObject->findWithFilterAndSort($data);
+            //         break;
+            //     }
+            // case "filter": {
+            //         $controllerObject->filter($data);
+            //         break;
+            //     }
+            // case "filterAndSort": {
+            //         $sortCol = $_GET['sortCol'];
+            //         $order = $_GET['order'];
+            //         $controllerObject->sortAndFilter($data);
+            //         break;
+            //     }
+            // case "sort": {
+            //         $controllerObject->sort();
+            //     }
     }
-
-    switch ($_POST['action']) {
-        case "add": {
-                $controllerObject->add($data);
-                break;
-            }
-        case "update": {
-                $controllerObject->update($data);
-                break;
-            }
-        case "delete": {
-                $controllerObject->delete($data);
-                break;
-            }
-        case "find": {
-                $controllerObject->find($data);
-                break;
-            }
-        case "findWithSort": {
-                $controllerObject->findWithSort($data);
-                break;
-            }
-        case "findWithFilter": {
-                $controllerObject->findWithFilter($data);
-                break;
-            }
-        case "findWithFilterAndSort": {
-                $controllerObject->findWithFilterAndSort($data);
-                break;
-            }
-        case "filter": {
-                $controllerObject->filter($data);
-                break;
-            }
-        case "filterAndSort": {
-                $sortCol = $_GET['sortCol'];
-                $order = $_GET['order'];
-                $controllerObject->sortAndFilter($data);
-                break;
-            }
-    }
-}
-
-if (isset($_GET['order'], $_GET['sortCol'])) {
-    $controllerObject->sort();
 }

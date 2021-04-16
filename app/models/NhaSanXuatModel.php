@@ -15,9 +15,22 @@ class NhaSanXuatModel extends BaseModel
         ];
     }
 
-    public function countRow()
+    public function countRow($col = null)
     {
-        return $this->countRowMethod(self::TABLE_NAME, $this->primaryCol);
+        if ($col == null) {
+            return $this->countRowMethod(self::TABLE_NAME, $this->primaryCol);
+        } else {
+            return $this->countRowMethod(self::TABLE_NAME, $col);
+        }
+    }
+
+    public function getMinCol($col = null)
+    {
+        if ($col == null) {
+            return $this->getMinMethod(self::TABLE_NAME, $this->primaryCol);
+        } else {
+            return $this->getMinMethod(self::TABLE_NAME, $col);
+        }
     }
 
     public function getRow($col, $value)
@@ -28,9 +41,9 @@ class NhaSanXuatModel extends BaseModel
     public function getMaxCol($col = null)
     {
         if ($col == null) {
-            return $this->getMaxIDCol(self::TABLE_NAME, $this->primaryCol);
+            return $this->getMaxMethod(self::TABLE_NAME, $this->primaryCol);
         } else {
-            return $this->getMaxIDCol(self::TABLE_NAME, $col);
+            return $this->getMaxMethod(self::TABLE_NAME, $col);
         }
     }
 
