@@ -5,7 +5,7 @@ class QuyenChucNangController extends BaseController
     private $chucNangModel;
     private $quyenModel;
     private $AllRowLength;
-    private $uploadInstance;
+    private $limit = 15;
     private $alert;
 
     public function __construct()
@@ -36,13 +36,19 @@ class QuyenChucNangController extends BaseController
         return $number;
     }
 
-    public function get()
+    public function get($page = [])
     {
         if (!$this->AllRowLength) {
             $this->AllRowLength = array_values($this->quyenChucNangModel->countRow())[0];
         }
-        $quyenChucNang = $this->quyenChucNangModel->get($this->getPage());
-        $numOfPages = $this->getNumOfPages();
+        $quyenChucNang = [];
+        if (!empty($page)) {
+            $page['limit'] = $this->getPage()['limit'];
+            $quyenChucNang = $this->quyenChucNangModel->get($page);
+        } else {
+            $quyenChucNang = $this->quyenChucNangModel->get($this->getPage());
+        }
+        $numOfPages = $this->getNumOfPages($quyenChucNang['pages']);
 
         $this->dieIfPageNotValid($numOfPages);
         $this->changeProp($quyenChucNang);
@@ -81,13 +87,9 @@ class QuyenChucNangController extends BaseController
         ];
     }
 
-    private function getNumOfPages($list = [])
+    private function getNumOfPages($number)
     {
-        if (empty($list)) {
-            return ceil($this->AllRowLength / $this->getPage()['limit']);
-        } else {
-            return ceil(count($list) / $this->getPage()['limit']);
-        }
+        return ceil((int) $number / $this->getPage()['limit']);
     }
 
     private function dieIfPageNotValid($numOfPages)
@@ -120,7 +122,7 @@ class QuyenChucNangController extends BaseController
     {
         return [
             'current' => isset($_GET['page']) ? $_GET['page'] : 1,
-            'limit' => 15
+            'limit' => $this->limit
         ];
     }
 }

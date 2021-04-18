@@ -4,7 +4,7 @@ class KhachHangController extends BaseController
     private $khachHangModel;
     private $taikhoanModel;
     private $AllRowLength;
-    private $uploadInstance;
+    private $limit = 15;
     private $alert;
 
     public function __construct()
@@ -14,20 +14,6 @@ class KhachHangController extends BaseController
         $this->alert = new Other();
     }
 
-    public function findMax($col)
-    {
-        $found = $this->khachHangModel->getMaxCol($col);
-
-        return  $found;
-    }
-
-    public function findMin($col)
-    {
-        $found = $this->khachHangModel->getMinCol($col);
-
-        return $found;
-    }
-
     public function countRow($col)
     {
         $number = $this->khachHangModel->countRow($col);
@@ -35,21 +21,26 @@ class KhachHangController extends BaseController
         return $number;
     }
 
-    public function get()
+    public function get($page = [])
     {
         if (!$this->AllRowLength) {
             $this->AllRowLength = array_values($this->khachHangModel->countRow())[0];
         }
-        $khachHang = $this->khachHangModel->get($this->getPage());
-        $numOfPages = $this->getNumOfPages();
+        $khachHang = [];
+        if (!empty($page)) {
+            $page['limit'] = $this->getPage()['limit'];
+            $khachHang = $this->khachHangModel->get($page);
+        } else {
+            $khachHang = $this->khachHangModel->get($this->getPage());
+        }
+        $numOfPages = $this->getNumOfPages($khachHang['pages']);
+
+        $khachHang['pages'] = $numOfPages;
 
         $this->dieIfPageNotValid($numOfPages);
         $this->changeProp($khachHang);
 
-        return [
-            'KHArr' => $khachHang,
-            'KHPages' => $numOfPages
-        ];
+        return $khachHang;
     }
 
     public function add($data)
@@ -63,10 +54,11 @@ class KhachHangController extends BaseController
             && $data['diaChi']
         ) {
             $maxID = array_values($this->khachHangModel->getMaxCol())[0];
-            $fileName = "KH-" .  ($maxID + 1);
 
-            $values = $this->getValues($data);;
-            $this->khachHangModel->post($values, $maxID + 1);
+
+
+            $values = $this->getValues($data);
+            $this->khachHangModel->post($values);
             return $this->get();
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để thêm");
@@ -84,7 +76,8 @@ class KhachHangController extends BaseController
             && $data['ngaySinh']
             && $data['diaChi']
         ) {
-            $id = $data['maKH'];
+            $id = $data['maSP'];
+            //  
             $values = $this->getValues($data);
             $this->khachHangModel->update($values, $id);
             return $this->get();
@@ -98,8 +91,14 @@ class KhachHangController extends BaseController
         if (
             $data['maKH']
         ) {
-            $this->khachHangModel->delete($data['maKH']);
-            return $this->get();
+            $remove = [
+                'id' => $data['maSP'],
+                'imgPath' => $data['anhDaiDien']
+            ];
+            return [
+                'error' => $this->khachHangModel->delete($remove),
+                'data' => $this->get()
+            ];
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để xóa");
         }
@@ -111,18 +110,35 @@ class KhachHangController extends BaseController
             $data['search']
         ) {
             $found = $this->khachHangModel->find($data['search'], $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
             $this->changeProp($found);
 
-            return [
-                'KHFound' => $found,
-                'KHFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
+    }
+
+    public function findMax($col)
+    {
+        $found = $this->khachHangModel->getMaxCol($col);
+
+        $this->changeProp($found);
+
+        return  $found;
+    }
+
+    public function findMin($col)
+    {
+        $found = $this->khachHangModel->getMinCol($col);
+
+        $this->changeProp($found);
+
+        return $found;
     }
 
     public function findWithFilter($data)
@@ -135,15 +151,14 @@ class KhachHangController extends BaseController
         ) {
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $found = $this->khachHangModel->findWithFilter($data['search'], $filterValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
             $this->changeProp($found);
 
-            return [
-                'KHFound' => $found,
-                'KHFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
@@ -158,15 +173,14 @@ class KhachHangController extends BaseController
         ) {
             $sortValues = $this->getSortValues();
             $found = $this->khachHangModel->findWithSort($data['search'], $sortValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
             $this->changeProp($found);
 
-            return [
-                'KHFound' => $found,
-                'KHFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
@@ -183,15 +197,14 @@ class KhachHangController extends BaseController
             $sortValues = $this->getSortValues();
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $found = $this->khachHangModel->findWithFilterAndSort($data['search'], $filterValues, $sortValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
             $this->changeProp($found);
 
-            return [
-                'KHFound' => $found,
-                'KHFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
@@ -206,15 +219,14 @@ class KhachHangController extends BaseController
         ) {
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $filtered = $this->khachHangModel->filter($filterValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($filtered);
+            $numOfPages = $this->getNumOfPages($filtered['pages']);
+
+            $filtered['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
             $this->changeProp($filtered);
 
-            return [
-                'KHFiltered' => $filtered,
-                'KHFilteredPages' => $numOfPages
-            ];
+            return $filtered;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để lọc");
         }
@@ -228,15 +240,14 @@ class KhachHangController extends BaseController
         ) {
             $sortValues = $this->getSortValues();
             $sorted = $this->khachHangModel->sort($sortValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($sorted);
+            $numOfPages = $this->getNumOfPages($sorted['pages']);
+
+            $sorted['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
             $this->changeProp($sorted);
 
-            return [
-                'KHSorted' => $sorted,
-                'KHSortedPages' => $numOfPages
-            ];
+            return $sorted;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để lọc");
         }
@@ -254,15 +265,14 @@ class KhachHangController extends BaseController
             $sortValues = $this->getSortValues();
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $filtered = $this->khachHangModel->filterAndSort($sortValues, $filterValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($filtered);
+            $numOfPages = $this->getNumOfPages($filtered['pages']);
+
+            $filtered['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
             $this->changeProp($filtered);
 
-            return [
-                'KHFiltered' => $filtered,
-                'KHFilteredPages' => $numOfPages
-            ];
+            return $filtered;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để lọc");
         }
@@ -297,13 +307,9 @@ class KhachHangController extends BaseController
         ];
     }
 
-    private function getNumOfPages($list = [])
+    private function getNumOfPages($number)
     {
-        if (empty($list)) {
-            return ceil($this->AllRowLength / $this->getPage()['limit']);
-        } else {
-            return ceil(count($list) / $this->getPage()['limit']);
-        }
+        return ceil((int) $number / $this->getPage()['limit']);
     }
 
     private function dieIfPageNotValid($numOfPages)
@@ -319,19 +325,21 @@ class KhachHangController extends BaseController
 
         $this->taikhoanModel = new TaiKhoanModel();
 
-        $length = count($list);
-        for ($i = 0; $i < $length; $i++) {
-            $list[$i]['taikhoan'] = $this->taikhoanModel->getRow('maTK', $list[$i]['maTK']);
-            unset($list[$i]['maTK']);
+        if ($list != null) {
+            $length = count($list);
+            for ($i = 0; $i < $length; $i++) {
+                $list[$i]['taikhoan'] = $this->taikhoanModel->getRow('maTK', $list[$i]['maTK']);
+                unset($list[$i]['maTK']);
+            }
+            return $list;
         }
-        return $list;
     }
 
     private function getPage()
     {
         return [
             'current' => isset($_GET['page']) ? $_GET['page'] : 1,
-            'limit' => 15
+            'limit' => $this->limit
         ];
     }
 }

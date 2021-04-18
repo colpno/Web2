@@ -9,10 +9,6 @@ class BaseController
         // foreach ($data as $key => $value) {
         //     $$key = $value;
         // }
-        if ($json == true) {
-            json_encode($data);
-        }
-
         $filePath = self::VIEW_PATH . $view . '.php';
         if (file_exists($filePath)) {
             require_once $filePath;

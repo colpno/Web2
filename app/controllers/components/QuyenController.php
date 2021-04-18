@@ -3,7 +3,7 @@ class QuyenController extends BaseController
 {
     private $quyenModel;
     private $AllRowLength;
-    private $uploadInstance;
+    private $limit = 15;
     private $alert;
 
     public function __construct()
@@ -13,20 +13,6 @@ class QuyenController extends BaseController
         $this->alert = new Other();
     }
 
-    public function findMax($col)
-    {
-        $found = $this->quyenModel->getMaxCol($col);
-
-        return  $found;
-    }
-
-    public function findMin($col)
-    {
-        $found = $this->quyenModel->getMinCol($col);
-
-        return $found;
-    }
-
     public function countRow($col)
     {
         $number = $this->quyenModel->countRow($col);
@@ -34,20 +20,25 @@ class QuyenController extends BaseController
         return $number;
     }
 
-    public function get()
+    public function get($page = [])
     {
         if (!$this->AllRowLength) {
             $this->AllRowLength = array_values($this->quyenModel->countRow())[0];
         }
-        $quyen = $this->quyenModel->get($this->getPage());
-        $numOfPages = $this->getNumOfPages();
+        $quyen = [];
+        if (!empty($page)) {
+            $page['limit'] = $this->getPage()['limit'];
+            $quyen = $this->quyenModel->get($page);
+        } else {
+            $quyen = $this->quyenModel->get($this->getPage());
+        }
+        $numOfPages = $this->getNumOfPages($quyen['pages']);
+
+        $quyen['pages'] = $numOfPages;
 
         $this->dieIfPageNotValid($numOfPages);
 
-        return [
-            'QuArr' => $quyen,
-            'QuPages' => $numOfPages
-        ];
+        return $quyen;
     }
 
     public function add($data)
@@ -56,10 +47,11 @@ class QuyenController extends BaseController
             $data['tenQuyen']
         ) {
             $maxID = array_values($this->quyenModel->getMaxCol())[0];
-            $fileName = "Qu-" .  ($maxID + 1);
 
-            $values = $this->getValues($data);;
-            $this->quyenModel->post($values, $maxID + 1);
+
+
+            $values = $this->getValues($data);
+            $this->quyenModel->post($values);
             return $this->get();
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để thêm");
@@ -72,7 +64,8 @@ class QuyenController extends BaseController
             $data['maQuyen']
             && $data['tenQuyen']
         ) {
-            $id = $data['maQuyen'];
+            $id = $data['maSP'];
+            //  
             $values = $this->getValues($data);
             $this->quyenModel->update($values, $id);
             return $this->get();
@@ -86,8 +79,14 @@ class QuyenController extends BaseController
         if (
             $data['maQuyen']
         ) {
-            $this->quyenModel->delete($data['maQuyen']);
-            return $this->get();
+            $remove = [
+                'id' => $data['maSP'],
+                'imgPath' => $data['anhDaiDien']
+            ];
+            return [
+                'error' => $this->quyenModel->delete($remove),
+                'data' => $this->get()
+            ];
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để xóa");
         }
@@ -99,17 +98,32 @@ class QuyenController extends BaseController
             $data['search']
         ) {
             $found = $this->quyenModel->find($data['search'], $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'QuFound' => $found,
-                'QuFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
+    }
+
+    public function findMax($col)
+    {
+        $found = $this->quyenModel->getMaxCol($col);
+
+
+        return  $found;
+    }
+
+    public function findMin($col)
+    {
+        $found = $this->quyenModel->getMinCol($col);
+
+
+        return $found;
     }
 
     public function findWithFilter($data)
@@ -122,14 +136,13 @@ class QuyenController extends BaseController
         ) {
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $found = $this->quyenModel->findWithFilter($data['search'], $filterValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'QuFound' => $found,
-                'QuFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
@@ -144,14 +157,13 @@ class QuyenController extends BaseController
         ) {
             $sortValues = $this->getSortValues();
             $found = $this->quyenModel->findWithSort($data['search'], $sortValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'QuFound' => $found,
-                'QuFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
@@ -168,14 +180,13 @@ class QuyenController extends BaseController
             $sortValues = $this->getSortValues();
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $found = $this->quyenModel->findWithFilterAndSort($data['search'], $filterValues, $sortValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'QuFound' => $found,
-                'QuFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
@@ -190,14 +201,13 @@ class QuyenController extends BaseController
         ) {
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $filtered = $this->quyenModel->filter($filterValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($filtered);
+            $numOfPages = $this->getNumOfPages($filtered['pages']);
+
+            $filtered['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'QuFiltered' => $filtered,
-                'QuFilteredPages' => $numOfPages
-            ];
+            return $filtered;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để lọc");
         }
@@ -211,14 +221,13 @@ class QuyenController extends BaseController
         ) {
             $sortValues = $this->getSortValues();
             $sorted = $this->quyenModel->sort($sortValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($sorted);
+            $numOfPages = $this->getNumOfPages($sorted['pages']);
+
+            $sorted['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'QuSorted' => $sorted,
-                'QuSortedPages' => $numOfPages
-            ];
+            return $sorted;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để lọc");
         }
@@ -236,14 +245,13 @@ class QuyenController extends BaseController
             $sortValues = $this->getSortValues();
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $filtered = $this->quyenModel->filterAndSort($sortValues, $filterValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($filtered);
+            $numOfPages = $this->getNumOfPages($filtered['pages']);
+
+            $filtered['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'QuFiltered' => $filtered,
-                'QuFilteredPages' => $numOfPages
-            ];
+            return $filtered;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để lọc");
         }
@@ -273,13 +281,9 @@ class QuyenController extends BaseController
         ];
     }
 
-    private function getNumOfPages($list = [])
+    private function getNumOfPages($number)
     {
-        if (empty($list)) {
-            return ceil($this->AllRowLength / $this->getPage()['limit']);
-        } else {
-            return ceil(count($list) / $this->getPage()['limit']);
-        }
+        return ceil((int) $number / $this->getPage()['limit']);
     }
 
     private function dieIfPageNotValid($numOfPages)
@@ -293,7 +297,7 @@ class QuyenController extends BaseController
     {
         return [
             'current' => isset($_GET['page']) ? $_GET['page'] : 1,
-            'limit' => 15
+            'limit' => $this->limit
         ];
     }
 }

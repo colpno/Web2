@@ -38,7 +38,8 @@ a {
 }
 
 .hidden {
-    display: none;
+    display: none !important;
+    opacity: 0 !important;
 }
 
 .center {
@@ -50,6 +51,12 @@ a {
 .center-left {
     display: flex;
     align-items: center;
+}
+
+.center-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
 }
 
 .sidebar-menu {

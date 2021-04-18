@@ -3,7 +3,7 @@ class ChiTietPhieuNhapHangController extends BaseController
 {
     private $chiTietPhieuNhapHangModel;
     private $AllRowLength;
-    private $uploadInstance;
+    private $limit = 15;
     private $alert;
 
     public function __construct()
@@ -13,20 +13,6 @@ class ChiTietPhieuNhapHangController extends BaseController
         $this->alert = new Other();
     }
 
-    public function findMax($col)
-    {
-        $found = $this->chiTietPhieuNhapHangModel->getMaxCol($col);
-
-        return $found;
-    }
-
-    public function findMin($col)
-    {
-        $found = $this->chiTietPhieuNhapHangModel->getMinCol($col);
-
-        return $found;
-    }
-
     public function countRow($col)
     {
         $number = $this->chiTietPhieuNhapHangModel->countRow($col);
@@ -34,20 +20,25 @@ class ChiTietPhieuNhapHangController extends BaseController
         return $number;
     }
 
-    public function get()
+    public function get($page = [])
     {
         if (!$this->AllRowLength) {
             $this->AllRowLength = array_values($this->chiTietPhieuNhapHangModel->countRow())[0];
         }
-        $chiTietPhieuNhapHang = $this->chiTietPhieuNhapHangModel->get($this->getPage());
-        $numOfPages = $this->getNumOfPages();
+        $chiTietPhieuNhapHang = [];
+        if (!empty($page)) {
+            $page['limit'] = $this->getPage()['limit'];
+            $chiTietPhieuNhapHang = $this->chiTietPhieuNhapHangModel->get($page);
+        } else {
+            $chiTietPhieuNhapHang = $this->chiTietPhieuNhapHangModel->get($this->getPage());
+        }
+        $numOfPages = $this->getNumOfPages($chiTietPhieuNhapHang['pages']);
+
+        $chiTietPhieuNhapHang['pages'] = $numOfPages;
 
         $this->dieIfPageNotValid($numOfPages);
 
-        return [
-            'CTPNHArr' => $chiTietPhieuNhapHang,
-            'CTPNHPages' => $numOfPages
-        ];
+        return $chiTietPhieuNhapHang;
     }
 
     public function add($data)
@@ -60,10 +51,11 @@ class ChiTietPhieuNhapHangController extends BaseController
             && $data['thanhTien']
         ) {
             $maxID = array_values($this->chiTietPhieuNhapHangModel->getMaxCol())[0];
-            $fileName = "CTPNH-" .  ($maxID + 1);
 
-            $values = $this->getValues($data);;
-            $this->chiTietPhieuNhapHangModel->post($values, $maxID + 1);
+
+
+            $values = $this->getValues($data);
+            $this->chiTietPhieuNhapHangModel->post($values);
             return $this->get();
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để thêm");
@@ -80,6 +72,7 @@ class ChiTietPhieuNhapHangController extends BaseController
             && $data['thanhTien']
         ) {
             $id = $data['maSP'];
+            //  
             $values = $this->getValues($data);
             $this->chiTietPhieuNhapHangModel->update($values, $id);
             return $this->get();
@@ -93,8 +86,14 @@ class ChiTietPhieuNhapHangController extends BaseController
         if (
             $data['maSP']
         ) {
-            $this->chiTietPhieuNhapHangModel->delete($data['maSP']);
-            return $this->get();
+            $remove = [
+                'id' => $data['maSP'],
+                'imgPath' => $data['anhDaiDien']
+            ];
+            return [
+                'error' => $this->chiTietPhieuNhapHangModel->delete($remove),
+                'data' => $this->get()
+            ];
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để xóa");
         }
@@ -106,17 +105,32 @@ class ChiTietPhieuNhapHangController extends BaseController
             $data['search']
         ) {
             $found = $this->chiTietPhieuNhapHangModel->find($data['search'], $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'CTPNHFound' => $found,
-                'CTPNHFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
+    }
+
+    public function findMax($col)
+    {
+        $found = $this->chiTietPhieuNhapHangModel->getMaxCol($col);
+
+
+        return  $found;
+    }
+
+    public function findMin($col)
+    {
+        $found = $this->chiTietPhieuNhapHangModel->getMinCol($col);
+
+
+        return $found;
     }
 
     public function findWithFilter($data)
@@ -129,14 +143,13 @@ class ChiTietPhieuNhapHangController extends BaseController
         ) {
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $found = $this->chiTietPhieuNhapHangModel->findWithFilter($data['search'], $filterValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'CTPNHFound' => $found,
-                'CTPNHFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
@@ -151,14 +164,13 @@ class ChiTietPhieuNhapHangController extends BaseController
         ) {
             $sortValues = $this->getSortValues();
             $found = $this->chiTietPhieuNhapHangModel->findWithSort($data['search'], $sortValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'CTPNHFound' => $found,
-                'CTPNHFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
@@ -175,14 +187,13 @@ class ChiTietPhieuNhapHangController extends BaseController
             $sortValues = $this->getSortValues();
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $found = $this->chiTietPhieuNhapHangModel->findWithFilterAndSort($data['search'], $filterValues, $sortValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'CTPNHFound' => $found,
-                'CTPNHFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
@@ -197,14 +208,13 @@ class ChiTietPhieuNhapHangController extends BaseController
         ) {
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $filtered = $this->chiTietPhieuNhapHangModel->filter($filterValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($filtered);
+            $numOfPages = $this->getNumOfPages($filtered['pages']);
+
+            $filtered['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'CTPNHFiltered' => $filtered,
-                'CTPNHFilteredPages' => $numOfPages
-            ];
+            return $filtered;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để lọc");
         }
@@ -218,14 +228,13 @@ class ChiTietPhieuNhapHangController extends BaseController
         ) {
             $sortValues = $this->getSortValues();
             $sorted = $this->chiTietPhieuNhapHangModel->sort($sortValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($sorted);
+            $numOfPages = $this->getNumOfPages($sorted['pages']);
+
+            $sorted['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'CTPNHSorted' => $sorted,
-                'CTPNHSortedPages' => $numOfPages
-            ];
+            return $sorted;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để lọc");
         }
@@ -243,14 +252,13 @@ class ChiTietPhieuNhapHangController extends BaseController
             $sortValues = $this->getSortValues();
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $filtered = $this->chiTietPhieuNhapHangModel->filterAndSort($sortValues, $filterValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($filtered);
+            $numOfPages = $this->getNumOfPages($filtered['pages']);
+
+            $filtered['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'CTPNHFiltered' => $filtered,
-                'CTPNHFilteredPages' => $numOfPages
-            ];
+            return $filtered;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để lọc");
         }
@@ -284,13 +292,9 @@ class ChiTietPhieuNhapHangController extends BaseController
         ];
     }
 
-    private function getNumOfPages($list = [])
+    private function getNumOfPages($number)
     {
-        if (empty($list)) {
-            return ceil($this->AllRowLength / $this->getPage()['limit']);
-        } else {
-            return ceil(count($list) / $this->getPage()['limit']);
-        }
+        return ceil((int) $number / $this->getPage()['limit']);
     }
 
     private function dieIfPageNotValid($numOfPages)
@@ -304,7 +308,7 @@ class ChiTietPhieuNhapHangController extends BaseController
     {
         return [
             'current' => isset($_GET['page']) ? $_GET['page'] : 1,
-            'limit' => 15
+            'limit' => $this->limit
         ];
     }
 }

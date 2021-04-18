@@ -47,9 +47,20 @@ class SanPhamModel extends BaseModel
         }
     }
 
-    public function get($page)
+    public function selectDisplay()
     {
-        return $this->getMethod(self::TABLE_NAME, $page);
+        return $this->selectDisplayMethod(self::TABLE_NAME, $this->primaryCol, 'tenSP', 'donViTinh');
+    }
+
+    public function get($page, $order)
+    {
+        if (!empty($order)) {
+            $order = [
+                'order' => $order,
+                'col' => $this->primaryCol
+            ];
+        }
+        return $this->getMethod(self::TABLE_NAME, $page, $order);
     }
 
     public function post($data = [])

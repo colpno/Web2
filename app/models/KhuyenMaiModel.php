@@ -47,14 +47,25 @@ class KhuyenMaiModel extends BaseModel
         }
     }
 
-    public function get($page)
+    public function get($page, $order = '')
     {
-        return $this->getMethod(self::TABLE_NAME, $page);
+        if (!empty($order)) {
+            $order = [
+                'order' => $order,
+                'col' => $this->primaryCol
+            ];
+        }
+        return $this->getMethod(self::TABLE_NAME, $page, $order);
     }
 
-    public function post($data = [], $number)
+    public function selectDisplay()
     {
-        return $this->postMethod(self::TABLE_NAME, $data, $number);
+        return $this->selectDisplayMethod(self::TABLE_NAME, $this->primaryCol, 'tenSP', 'donViTinh');
+    }
+
+    public function post($data = [])
+    {
+        return $this->postMethod(self::TABLE_NAME, $data);
     }
 
     public function update($data = [], $id)

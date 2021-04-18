@@ -3,7 +3,7 @@ class NhaCungCapController extends BaseController
 {
     private $nhaCungCapModel;
     private $AllRowLength;
-    private $uploadInstance;
+    private $limit = 15;
     private $alert;
 
     public function __construct()
@@ -13,20 +13,6 @@ class NhaCungCapController extends BaseController
         $this->alert = new Other();
     }
 
-    public function findMax($col)
-    {
-        $found = $this->nhaCungCapModel->getMaxCol($col);
-
-        return  $found;
-    }
-
-    public function findMin($col)
-    {
-        $found = $this->nhaCungCapModel->getMinCol($col);
-
-        return $found;
-    }
-
     public function countRow($col)
     {
         $number = $this->nhaCungCapModel->countRow($col);
@@ -34,20 +20,25 @@ class NhaCungCapController extends BaseController
         return $number;
     }
 
-    public function get()
+    public function get($page = [])
     {
         if (!$this->AllRowLength) {
             $this->AllRowLength = array_values($this->nhaCungCapModel->countRow())[0];
         }
-        $nhaCungCap = $this->nhaCungCapModel->get($this->getPage());
-        $numOfPages = $this->getNumOfPages();
+        $nhaCungCap = [];
+        if (!empty($page)) {
+            $page['limit'] = $this->getPage()['limit'];
+            $nhaCungCap = $this->nhaCungCapModel->get($page);
+        } else {
+            $nhaCungCap = $this->nhaCungCapModel->get($this->getPage());
+        }
+        $numOfPages = $this->getNumOfPages($nhaCungCap['pages']);
+
+        $nhaCungCap['pages'] = $numOfPages;
 
         $this->dieIfPageNotValid($numOfPages);
 
-        return [
-            'NCCArr' => $nhaCungCap,
-            'NCCPages' => $numOfPages
-        ];
+        return $nhaCungCap;
     }
 
     public function add($data)
@@ -58,10 +49,11 @@ class NhaCungCapController extends BaseController
             && $data['soDienThoai']
         ) {
             $maxID = array_values($this->nhaCungCapModel->getMaxCol())[0];
-            $fileName = "NCC-" .  ($maxID + 1);
 
-            $values = $this->getValues($data);;
-            $this->nhaCungCapModel->post($values, $maxID + 1);
+
+
+            $values = $this->getValues($data);
+            $this->nhaCungCapModel->post($values);
             return $this->get();
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để thêm");
@@ -76,7 +68,8 @@ class NhaCungCapController extends BaseController
             && $data['diaChi']
             && $data['soDienThoai']
         ) {
-            $id = $data['maNCC'];
+            $id = $data['maSP'];
+            //  
             $values = $this->getValues($data);
             $this->nhaCungCapModel->update($values, $id);
             return $this->get();
@@ -90,8 +83,14 @@ class NhaCungCapController extends BaseController
         if (
             $data['maNCC']
         ) {
-            $this->nhaCungCapModel->delete($data['maNCC']);
-            return $this->get();
+            $remove = [
+                'id' => $data['maSP'],
+                'imgPath' => $data['anhDaiDien']
+            ];
+            return [
+                'error' => $this->nhaCungCapModel->delete($remove),
+                'data' => $this->get()
+            ];
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để xóa");
         }
@@ -103,17 +102,32 @@ class NhaCungCapController extends BaseController
             $data['search']
         ) {
             $found = $this->nhaCungCapModel->find($data['search'], $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'NCCFound' => $found,
-                'NCCFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
+    }
+
+    public function findMax($col)
+    {
+        $found = $this->nhaCungCapModel->getMaxCol($col);
+
+
+        return  $found;
+    }
+
+    public function findMin($col)
+    {
+        $found = $this->nhaCungCapModel->getMinCol($col);
+
+
+        return $found;
     }
 
     public function findWithFilter($data)
@@ -126,14 +140,13 @@ class NhaCungCapController extends BaseController
         ) {
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $found = $this->nhaCungCapModel->findWithFilter($data['search'], $filterValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'NCCFound' => $found,
-                'NCCFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
@@ -148,14 +161,13 @@ class NhaCungCapController extends BaseController
         ) {
             $sortValues = $this->getSortValues();
             $found = $this->nhaCungCapModel->findWithSort($data['search'], $sortValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'NCCFound' => $found,
-                'NCCFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
@@ -172,14 +184,13 @@ class NhaCungCapController extends BaseController
             $sortValues = $this->getSortValues();
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $found = $this->nhaCungCapModel->findWithFilterAndSort($data['search'], $filterValues, $sortValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'NCCFound' => $found,
-                'NCCFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
@@ -194,14 +205,13 @@ class NhaCungCapController extends BaseController
         ) {
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $filtered = $this->nhaCungCapModel->filter($filterValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($filtered);
+            $numOfPages = $this->getNumOfPages($filtered['pages']);
+
+            $filtered['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'NCCFiltered' => $filtered,
-                'NCCFilteredPages' => $numOfPages
-            ];
+            return $filtered;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để lọc");
         }
@@ -215,14 +225,13 @@ class NhaCungCapController extends BaseController
         ) {
             $sortValues = $this->getSortValues();
             $sorted = $this->nhaCungCapModel->sort($sortValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($sorted);
+            $numOfPages = $this->getNumOfPages($sorted['pages']);
+
+            $sorted['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'NCCSorted' => $sorted,
-                'NCCSortedPages' => $numOfPages
-            ];
+            return $sorted;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để lọc");
         }
@@ -240,14 +249,13 @@ class NhaCungCapController extends BaseController
             $sortValues = $this->getSortValues();
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $filtered = $this->nhaCungCapModel->filterAndSort($sortValues, $filterValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($filtered);
+            $numOfPages = $this->getNumOfPages($filtered['pages']);
+
+            $filtered['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'NCCFiltered' => $filtered,
-                'NCCFilteredPages' => $numOfPages
-            ];
+            return $filtered;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để lọc");
         }
@@ -279,13 +287,9 @@ class NhaCungCapController extends BaseController
         ];
     }
 
-    private function getNumOfPages($list = [])
+    private function getNumOfPages($number)
     {
-        if (empty($list)) {
-            return ceil($this->AllRowLength / $this->getPage()['limit']);
-        } else {
-            return ceil(count($list) / $this->getPage()['limit']);
-        }
+        return ceil((int) $number / $this->getPage()['limit']);
     }
 
     private function dieIfPageNotValid($numOfPages)
@@ -299,7 +303,7 @@ class NhaCungCapController extends BaseController
     {
         return [
             'current' => isset($_GET['page']) ? $_GET['page'] : 1,
-            'limit' => 15
+            'limit' => $this->limit
         ];
     }
 }

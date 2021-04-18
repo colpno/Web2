@@ -3,7 +3,7 @@ class LoaiSanPhamController extends BaseController
 {
     private $loaiSanPhamModel;
     private $AllRowLength;
-    private $uploadInstance;
+    private $limit = 15;
     private $alert;
 
     public function __construct()
@@ -13,20 +13,6 @@ class LoaiSanPhamController extends BaseController
         $this->alert = new Other();
     }
 
-    public function findMax($col)
-    {
-        $found = $this->loaiSanPhamModel->getMaxCol($col);
-
-        return  $found;
-    }
-
-    public function findMin($col)
-    {
-        $found = $this->loaiSanPhamModel->getMinCol($col);
-
-        return $found;
-    }
-
     public function countRow($col)
     {
         $number = $this->loaiSanPhamModel->countRow($col);
@@ -34,20 +20,30 @@ class LoaiSanPhamController extends BaseController
         return $number;
     }
 
-    public function get()
+    public function get($page = [])
     {
         if (!$this->AllRowLength) {
             $this->AllRowLength = array_values($this->loaiSanPhamModel->countRow())[0];
         }
-        $loaiSanPham = $this->loaiSanPhamModel->get($this->getPage());
-        $numOfPages = $this->getNumOfPages();
+        $loaiSanPham = [];
+        if (!empty($page)) {
+            $page['limit'] = $this->getPage()['limit'];
+            $loaiSanPham = $this->loaiSanPhamModel->get($page);
+        } else {
+            $loaiSanPham = $this->loaiSanPhamModel->get($this->getPage());
+        }
+        $numOfPages = $this->getNumOfPages($loaiSanPham['pages']);
+
+        $loaiSanPham['pages'] = $numOfPages;
 
         $this->dieIfPageNotValid($numOfPages);
 
-        return [
-            'LSPArr' => $loaiSanPham,
-            'LSPPages' => $numOfPages
-        ];
+        return $loaiSanPham;
+    }
+
+    public function selectDisplay()
+    {
+        return $this->loaiSanPhamModel->selectDisplay();
     }
 
     public function add($data)
@@ -56,10 +52,11 @@ class LoaiSanPhamController extends BaseController
             $data['tenLoai']
         ) {
             $maxID = array_values($this->loaiSanPhamModel->getMaxCol())[0];
-            $fileName = "LSP-" .  ($maxID + 1);
 
-            $values = $this->getValues($data);;
-            $this->loaiSanPhamModel->post($values, $maxID + 1);
+
+
+            $values = $this->getValues($data);
+            $this->loaiSanPhamModel->post($values);
             return $this->get();
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để thêm");
@@ -72,7 +69,8 @@ class LoaiSanPhamController extends BaseController
             $data['maLoai']
             && $data['tenLoai']
         ) {
-            $id = $data['maLoai'];
+            $id = $data['maSP'];
+            //  
             $values = $this->getValues($data);
             $this->loaiSanPhamModel->update($values, $id);
             return $this->get();
@@ -86,8 +84,14 @@ class LoaiSanPhamController extends BaseController
         if (
             $data['maLoai']
         ) {
-            $this->loaiSanPhamModel->delete($data['maLoai']);
-            return $this->get();
+            $remove = [
+                'id' => $data['maSP'],
+                'imgPath' => $data['anhDaiDien']
+            ];
+            return [
+                'error' => $this->loaiSanPhamModel->delete($remove),
+                'data' => $this->get()
+            ];
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để xóa");
         }
@@ -99,17 +103,32 @@ class LoaiSanPhamController extends BaseController
             $data['search']
         ) {
             $found = $this->loaiSanPhamModel->find($data['search'], $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'LSPFound' => $found,
-                'LSPFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
+    }
+
+    public function findMax($col)
+    {
+        $found = $this->loaiSanPhamModel->getMaxCol($col);
+
+
+        return  $found;
+    }
+
+    public function findMin($col)
+    {
+        $found = $this->loaiSanPhamModel->getMinCol($col);
+
+
+        return $found;
     }
 
     public function findWithFilter($data)
@@ -122,14 +141,13 @@ class LoaiSanPhamController extends BaseController
         ) {
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $found = $this->loaiSanPhamModel->findWithFilter($data['search'], $filterValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'LSPFound' => $found,
-                'LSPFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
@@ -144,14 +162,13 @@ class LoaiSanPhamController extends BaseController
         ) {
             $sortValues = $this->getSortValues();
             $found = $this->loaiSanPhamModel->findWithSort($data['search'], $sortValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'LSPFound' => $found,
-                'LSPFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
@@ -168,14 +185,13 @@ class LoaiSanPhamController extends BaseController
             $sortValues = $this->getSortValues();
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $found = $this->loaiSanPhamModel->findWithFilterAndSort($data['search'], $filterValues, $sortValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'LSPFound' => $found,
-                'LSPFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
@@ -190,14 +206,13 @@ class LoaiSanPhamController extends BaseController
         ) {
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $filtered = $this->loaiSanPhamModel->filter($filterValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($filtered);
+            $numOfPages = $this->getNumOfPages($filtered['pages']);
+
+            $filtered['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'LSPFiltered' => $filtered,
-                'LSPFilteredPages' => $numOfPages
-            ];
+            return $filtered;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để lọc");
         }
@@ -211,14 +226,13 @@ class LoaiSanPhamController extends BaseController
         ) {
             $sortValues = $this->getSortValues();
             $sorted = $this->loaiSanPhamModel->sort($sortValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($sorted);
+            $numOfPages = $this->getNumOfPages($sorted['pages']);
+
+            $sorted['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'LSPSorted' => $sorted,
-                'LSPSortedPages' => $numOfPages
-            ];
+            return $sorted;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để lọc");
         }
@@ -236,14 +250,13 @@ class LoaiSanPhamController extends BaseController
             $sortValues = $this->getSortValues();
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $filtered = $this->loaiSanPhamModel->filterAndSort($sortValues, $filterValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($filtered);
+            $numOfPages = $this->getNumOfPages($filtered['pages']);
+
+            $filtered['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'LSPFiltered' => $filtered,
-                'LSPFilteredPages' => $numOfPages
-            ];
+            return $filtered;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để lọc");
         }
@@ -273,13 +286,9 @@ class LoaiSanPhamController extends BaseController
         ];
     }
 
-    private function getNumOfPages($list = [])
+    private function getNumOfPages($number)
     {
-        if (empty($list)) {
-            return ceil($this->AllRowLength / $this->getPage()['limit']);
-        } else {
-            return ceil(count($list) / $this->getPage()['limit']);
-        }
+        return ceil((int) $number / $this->getPage()['limit']);
     }
 
     private function dieIfPageNotValid($numOfPages)
@@ -293,7 +302,7 @@ class LoaiSanPhamController extends BaseController
     {
         return [
             'current' => isset($_GET['page']) ? $_GET['page'] : 1,
-            'limit' => 15
+            'limit' => $this->limit
         ];
     }
 }

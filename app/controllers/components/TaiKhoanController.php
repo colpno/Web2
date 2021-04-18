@@ -5,6 +5,7 @@ class TaiKhoanController extends BaseController
     private $quyenModel;
     private $AllRowLength;
     private $uploadInstance;
+    private $limit = 15;
     private $alert;
 
     public function __construct()
@@ -15,20 +16,6 @@ class TaiKhoanController extends BaseController
         $this->alert = new Other();
     }
 
-    public function findMax($col)
-    {
-        $found = $this->taiKhoanModel->getMaxCol($col);
-
-        return  $found;
-    }
-
-    public function findMin($col)
-    {
-        $found = $this->taiKhoanModel->getMinCol($col);
-
-        return $found;
-    }
-
     public function countRow($col)
     {
         $number = $this->taiKhoanModel->countRow($col);
@@ -36,21 +23,26 @@ class TaiKhoanController extends BaseController
         return $number;
     }
 
-    public function get()
+    public function get($page = [])
     {
         if (!$this->AllRowLength) {
             $this->AllRowLength = array_values($this->taiKhoanModel->countRow())[0];
         }
-        $taiKhoan = $this->taiKhoanModel->get($this->getPage());
-        $numOfPages = $this->getNumOfPages();
+        $taiKhoan = [];
+        if (!empty($page)) {
+            $page['limit'] = $this->getPage()['limit'];
+            $taiKhoan = $this->taiKhoanModel->get($page);
+        } else {
+            $taiKhoan = $this->taiKhoanModel->get($this->getPage());
+        }
+        $numOfPages = $this->getNumOfPages($taiKhoan['pages']);
+
+        $taiKhoan['pages'] = $numOfPages;
 
         $this->dieIfPageNotValid($numOfPages);
         $this->changeProp($taiKhoan);
 
-        return [
-            'TKArr' => $taiKhoan,
-            'TKPages' => $numOfPages
-        ];
+        return $taiKhoan;
     }
 
     public function add($data)
@@ -62,11 +54,11 @@ class TaiKhoanController extends BaseController
             && $data['anhDaiDien']
         ) {
             $maxID = array_values($this->taiKhoanModel->getMaxCol())[0];
-            $fileName = "TK-" .  ($maxID + 1);
+            $fileName = "SP-" .  ($maxID + 1);
             $this->uploadInstance->upload($fileName);
 
-            $values = $this->getValues($data);;
-            $this->taiKhoanModel->post($values, $maxID + 1);
+            $values = $this->getValues($data);
+            $this->taiKhoanModel->post($values);
             return $this->get();
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để thêm");
@@ -82,8 +74,8 @@ class TaiKhoanController extends BaseController
             && $data['matKhau']
             && $data['anhDaiDien']
         ) {
-            $id = $data['maTK'];
-            $this->uploadInstance->upload("TK-" . $id);
+            $id = $data['maSP'];
+            // $this->uploadInstance->upload("SP-" . $id);
             $values = $this->getValues($data);
             $this->taiKhoanModel->update($values, $id);
             return $this->get();
@@ -99,11 +91,13 @@ class TaiKhoanController extends BaseController
             && $data['anhDaiDien']
         ) {
             $remove = [
-                'id' => $data['maTK'],
+                'id' => $data['maSP'],
                 'imgPath' => $data['anhDaiDien']
             ];
-            $this->taiKhoanModel->delete($remove);
-            return $this->get();
+            return [
+                'error' => $this->taiKhoanModel->delete($remove),
+                'data' => $this->get()
+            ];
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để xóa");
         }
@@ -115,18 +109,35 @@ class TaiKhoanController extends BaseController
             $data['search']
         ) {
             $found = $this->taiKhoanModel->find($data['search'], $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
             $this->changeProp($found);
 
-            return [
-                'TKFound' => $found,
-                'TKFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
+    }
+
+    public function findMax($col)
+    {
+        $found = $this->taiKhoanModel->getMaxCol($col);
+
+        $this->changeProp($found);
+
+        return  $found;
+    }
+
+    public function findMin($col)
+    {
+        $found = $this->taiKhoanModel->getMinCol($col);
+
+        $this->changeProp($found);
+
+        return $found;
     }
 
     public function findWithFilter($data)
@@ -139,15 +150,14 @@ class TaiKhoanController extends BaseController
         ) {
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $found = $this->taiKhoanModel->findWithFilter($data['search'], $filterValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
             $this->changeProp($found);
 
-            return [
-                'TKFound' => $found,
-                'TKFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
@@ -162,15 +172,14 @@ class TaiKhoanController extends BaseController
         ) {
             $sortValues = $this->getSortValues();
             $found = $this->taiKhoanModel->findWithSort($data['search'], $sortValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
             $this->changeProp($found);
 
-            return [
-                'TKFound' => $found,
-                'TKFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
@@ -187,15 +196,14 @@ class TaiKhoanController extends BaseController
             $sortValues = $this->getSortValues();
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $found = $this->taiKhoanModel->findWithFilterAndSort($data['search'], $filterValues, $sortValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
             $this->changeProp($found);
 
-            return [
-                'TKFound' => $found,
-                'TKFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
@@ -210,15 +218,14 @@ class TaiKhoanController extends BaseController
         ) {
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $filtered = $this->taiKhoanModel->filter($filterValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($filtered);
+            $numOfPages = $this->getNumOfPages($filtered['pages']);
+
+            $filtered['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
             $this->changeProp($filtered);
 
-            return [
-                'TKFiltered' => $filtered,
-                'TKFilteredPages' => $numOfPages
-            ];
+            return $filtered;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để lọc");
         }
@@ -232,15 +239,14 @@ class TaiKhoanController extends BaseController
         ) {
             $sortValues = $this->getSortValues();
             $sorted = $this->taiKhoanModel->sort($sortValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($sorted);
+            $numOfPages = $this->getNumOfPages($sorted['pages']);
+
+            $sorted['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
             $this->changeProp($sorted);
 
-            return [
-                'TKSorted' => $sorted,
-                'TKSortedPages' => $numOfPages
-            ];
+            return $sorted;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để lọc");
         }
@@ -258,15 +264,14 @@ class TaiKhoanController extends BaseController
             $sortValues = $this->getSortValues();
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $filtered = $this->taiKhoanModel->filterAndSort($sortValues, $filterValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($filtered);
+            $numOfPages = $this->getNumOfPages($filtered['pages']);
+
+            $filtered['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
             $this->changeProp($filtered);
 
-            return [
-                'TKFiltered' => $filtered,
-                'TKFilteredPages' => $numOfPages
-            ];
+            return $filtered;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để lọc");
         }
@@ -301,13 +306,9 @@ class TaiKhoanController extends BaseController
         ];
     }
 
-    private function getNumOfPages($list = [])
+    private function getNumOfPages($number)
     {
-        if (empty($list)) {
-            return ceil($this->AllRowLength / $this->getPage()['limit']);
-        } else {
-            return ceil(count($list) / $this->getPage()['limit']);
-        }
+        return ceil((int) $number / $this->getPage()['limit']);
     }
 
     private function dieIfPageNotValid($numOfPages)
@@ -335,7 +336,7 @@ class TaiKhoanController extends BaseController
     {
         return [
             'current' => isset($_GET['page']) ? $_GET['page'] : 1,
-            'limit' => 15
+            'limit' => $this->limit
         ];
     }
 }

@@ -3,7 +3,7 @@ class ChiTietKhuyenMaiController extends BaseController
 {
     private $chiTietKhuyenMaiModel;
     private $AllRowLength;
-    private $uploadInstance;
+    private $limit = 15;
     private $alert;
 
     public function __construct()
@@ -13,20 +13,6 @@ class ChiTietKhuyenMaiController extends BaseController
         $this->alert = new Other();
     }
 
-    public function findMax($col)
-    {
-        $found = $this->chiTietKhuyenMaiModel->getMaxCol($col);
-
-        return $found;
-    }
-
-    public function findMin($col)
-    {
-        $found = $this->chiTietKhuyenMaiModel->getMinCol($col);
-
-        return $found;
-    }
-
     public function countRow($col)
     {
         $number = $this->chiTietKhuyenMaiModel->countRow($col);
@@ -34,20 +20,28 @@ class ChiTietKhuyenMaiController extends BaseController
         return $number;
     }
 
-    public function get()
+    public function get($page = [])
     {
         if (!$this->AllRowLength) {
             $this->AllRowLength = array_values($this->chiTietKhuyenMaiModel->countRow())[0];
         }
-        $chiTietKhuyenMai = $this->chiTietKhuyenMaiModel->get($this->getPage());
-        $numOfPages = $this->getNumOfPages();
+        $chiTietKhuyenMai = [];
+        if (!empty($page)) {
+            $page['limit'] = $this->getPage()['limit'];
+            if (!isset($page['current'])) {
+                $page['current'] = $this->getPage()['current'];
+            }
+            $chiTietKhuyenMai = $this->chiTietKhuyenMaiModel->get($page);
+        } else {
+            $chiTietKhuyenMai = $this->chiTietKhuyenMaiModel->get($this->getPage());
+        }
+        $numOfPages = $this->getNumOfPages($chiTietKhuyenMai['pages']);
+
+        $chiTietKhuyenMai['pages'] = $numOfPages;
 
         $this->dieIfPageNotValid($numOfPages);
 
-        return [
-            'CTKMArr' => $chiTietKhuyenMai,
-            'CTKMPages' => $numOfPages
-        ];
+        return $chiTietKhuyenMai;
     }
 
     public function add($data)
@@ -59,10 +53,11 @@ class ChiTietKhuyenMaiController extends BaseController
             && $data['phanTramKhuyenMai']
         ) {
             $maxID = array_values($this->chiTietKhuyenMaiModel->getMaxCol())[0];
-            $fileName = "CTKM-" .  ($maxID + 1);
 
-            $values = $this->getValues($data);;
-            $this->chiTietKhuyenMaiModel->post($values, $maxID + 1);
+
+
+            $values = $this->getValues($data);
+            $this->chiTietKhuyenMaiModel->post($values);
             return $this->get();
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để thêm");
@@ -78,6 +73,7 @@ class ChiTietKhuyenMaiController extends BaseController
             && $data['phanTramKhuyenMai']
         ) {
             $id = $data['maSP'];
+            //  
             $values = $this->getValues($data);
             $this->chiTietKhuyenMaiModel->update($values, $id);
             return $this->get();
@@ -91,8 +87,14 @@ class ChiTietKhuyenMaiController extends BaseController
         if (
             $data['maSP']
         ) {
-            $this->chiTietKhuyenMaiModel->delete($data['maSP']);
-            return $this->get();
+            $remove = [
+                'id' => $data['maSP'],
+                'imgPath' => $data['anhDaiDien']
+            ];
+            return [
+                'error' => $this->chiTietKhuyenMaiModel->delete($remove),
+                'data' => $this->get()
+            ];
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để xóa");
         }
@@ -104,17 +106,32 @@ class ChiTietKhuyenMaiController extends BaseController
             $data['search']
         ) {
             $found = $this->chiTietKhuyenMaiModel->find($data['search'], $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'CTKMFound' => $found,
-                'CTKMFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
+    }
+
+    public function findMax($col)
+    {
+        $found = $this->chiTietKhuyenMaiModel->getMaxCol($col);
+
+
+        return  $found;
+    }
+
+    public function findMin($col)
+    {
+        $found = $this->chiTietKhuyenMaiModel->getMinCol($col);
+
+
+        return $found;
     }
 
     public function findWithFilter($data)
@@ -127,14 +144,13 @@ class ChiTietKhuyenMaiController extends BaseController
         ) {
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $found = $this->chiTietKhuyenMaiModel->findWithFilter($data['search'], $filterValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'CTKMFound' => $found,
-                'CTKMFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
@@ -149,14 +165,13 @@ class ChiTietKhuyenMaiController extends BaseController
         ) {
             $sortValues = $this->getSortValues();
             $found = $this->chiTietKhuyenMaiModel->findWithSort($data['search'], $sortValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'CTKMFound' => $found,
-                'CTKMFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
@@ -173,14 +188,13 @@ class ChiTietKhuyenMaiController extends BaseController
             $sortValues = $this->getSortValues();
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $found = $this->chiTietKhuyenMaiModel->findWithFilterAndSort($data['search'], $filterValues, $sortValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'CTKMFound' => $found,
-                'CTKMFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
@@ -195,14 +209,13 @@ class ChiTietKhuyenMaiController extends BaseController
         ) {
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $filtered = $this->chiTietKhuyenMaiModel->filter($filterValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($filtered);
+            $numOfPages = $this->getNumOfPages($filtered['pages']);
+
+            $filtered['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'CTKMFiltered' => $filtered,
-                'CTKMFilteredPages' => $numOfPages
-            ];
+            return $filtered;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để lọc");
         }
@@ -216,14 +229,13 @@ class ChiTietKhuyenMaiController extends BaseController
         ) {
             $sortValues = $this->getSortValues();
             $sorted = $this->chiTietKhuyenMaiModel->sort($sortValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($sorted);
+            $numOfPages = $this->getNumOfPages($sorted['pages']);
+
+            $sorted['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'CTKMSorted' => $sorted,
-                'CTKMSortedPages' => $numOfPages
-            ];
+            return $sorted;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để lọc");
         }
@@ -241,14 +253,13 @@ class ChiTietKhuyenMaiController extends BaseController
             $sortValues = $this->getSortValues();
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $filtered = $this->chiTietKhuyenMaiModel->filterAndSort($sortValues, $filterValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($filtered);
+            $numOfPages = $this->getNumOfPages($filtered['pages']);
+
+            $filtered['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'CTKMFiltered' => $filtered,
-                'CTKMFilteredPages' => $numOfPages
-            ];
+            return $filtered;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để lọc");
         }
@@ -281,13 +292,9 @@ class ChiTietKhuyenMaiController extends BaseController
         ];
     }
 
-    private function getNumOfPages($list = [])
+    private function getNumOfPages($number)
     {
-        if (empty($list)) {
-            return ceil($this->AllRowLength / $this->getPage()['limit']);
-        } else {
-            return ceil(count($list) / $this->getPage()['limit']);
-        }
+        return ceil((int) $number / $this->getPage()['limit']);
     }
 
     private function dieIfPageNotValid($numOfPages)
@@ -301,7 +308,7 @@ class ChiTietKhuyenMaiController extends BaseController
     {
         return [
             'current' => isset($_GET['page']) ? $_GET['page'] : 1,
-            'limit' => 15
+            'limit' => $this->limit
         ];
     }
 }

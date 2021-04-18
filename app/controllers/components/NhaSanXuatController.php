@@ -3,7 +3,7 @@ class NhaSanXuatController extends BaseController
 {
     private $nhaSanXuatModel;
     private $AllRowLength;
-    private $uploadInstance;
+    private $limit = 15;
     private $alert;
 
     public function __construct()
@@ -13,20 +13,6 @@ class NhaSanXuatController extends BaseController
         $this->alert = new Other();
     }
 
-    public function findMax($col)
-    {
-        $found = $this->nhaSanXuatModel->getMaxCol($col);
-
-        return  $found;
-    }
-
-    public function findMin($col)
-    {
-        $found = $this->nhaSanXuatModel->getMinCol($col);
-
-        return $found;
-    }
-
     public function countRow($col)
     {
         $number = $this->nhaSanXuatModel->countRow($col);
@@ -34,20 +20,30 @@ class NhaSanXuatController extends BaseController
         return $number;
     }
 
-    public function get()
+    public function get($page = [])
     {
         if (!$this->AllRowLength) {
             $this->AllRowLength = array_values($this->nhaSanXuatModel->countRow())[0];
         }
-        $nhaSanXuat = $this->nhaSanXuatModel->get($this->getPage());
-        $numOfPages = $this->getNumOfPages();
+        $nhaSanXuat = [];
+        if (!empty($page)) {
+            $page['limit'] = $this->getPage()['limit'];
+            $nhaSanXuat = $this->nhaSanXuatModel->get($page);
+        } else {
+            $nhaSanXuat = $this->nhaSanXuatModel->get($this->getPage());
+        }
+        $numOfPages = $this->getNumOfPages($nhaSanXuat['pages']);
+
+        $nhaSanXuat['pages'] = $numOfPages;
 
         $this->dieIfPageNotValid($numOfPages);
 
-        return [
-            'NSXArr' => $nhaSanXuat,
-            'NSXPages' => $numOfPages
-        ];
+        return $nhaSanXuat;
+    }
+
+    public function selectDisplay()
+    {
+        return $this->nhaSanXuatModel->selectDisplay();
     }
 
     public function add($data)
@@ -58,10 +54,11 @@ class NhaSanXuatController extends BaseController
             && $data['soDienThoai']
         ) {
             $maxID = array_values($this->nhaSanXuatModel->getMaxCol())[0];
-            $fileName = "NSX-" .  ($maxID + 1);
 
-            $values = $this->getValues($data);;
-            $this->nhaSanXuatModel->post($values, $maxID + 1);
+
+
+            $values = $this->getValues($data);
+            $this->nhaSanXuatModel->post($values);
             return $this->get();
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để thêm");
@@ -76,7 +73,8 @@ class NhaSanXuatController extends BaseController
             && $data['diaChi']
             && $data['soDienThoai']
         ) {
-            $id = $data['maNSX'];
+            $id = $data['maSP'];
+            //  
             $values = $this->getValues($data);
             $this->nhaSanXuatModel->update($values, $id);
             return $this->get();
@@ -90,8 +88,14 @@ class NhaSanXuatController extends BaseController
         if (
             $data['maNSX']
         ) {
-            $this->nhaSanXuatModel->delete($data['maNSX']);
-            return $this->get();
+            $remove = [
+                'id' => $data['maSP'],
+                'imgPath' => $data['anhDaiDien']
+            ];
+            return [
+                'error' => $this->nhaSanXuatModel->delete($remove),
+                'data' => $this->get()
+            ];
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để xóa");
         }
@@ -103,17 +107,32 @@ class NhaSanXuatController extends BaseController
             $data['search']
         ) {
             $found = $this->nhaSanXuatModel->find($data['search'], $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'NSXFound' => $found,
-                'NSXFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
+    }
+
+    public function findMax($col)
+    {
+        $found = $this->nhaSanXuatModel->getMaxCol($col);
+
+
+        return  $found;
+    }
+
+    public function findMin($col)
+    {
+        $found = $this->nhaSanXuatModel->getMinCol($col);
+
+
+        return $found;
     }
 
     public function findWithFilter($data)
@@ -126,14 +145,13 @@ class NhaSanXuatController extends BaseController
         ) {
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $found = $this->nhaSanXuatModel->findWithFilter($data['search'], $filterValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'NSXFound' => $found,
-                'NSXFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
@@ -148,14 +166,13 @@ class NhaSanXuatController extends BaseController
         ) {
             $sortValues = $this->getSortValues();
             $found = $this->nhaSanXuatModel->findWithSort($data['search'], $sortValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'NSXFound' => $found,
-                'NSXFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
@@ -172,14 +189,13 @@ class NhaSanXuatController extends BaseController
             $sortValues = $this->getSortValues();
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $found = $this->nhaSanXuatModel->findWithFilterAndSort($data['search'], $filterValues, $sortValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'NSXFound' => $found,
-                'NSXFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
@@ -194,14 +210,13 @@ class NhaSanXuatController extends BaseController
         ) {
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $filtered = $this->nhaSanXuatModel->filter($filterValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($filtered);
+            $numOfPages = $this->getNumOfPages($filtered['pages']);
+
+            $filtered['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'NSXFiltered' => $filtered,
-                'NSXFilteredPages' => $numOfPages
-            ];
+            return $filtered;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để lọc");
         }
@@ -215,14 +230,13 @@ class NhaSanXuatController extends BaseController
         ) {
             $sortValues = $this->getSortValues();
             $sorted = $this->nhaSanXuatModel->sort($sortValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($sorted);
+            $numOfPages = $this->getNumOfPages($sorted['pages']);
+
+            $sorted['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'NSXSorted' => $sorted,
-                'NSXSortedPages' => $numOfPages
-            ];
+            return $sorted;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để lọc");
         }
@@ -240,14 +254,13 @@ class NhaSanXuatController extends BaseController
             $sortValues = $this->getSortValues();
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $filtered = $this->nhaSanXuatModel->filterAndSort($sortValues, $filterValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($filtered);
+            $numOfPages = $this->getNumOfPages($filtered['pages']);
+
+            $filtered['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'NSXFiltered' => $filtered,
-                'NSXFilteredPages' => $numOfPages
-            ];
+            return $filtered;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để lọc");
         }
@@ -279,13 +292,9 @@ class NhaSanXuatController extends BaseController
         ];
     }
 
-    private function getNumOfPages($list = [])
+    private function getNumOfPages($number)
     {
-        if (empty($list)) {
-            return ceil($this->AllRowLength / $this->getPage()['limit']);
-        } else {
-            return ceil(count($list) / $this->getPage()['limit']);
-        }
+        return ceil((int) $number / $this->getPage()['limit']);
     }
 
     private function dieIfPageNotValid($numOfPages)
@@ -299,7 +308,7 @@ class NhaSanXuatController extends BaseController
     {
         return [
             'current' => isset($_GET['page']) ? $_GET['page'] : 1,
-            'limit' => 15
+            'limit' => $this->limit
         ];
     }
 }

@@ -3,7 +3,7 @@ class KhuyenMaiController extends BaseController
 {
     private $khuyenMaiModel;
     private $AllRowLength;
-    private $uploadInstance;
+    private $limit = 15;
     private $alert;
 
     public function __construct()
@@ -13,20 +13,6 @@ class KhuyenMaiController extends BaseController
         $this->alert = new Other();
     }
 
-    public function findMax($col)
-    {
-        $found = $this->khuyenMaiModel->getMaxCol($col);
-
-        return  $found;
-    }
-
-    public function findMin($col)
-    {
-        $found = $this->khuyenMaiModel->getMinCol($col);
-
-        return $found;
-    }
-
     public function countRow($col)
     {
         $number = $this->khuyenMaiModel->countRow($col);
@@ -34,20 +20,30 @@ class KhuyenMaiController extends BaseController
         return $number;
     }
 
-    public function get()
+    public function get($page = [])
     {
         if (!$this->AllRowLength) {
             $this->AllRowLength = array_values($this->khuyenMaiModel->countRow())[0];
         }
-        $khuyenMai = $this->khuyenMaiModel->get($this->getPage());
-        $numOfPages = $this->getNumOfPages();
+        $khuyenMai = [];
+        if (!empty($page)) {
+            $page['limit'] = $this->getPage()['limit'];
+            $khuyenMai = $this->khuyenMaiModel->get($page, '');
+        } else {
+            $khuyenMai = $this->khuyenMaiModel->get($this->getPage(), '');
+        }
+        $numOfPages = $this->getNumOfPages($khuyenMai['pages']);
+
+        $khuyenMai['pages'] = $numOfPages;
 
         $this->dieIfPageNotValid($numOfPages);
 
-        return [
-            'KMArr' => $khuyenMai,
-            'KMPages' => $numOfPages
-        ];
+        return $khuyenMai;
+    }
+
+    public function selectDisplay()
+    {
+        return $this->sanPhamModel->selectDisplay();
     }
 
     public function add($data)
@@ -58,10 +54,11 @@ class KhuyenMaiController extends BaseController
             && $data['ngayKetThuc']
         ) {
             $maxID = array_values($this->khuyenMaiModel->getMaxCol())[0];
-            $fileName = "KM-" .  ($maxID + 1);
 
-            $values = $this->getValues($data);;
-            $this->khuyenMaiModel->post($values, $maxID + 1);
+
+
+            $values = $this->getValues($data);
+            $this->khuyenMaiModel->post($values);
             return $this->get();
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để thêm");
@@ -76,7 +73,8 @@ class KhuyenMaiController extends BaseController
             && $data['ngayBatDau']
             && $data['ngayKetThuc']
         ) {
-            $id = $data['maKM'];
+            $id = $data['maSP'];
+            //  
             $values = $this->getValues($data);
             $this->khuyenMaiModel->update($values, $id);
             return $this->get();
@@ -90,8 +88,14 @@ class KhuyenMaiController extends BaseController
         if (
             $data['maKM']
         ) {
-            $this->khuyenMaiModel->delete($data['maKM']);
-            return $this->get();
+            $remove = [
+                'id' => $data['maSP'],
+                'imgPath' => $data['anhDaiDien']
+            ];
+            return [
+                'error' => $this->khuyenMaiModel->delete($remove),
+                'data' => $this->get()
+            ];
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để xóa");
         }
@@ -103,17 +107,32 @@ class KhuyenMaiController extends BaseController
             $data['search']
         ) {
             $found = $this->khuyenMaiModel->find($data['search'], $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'KMFound' => $found,
-                'KMFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
+    }
+
+    public function findMax($col)
+    {
+        $found = $this->khuyenMaiModel->getMaxCol($col);
+
+
+        return  $found;
+    }
+
+    public function findMin($col)
+    {
+        $found = $this->khuyenMaiModel->getMinCol($col);
+
+
+        return $found;
     }
 
     public function findWithFilter($data)
@@ -126,14 +145,13 @@ class KhuyenMaiController extends BaseController
         ) {
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $found = $this->khuyenMaiModel->findWithFilter($data['search'], $filterValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'KMFound' => $found,
-                'KMFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
@@ -148,14 +166,13 @@ class KhuyenMaiController extends BaseController
         ) {
             $sortValues = $this->getSortValues();
             $found = $this->khuyenMaiModel->findWithSort($data['search'], $sortValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'KMFound' => $found,
-                'KMFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
@@ -172,14 +189,13 @@ class KhuyenMaiController extends BaseController
             $sortValues = $this->getSortValues();
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $found = $this->khuyenMaiModel->findWithFilterAndSort($data['search'], $filterValues, $sortValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'KMFound' => $found,
-                'KMFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
@@ -194,14 +210,13 @@ class KhuyenMaiController extends BaseController
         ) {
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $filtered = $this->khuyenMaiModel->filter($filterValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($filtered);
+            $numOfPages = $this->getNumOfPages($filtered['pages']);
+
+            $filtered['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'KMFiltered' => $filtered,
-                'KMFilteredPages' => $numOfPages
-            ];
+            return $filtered;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để lọc");
         }
@@ -215,14 +230,13 @@ class KhuyenMaiController extends BaseController
         ) {
             $sortValues = $this->getSortValues();
             $sorted = $this->khuyenMaiModel->sort($sortValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($sorted);
+            $numOfPages = $this->getNumOfPages($sorted['pages']);
+
+            $sorted['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'KMSorted' => $sorted,
-                'KMSortedPages' => $numOfPages
-            ];
+            return $sorted;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để lọc");
         }
@@ -240,14 +254,13 @@ class KhuyenMaiController extends BaseController
             $sortValues = $this->getSortValues();
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $filtered = $this->khuyenMaiModel->filterAndSort($sortValues, $filterValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($filtered);
+            $numOfPages = $this->getNumOfPages($filtered['pages']);
+
+            $filtered['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
 
-            return [
-                'KMFiltered' => $filtered,
-                'KMFilteredPages' => $numOfPages
-            ];
+            return $filtered;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để lọc");
         }
@@ -279,13 +292,9 @@ class KhuyenMaiController extends BaseController
         ];
     }
 
-    private function getNumOfPages($list = [])
+    private function getNumOfPages($number)
     {
-        if (empty($list)) {
-            return ceil($this->AllRowLength / $this->getPage()['limit']);
-        } else {
-            return ceil(count($list) / $this->getPage()['limit']);
-        }
+        return ceil((int) $number / $this->getPage()['limit']);
     }
 
     private function dieIfPageNotValid($numOfPages)
@@ -299,7 +308,7 @@ class KhuyenMaiController extends BaseController
     {
         return [
             'current' => isset($_GET['page']) ? $_GET['page'] : 1,
-            'limit' => 15
+            'limit' => $this->limit
         ];
     }
 }

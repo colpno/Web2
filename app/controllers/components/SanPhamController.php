@@ -6,6 +6,7 @@ class SanPhamController extends BaseController
     private $nhaSanXuatModel;
     private $AllRowLength;
     private $uploadInstance;
+    private $limit = 15;
     private $alert;
 
     public function __construct()
@@ -23,22 +24,34 @@ class SanPhamController extends BaseController
         return $number;
     }
 
-    public function get()
+    public function get($page = [], $order = '')
     {
         if (!$this->AllRowLength) {
             $this->AllRowLength = array_values($this->sanPhamModel->countRow())[0];
         }
-        $sanPham = $this->sanPhamModel->get($this->getPage());
-        $numOfPages = $this->getNumOfPages();
+        $sanPham = [];
+        if (!empty($page)) {
+            if (!empty($page['order'])) {
+                $order = $page['order'];
+            }
+            $page['limit'] = $this->getPage()['limit'];
+            $sanPham = $this->sanPhamModel->get($page, $order);
+        } else {
+            $sanPham = $this->sanPhamModel->get($this->getPage(), $order);
+        }
+        $numOfPages = $this->getNumOfPages($sanPham['pages']);
+
+        $sanPham['pages'] = $numOfPages;
 
         $this->dieIfPageNotValid($numOfPages);
         $this->changeProp($sanPham);
 
-        return [
-            'SPArr' => $sanPham,
-            'SPPages' => $numOfPages,
+        return $sanPham;
+    }
 
-        ];
+    public function selectDisplay()
+    {
+        return $this->sanPhamModel->selectDisplay();
     }
 
     public function add($data)
@@ -56,7 +69,7 @@ class SanPhamController extends BaseController
             $fileName = "SP-" .  ($maxID + 1);
             $this->uploadInstance->upload($fileName);
 
-            $values = $this->getValues($data);;
+            $values = $this->getValues($data);
             $this->sanPhamModel->post($values);
             return $this->get();
         } else {
@@ -96,8 +109,10 @@ class SanPhamController extends BaseController
                 'id' => $data['maSP'],
                 'imgPath' => $data['anhDaiDien']
             ];
-            $this->sanPhamModel->delete($remove);
-            return $this->get();
+            return [
+                'error' => $this->sanPhamModel->delete($remove),
+                'data' => $this->get()
+            ];
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để xóa");
         }
@@ -109,15 +124,14 @@ class SanPhamController extends BaseController
             $data['search']
         ) {
             $found = $this->sanPhamModel->find($data['search'], $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
             $this->changeProp($found);
 
-            return [
-                'SPFound' => $found,
-                'SPFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
@@ -151,15 +165,14 @@ class SanPhamController extends BaseController
         ) {
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $found = $this->sanPhamModel->findWithFilter($data['search'], $filterValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
             $this->changeProp($found);
 
-            return [
-                'SPFound' => $found,
-                'SPFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
@@ -174,15 +187,14 @@ class SanPhamController extends BaseController
         ) {
             $sortValues = $this->getSortValues();
             $found = $this->sanPhamModel->findWithSort($data['search'], $sortValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
             $this->changeProp($found);
 
-            return [
-                'SPFound' => $found,
-                'SPFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
@@ -199,15 +211,14 @@ class SanPhamController extends BaseController
             $sortValues = $this->getSortValues();
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $found = $this->sanPhamModel->findWithFilterAndSort($data['search'], $filterValues, $sortValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
             $this->changeProp($found);
 
-            return [
-                'SPFound' => $found,
-                'SPFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
@@ -222,15 +233,14 @@ class SanPhamController extends BaseController
         ) {
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $filtered = $this->sanPhamModel->filter($filterValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($filtered);
+            $numOfPages = $this->getNumOfPages($filtered['pages']);
+
+            $filtered['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
             $this->changeProp($filtered);
 
-            return [
-                'SPFiltered' => $filtered,
-                'SPFilteredPages' => $numOfPages
-            ];
+            return $filtered;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để lọc");
         }
@@ -244,15 +254,14 @@ class SanPhamController extends BaseController
         ) {
             $sortValues = $this->getSortValues();
             $sorted = $this->sanPhamModel->sort($sortValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($sorted);
+            $numOfPages = $this->getNumOfPages($sorted['pages']);
+
+            $sorted['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
             $this->changeProp($sorted);
 
-            return [
-                'SPSorted' => $sorted,
-                'SPSortedPages' => $numOfPages
-            ];
+            return $sorted;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để lọc");
         }
@@ -270,15 +279,14 @@ class SanPhamController extends BaseController
             $sortValues = $this->getSortValues();
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $filtered = $this->sanPhamModel->filterAndSort($sortValues, $filterValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($filtered);
+            $numOfPages = $this->getNumOfPages($filtered['pages']);
+
+            $filtered['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
             $this->changeProp($filtered);
 
-            return [
-                'SPFiltered' => $filtered,
-                'SPFilteredPages' => $numOfPages
-            ];
+            return $filtered;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để lọc");
         }
@@ -314,13 +322,9 @@ class SanPhamController extends BaseController
         ];
     }
 
-    private function getNumOfPages($list = [])
+    private function getNumOfPages($number)
     {
-        if (empty($list)) {
-            return ceil($this->AllRowLength / $this->getPage()['limit']);
-        } else {
-            return ceil(count($list) / $this->getPage()['limit']);
-        }
+        return ceil((int) $number / $this->getPage()['limit']);
     }
 
     private function dieIfPageNotValid($numOfPages)
@@ -357,7 +361,7 @@ class SanPhamController extends BaseController
     {
         return [
             'current' => isset($_GET['page']) ? $_GET['page'] : 1,
-            'limit' => 15
+            'limit' => $this->limit
         ];
     }
 }

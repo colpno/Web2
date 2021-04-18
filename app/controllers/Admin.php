@@ -1,13 +1,14 @@
 <?php
-class Admin
+class admin
 {
     private $sanPham;
     private $loai;
     private $khuyenMai;
     private $chiTietKM;
+    private $nhaSanXuat;
     public function sanpham($data = [])
     {
-        $components = ['SanPham', 'LoaiSanPham', 'KhuyenMai', 'ChiTietKhuyenMai'];
+        $components = ['SanPham', 'LoaiSanPham', 'KhuyenMai', 'ChiTietKhuyenMai', 'NhaSanXuat'];
         foreach ($components as  $component) {
             require_once(__DIR__ . '/components/' . $component . 'Controller.php');
             require_once(__DIR__ . '/../models/' . $component . 'Model.php');
@@ -20,31 +21,30 @@ class Admin
         $this->loai = new $components[1];
         $this->khuyenMai = new $components[2];
         $this->chiTietKM = new $components[3];
+        $this->nhaSanXuat = new $components[4];
 
         $returnBack = [
             'SanPham' => [
-                'SPData' => $this->sanPham->get(),
+                'SPData' => $this->sanPham->get([], 'desc'),
                 'SPMin' => $this->sanPham->findMin('soLuong'),
                 'TongSoSanPham' => $this->sanPham->countRow('maSP'),
+                'selectDisplay' => $this->sanPham->selectDisplay(),
             ],
             'Loai' => [
                 'LoaiData' => $this->loai->get(),
                 'TongSoLoai' => $this->loai->countRow('maLoai'),
+                'selectDisplay' => $this->loai->selectDisplay(),
             ],
             'KhuyenMai' => [
-                'Data' => $this->khuyenMai->get(),
+                'KMData' => $this->khuyenMai->get(),
                 'TongSoKhuyenMai' => $this->khuyenMai->countRow('maKM'),
+                'selectDisplay' => $this->loai->selectDisplay(),
 
             ],
-            'ChiTietKM' => $this->chiTietKM->get(),
+            'NhaSanXuat' => $this->nhaSanXuat->selectDisplay(),
         ];
-
-        if (isset($data['action'])) {
-            if ($data['table']) {
-                $returnBack = $this->action($data['table'], $data['action'], $data);
-            } else {
-                $returnBack = $this->action($data['table'], $data['action'], $data);
-            }
+        if (isset($data['action'], $data['table'])) {
+            $returnBack = $this->action($data['table'], $data['action'], $data);
         }
 
         return $returnBack;
@@ -53,38 +53,22 @@ class Admin
     private function action($uri, $action, $data)
     {
         switch ($uri) {
-            case 'product': {
-                    return [
-                        $this->sanPham->$action($data),
-                    ];
+            case 'sanpham': {
+                    return $this->sanPham->$action($data);
                     break;
                 }
-            case 'category': {
-                    return [
-                        $this->loai->$action($data),
-                    ];
+            case 'loai': {
+                    return $this->loai->$action($data);
                     break;
                 }
-            case 'promotion': {
-                    return [
-                        $this->khuyenMai->$action($data),
-                    ];
+            case 'khuyenmai': {
+                    return $this->khuyenMai->$action($data);
                     break;
                 }
-            case 'detail-promotion': {
-                    return [
-                        $this->chiTietKM->$action($data),
-                    ];
+            case 'chitietkhuyenmai': {
+                    return $this->chiTietKM->$action($data);
                     break;
                 }
         }
-    }
-
-    private function getPage()
-    {
-        return [
-            'current' => isset($_GET['page']) ? $_GET['page'] : 1,
-            'limit' => 15
-        ];
     }
 }

@@ -5,7 +5,7 @@ class HoaDonController extends BaseController
     private $khachHangModel;
     private $nhanVienModel;
     private $AllRowLength;
-    private $uploadInstance;
+    private $limit = 15;
     private $alert;
 
     public function __construct()
@@ -15,20 +15,6 @@ class HoaDonController extends BaseController
         $this->alert = new Other();
     }
 
-    public function findMax($col)
-    {
-        $found = $this->hoaDonModel->getMaxCol($col);
-
-        return  $found;
-    }
-
-    public function findMin($col)
-    {
-        $found = $this->hoaDonModel->getMinCol($col);
-
-        return $found;
-    }
-
     public function countRow($col)
     {
         $number = $this->hoaDonModel->countRow($col);
@@ -36,21 +22,26 @@ class HoaDonController extends BaseController
         return $number;
     }
 
-    public function get()
+    public function get($page = [])
     {
         if (!$this->AllRowLength) {
             $this->AllRowLength = array_values($this->hoaDonModel->countRow())[0];
         }
-        $hoaDon = $this->hoaDonModel->get($this->getPage());
-        $numOfPages = $this->getNumOfPages();
+        $hoaDon = [];
+        if (!empty($page)) {
+            $page['limit'] = $this->getPage()['limit'];
+            $hoaDon = $this->hoaDonModel->get($page);
+        } else {
+            $hoaDon = $this->hoaDonModel->get($this->getPage());
+        }
+        $numOfPages = $this->getNumOfPages($hoaDon['pages']);
+
+        $hoaDon['pages'] = $numOfPages;
 
         $this->dieIfPageNotValid($numOfPages);
         $this->changeProp($hoaDon);
 
-        return [
-            'HDArr' => $hoaDon,
-            'HDPages' => $numOfPages
-        ];
+        return $hoaDon;
     }
 
     public function add($data)
@@ -62,10 +53,11 @@ class HoaDonController extends BaseController
             && $data['tongTien']
         ) {
             $maxID = array_values($this->hoaDonModel->getMaxCol())[0];
-            $fileName = "HD-" .  ($maxID + 1);
 
-            $values = $this->getValues($data);;
-            $this->hoaDonModel->post($values, $maxID + 1);
+
+
+            $values = $this->getValues($data);
+            $this->hoaDonModel->post($values);
             return $this->get();
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để thêm");
@@ -81,7 +73,8 @@ class HoaDonController extends BaseController
             && $data['ngayLapHoaDon']
             && $data['tongTien']
         ) {
-            $id = $data['maHD'];
+            $id = $data['maSP'];
+            //  
             $values = $this->getValues($data);
             $this->hoaDonModel->update($values, $id);
             return $this->get();
@@ -95,8 +88,14 @@ class HoaDonController extends BaseController
         if (
             $data['maHD']
         ) {
-            $this->hoaDonModel->delete($data['maHD']);
-            return $this->get();
+            $remove = [
+                'id' => $data['maSP'],
+                'imgPath' => $data['anhDaiDien']
+            ];
+            return [
+                'error' => $this->hoaDonModel->delete($remove),
+                'data' => $this->get()
+            ];
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để xóa");
         }
@@ -108,18 +107,35 @@ class HoaDonController extends BaseController
             $data['search']
         ) {
             $found = $this->hoaDonModel->find($data['search'], $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
             $this->changeProp($found);
 
-            return [
-                'HDFound' => $found,
-                'HDFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
+    }
+
+    public function findMax($col)
+    {
+        $found = $this->hoaDonModel->getMaxCol($col);
+
+        $this->changeProp($found);
+
+        return  $found;
+    }
+
+    public function findMin($col)
+    {
+        $found = $this->hoaDonModel->getMinCol($col);
+
+        $this->changeProp($found);
+
+        return $found;
     }
 
     public function findWithFilter($data)
@@ -132,15 +148,14 @@ class HoaDonController extends BaseController
         ) {
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $found = $this->hoaDonModel->findWithFilter($data['search'], $filterValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
             $this->changeProp($found);
 
-            return [
-                'HDFound' => $found,
-                'HDFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
@@ -155,15 +170,14 @@ class HoaDonController extends BaseController
         ) {
             $sortValues = $this->getSortValues();
             $found = $this->hoaDonModel->findWithSort($data['search'], $sortValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
             $this->changeProp($found);
 
-            return [
-                'HDFound' => $found,
-                'HDFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
@@ -180,15 +194,14 @@ class HoaDonController extends BaseController
             $sortValues = $this->getSortValues();
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $found = $this->hoaDonModel->findWithFilterAndSort($data['search'], $filterValues, $sortValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
             $this->changeProp($found);
 
-            return [
-                'HDFound' => $found,
-                'HDFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
@@ -203,15 +216,14 @@ class HoaDonController extends BaseController
         ) {
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $filtered = $this->hoaDonModel->filter($filterValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($filtered);
+            $numOfPages = $this->getNumOfPages($filtered['pages']);
+
+            $filtered['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
             $this->changeProp($filtered);
 
-            return [
-                'HDFiltered' => $filtered,
-                'HDFilteredPages' => $numOfPages
-            ];
+            return $filtered;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để lọc");
         }
@@ -225,15 +237,14 @@ class HoaDonController extends BaseController
         ) {
             $sortValues = $this->getSortValues();
             $sorted = $this->hoaDonModel->sort($sortValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($sorted);
+            $numOfPages = $this->getNumOfPages($sorted['pages']);
+
+            $sorted['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
             $this->changeProp($sorted);
 
-            return [
-                'HDSorted' => $sorted,
-                'HDSortedPages' => $numOfPages
-            ];
+            return $sorted;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để lọc");
         }
@@ -251,15 +262,14 @@ class HoaDonController extends BaseController
             $sortValues = $this->getSortValues();
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $filtered = $this->hoaDonModel->filterAndSort($sortValues, $filterValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($filtered);
+            $numOfPages = $this->getNumOfPages($filtered['pages']);
+
+            $filtered['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
             $this->changeProp($filtered);
 
-            return [
-                'HDFiltered' => $filtered,
-                'HDFilteredPages' => $numOfPages
-            ];
+            return $filtered;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để lọc");
         }
@@ -292,13 +302,9 @@ class HoaDonController extends BaseController
         ];
     }
 
-    private function getNumOfPages($list = [])
+    private function getNumOfPages($number)
     {
-        if (empty($list)) {
-            return ceil($this->AllRowLength / $this->getPage()['limit']);
-        } else {
-            return ceil(count($list) / $this->getPage()['limit']);
-        }
+        return ceil((int) $number / $this->getPage()['limit']);
     }
 
     private function dieIfPageNotValid($numOfPages)
@@ -316,22 +322,24 @@ class HoaDonController extends BaseController
         $this->khachHangModel = new KhachHangModel();
         $this->nhanVienModel = new NhanVienModel();
 
-        $length = count($list);
-        for ($i = 0; $i < $length; $i++) {
-            $list[$i]['nhanVien'] = $this->nhanVienModel->getRow('maNV', $list[$i]['maNV']);
-            unset($list[$i]['maNV']);
+        if ($list != null) {
+            $length = count($list);
+            for ($i = 0; $i < $length; $i++) {
+                $list[$i]['nhanVien'] = $this->nhanVienModel->getRow('maNV', $list[$i]['maNV']);
+                unset($list[$i]['maNV']);
 
-            $list[$i]['khachHang'] = $this->khachHangModel->getRow('maKH', $list[$i]['maKH']);
-            unset($list[$i]['maKH']);
+                $list[$i]['khachHang'] = $this->khachHangModel->getRow('maKH', $list[$i]['maKH']);
+                unset($list[$i]['maKH']);
+            }
+            return $list;
         }
-        return $list;
     }
 
     private function getPage()
     {
         return [
             'current' => isset($_GET['page']) ? $_GET['page'] : 1,
-            'limit' => 15
+            'limit' => $this->limit
         ];
     }
 }

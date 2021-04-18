@@ -47,14 +47,19 @@ class NhaSanXuatModel extends BaseModel
         }
     }
 
+    public function selectDisplay()
+    {
+        return $this->selectDisplayMethod(self::TABLE_NAME, $this->primaryCol, 'tenNSX');
+    }
+
     public function get($page)
     {
         return $this->getMethod(self::TABLE_NAME, $page);
     }
 
-    public function post($data = [], $number)
+    public function post($data = [])
     {
-        return $this->postMethod(self::TABLE_NAME, $data, $number);
+        return $this->postMethod(self::TABLE_NAME, $data);
     }
 
     public function update($data = [], $id)

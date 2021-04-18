@@ -4,7 +4,7 @@ class NhanVienController extends BaseController
     private $nhanVienModel;
     private $taikhoanModel;
     private $AllRowLength;
-    private $uploadInstance;
+    private $limit = 15;
     private $alert;
 
     public function __construct()
@@ -14,20 +14,6 @@ class NhanVienController extends BaseController
         $this->alert = new Other();
     }
 
-    public function findMax($col)
-    {
-        $found = $this->nhanVienModel->getMaxCol($col);
-
-        return  $found;
-    }
-
-    public function findMin($col)
-    {
-        $found = $this->nhanVienModel->getMinCol($col);
-
-        return $found;
-    }
-
     public function countRow($col)
     {
         $number = $this->nhanVienModel->countRow($col);
@@ -35,21 +21,26 @@ class NhanVienController extends BaseController
         return $number;
     }
 
-    public function get()
+    public function get($page = [])
     {
         if (!$this->AllRowLength) {
             $this->AllRowLength = array_values($this->nhanVienModel->countRow())[0];
         }
-        $nhanVien = $this->nhanVienModel->get($this->getPage());
-        $numOfPages = $this->getNumOfPages();
+        $nhanVien = [];
+        if (!empty($page)) {
+            $page['limit'] = $this->getPage()['limit'];
+            $nhanVien = $this->nhanVienModel->get($page);
+        } else {
+            $nhanVien = $this->nhanVienModel->get($this->getPage());
+        }
+        $numOfPages = $this->getNumOfPages($nhanVien['pages']);
+
+        $nhanVien['pages'] = $numOfPages;
 
         $this->dieIfPageNotValid($numOfPages);
         $this->changeProp($nhanVien);
 
-        return [
-            'NVArr' => $nhanVien,
-            'NVPages' => $numOfPages
-        ];
+        return $nhanVien;
     }
 
     public function add($data)
@@ -64,10 +55,11 @@ class NhanVienController extends BaseController
             && $data['luong']
         ) {
             $maxID = array_values($this->nhanVienModel->getMaxCol())[0];
-            $fileName = "NV-" .  ($maxID + 1);
 
-            $values = $this->getValues($data);;
-            $this->nhanVienModel->post($values, $maxID + 1);
+
+
+            $values = $this->getValues($data);
+            $this->nhanVienModel->post($values);
             return $this->get();
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để thêm");
@@ -86,7 +78,8 @@ class NhanVienController extends BaseController
             && $data['diaChi']
             && $data['luong']
         ) {
-            $id = $data['maNV'];
+            $id = $data['maSP'];
+            //  
             $values = $this->getValues($data);
             $this->nhanVienModel->update($values, $id);
             return $this->get();
@@ -100,8 +93,14 @@ class NhanVienController extends BaseController
         if (
             $data['maNV']
         ) {
-            $this->nhanVienModel->delete($data['maNV']);
-            return $this->get();
+            $remove = [
+                'id' => $data['maSP'],
+                'imgPath' => $data['anhDaiDien']
+            ];
+            return [
+                'error' => $this->nhanVienModel->delete($remove),
+                'data' => $this->get()
+            ];
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để xóa");
         }
@@ -113,18 +112,35 @@ class NhanVienController extends BaseController
             $data['search']
         ) {
             $found = $this->nhanVienModel->find($data['search'], $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
             $this->changeProp($found);
 
-            return [
-                'NVFound' => $found,
-                'NVFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
+    }
+
+    public function findMax($col)
+    {
+        $found = $this->nhanVienModel->getMaxCol($col);
+
+        $this->changeProp($found);
+
+        return  $found;
+    }
+
+    public function findMin($col)
+    {
+        $found = $this->nhanVienModel->getMinCol($col);
+
+        $this->changeProp($found);
+
+        return $found;
     }
 
     public function findWithFilter($data)
@@ -137,15 +153,14 @@ class NhanVienController extends BaseController
         ) {
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $found = $this->nhanVienModel->findWithFilter($data['search'], $filterValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
             $this->changeProp($found);
 
-            return [
-                'NVFound' => $found,
-                'NVFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
@@ -160,15 +175,14 @@ class NhanVienController extends BaseController
         ) {
             $sortValues = $this->getSortValues();
             $found = $this->nhanVienModel->findWithSort($data['search'], $sortValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
             $this->changeProp($found);
 
-            return [
-                'NVFound' => $found,
-                'NVFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
@@ -185,15 +199,14 @@ class NhanVienController extends BaseController
             $sortValues = $this->getSortValues();
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $found = $this->nhanVienModel->findWithFilterAndSort($data['search'], $filterValues, $sortValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($found);
+            $numOfPages = $this->getNumOfPages($found['pages']);
+
+            $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
             $this->changeProp($found);
 
-            return [
-                'NVFound' => $found,
-                'NVFoundPages' => $numOfPages
-            ];
+            return $found;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để tìm kiếm");
         }
@@ -208,15 +221,14 @@ class NhanVienController extends BaseController
         ) {
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $filtered = $this->nhanVienModel->filter($filterValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($filtered);
+            $numOfPages = $this->getNumOfPages($filtered['pages']);
+
+            $filtered['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
             $this->changeProp($filtered);
 
-            return [
-                'NVFiltered' => $filtered,
-                'NVFilteredPages' => $numOfPages
-            ];
+            return $filtered;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để lọc");
         }
@@ -230,15 +242,14 @@ class NhanVienController extends BaseController
         ) {
             $sortValues = $this->getSortValues();
             $sorted = $this->nhanVienModel->sort($sortValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($sorted);
+            $numOfPages = $this->getNumOfPages($sorted['pages']);
+
+            $sorted['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
             $this->changeProp($sorted);
 
-            return [
-                'NVSorted' => $sorted,
-                'NVSortedPages' => $numOfPages
-            ];
+            return $sorted;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để lọc");
         }
@@ -256,15 +267,14 @@ class NhanVienController extends BaseController
             $sortValues = $this->getSortValues();
             $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
             $filtered = $this->nhanVienModel->filterAndSort($sortValues, $filterValues, $this->getPage());
-            $numOfPages = $this->getNumOfPages($filtered);
+            $numOfPages = $this->getNumOfPages($filtered['pages']);
+
+            $filtered['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
             $this->changeProp($filtered);
 
-            return [
-                'NVFiltered' => $filtered,
-                'NVFilteredPages' => $numOfPages
-            ];
+            return $filtered;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để lọc");
         }
@@ -300,13 +310,9 @@ class NhanVienController extends BaseController
         ];
     }
 
-    private function getNumOfPages($list = [])
+    private function getNumOfPages($number)
     {
-        if (empty($list)) {
-            return ceil($this->AllRowLength / $this->getPage()['limit']);
-        } else {
-            return ceil(count($list) / $this->getPage()['limit']);
-        }
+        return ceil((int) $number / $this->getPage()['limit']);
     }
 
     private function dieIfPageNotValid($numOfPages)
@@ -322,19 +328,21 @@ class NhanVienController extends BaseController
 
         $this->taikhoanModel = new TaiKhoanModel();
 
-        $length = count($list);
-        for ($i = 0; $i < $length; $i++) {
-            $list[$i]['taikhoan'] = $this->taikhoanModel->getRow('maTK', $list[$i]['maTK']);
-            unset($list[$i]['maTK']);
+        if ($list != null) {
+            $length = count($list);
+            for ($i = 0; $i < $length; $i++) {
+                $list[$i]['taikhoan'] = $this->taikhoanModel->getRow('maTK', $list[$i]['maTK']);
+                unset($list[$i]['maTK']);
+            }
+            return $list;
         }
-        return $list;
     }
 
     private function getPage()
     {
         return [
             'current' => isset($_GET['page']) ? $_GET['page'] : 1,
-            'limit' => 15
+            'limit' => $this->limit
         ];
     }
 }
