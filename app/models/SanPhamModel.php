@@ -2,17 +2,65 @@
 class SanPhamModel extends BaseModel
 {
     private const TABLE_NAME = 'sanpham';
-    private $idCol;
+    private $primaryCol;
     private $findValues;
 
     public function __construct()
     {
         parent::__construct();
-        $this->idCol = $this->getPrimaryCol(self::TABLE_NAME);
+        $this->primaryCol = $this->getPrimaryCol(self::TABLE_NAME);
 
         $this->findValues = [
             'searchingCol' => 'tenSP'
         ];
+    }
+
+    public function countRow($col = null)
+    {
+        if ($col == null) {
+            return $this->countRowMethod(self::TABLE_NAME, $this->primaryCol);
+        } else {
+            return $this->countRowMethod(self::TABLE_NAME, $col);
+        }
+    }
+
+    public function getRow($col, $value)
+    {
+        return $this->getRowMethod(self::TABLE_NAME, $col, $value);
+    }
+
+    public function getMaxCol($col = null)
+    {
+        if ($col == null) {
+            return $this->getMaxMethod(self::TABLE_NAME, $this->primaryCol);
+        } else {
+            return $this->getMaxMethod(self::TABLE_NAME, $col);
+        }
+    }
+
+    public function getMinCol($col = null)
+    {
+        if ($col == null) {
+            return $this->getMinMethod(self::TABLE_NAME, $this->primaryCol);
+        } else {
+            return $this->getMinMethod(self::TABLE_NAME, $col);
+        }
+    }
+
+    public function selectDisplay()
+    {
+        return $this->selectDisplayMethod(self::TABLE_NAME, $this->primaryCol, 'tenSP', 'donViTinh');
+    }
+
+    public function get($page, $order)
+    {
+        if (!empty($order)) {
+            $order = [
+                'order' => $order,
+                'col' => $this->primaryCol
+            ];
+        }
+        return $this->getMethod(self::TABLE_NAME, $page, $order);
     }
 
     public function post($data = [])
@@ -20,19 +68,14 @@ class SanPhamModel extends BaseModel
         return $this->postMethod(self::TABLE_NAME, $data);
     }
 
-    public function get($page)
-    {
-        return $this->getMethod(self::TABLE_NAME, $page);
-    }
-
     public function update($data = [], $id)
     {
-        return $this->updateMethod(self::TABLE_NAME, $data, $this->idCol, $id);
+        return $this->updateMethod(self::TABLE_NAME, $data, $this->primaryCol, $id);
     }
 
     public function delete($id = [])
     {
-        return $this->deleteMethod(self::TABLE_NAME, $this->idCol, $id);
+        return $this->deleteMethod(self::TABLE_NAME, $this->primaryCol, $id);
     }
 
     public function find($searchingText, $page)
@@ -69,8 +112,8 @@ class SanPhamModel extends BaseModel
         return $this->sortMethod(self::TABLE_NAME,  $sortValues, $page);
     }
 
-    public function sortAndFilter($sortValues, $filterValues, $page)
+    public function filterAndSort($sortValues, $filterValues, $page)
     {
-        return $this->sortAndFilterMethod(self::TABLE_NAME, $sortValues, $filterValues, $page);
+        return $this->filterAndSortMethod(self::TABLE_NAME, $sortValues, $filterValues, $page);
     }
 }

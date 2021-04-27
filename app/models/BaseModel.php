@@ -2,35 +2,102 @@
 class BaseModel extends Database
 {
     protected $conn;
+    private $alert;
 
     protected function __construct()
     {
         $this->conn = $this->connect();
+        $this->alert = new Other();
     }
 
-    protected function postMethod($tableName, $data = [])
+    protected function countRowMethod($tableName, $primaryCol)
     {
-        $dataStringValues = array_map(function ($value) {
-            return "'$value'";
-        }, array_values($data));
-        $values = implode(",", array_values($dataStringValues));
-        $columns = implode(",", array_keys($data));
+        $sql = 'SELECT COUNT(' . $primaryCol . ') as tongSoLuong FROM ' . $tableName;
+        $query = $this->conn->query($sql);
 
-        $sql = "INSERT INTO $tableName($columns) VALUES ($values)";
-        $this->conn->query($sql);
+        while ($row = mysqli_fetch_assoc($query)) {
+            return $row;
+        }
     }
 
-    protected function getMethod($tableName, $page)
+    protected function getRowMethod($tableName, $col, $value)
     {
-        $sql = 'SELECT * FROM ' . $tableName . ' LIMIT ' . $page['limit'] . ' OFFSET ' . ($page['current'] - 1) * $page['limit'];
+        if ($value != null) {
+            $sql = 'SELECT * FROM ' . $tableName . ' WHERE ' . $col . ' = ' . $value;
+            $query = $this->conn->query($sql);
+
+            while ($row = mysqli_fetch_assoc($query)) {
+                return $row;
+            }
+        }
+    }
+
+    protected function getMaxMethod($tableName, $col)
+    {
+        $sql = 'SELECT ' . $col . ' FROM ' . $tableName . ' GROUP BY ' . $col . ' desc LIMIT 1';
+        $query = $this->conn->query($sql);
+
+        while ($row = mysqli_fetch_assoc($query)) {
+            return $row;
+        }
+    }
+
+    protected function getMinMethod($tableName, $col)
+    {
+        $sql = 'SELECT ' . $col . ' FROM ' . $tableName . ' GROUP BY ' . $col . ' asc LIMIT 1';
+        $query = $this->conn->query($sql);
+
+        while ($row = mysqli_fetch_assoc($query)) {
+            return $row;
+        }
+    }
+
+    protected function selectDisplayMethod($tableName, ...$col)
+    {
+        $cols = '';
+        foreach ($col as $value) {
+            $cols = $cols . $value . ',';
+        }
+        $cols = substr($cols, 0, -1);
+
+        $sql = 'SELECT ' . $cols . ' FROM ' . $tableName;
         $query = $this->conn->query($sql);
         $data = [];
+        while ($row = mysqli_fetch_assoc($query)) {
+            array_push($data, $row);
+        }
+        return $data;
+    }
 
+    protected function getMethod($tableName, $page, $order = null)
+    {
+        $sql = '';
+        if (empty($order)) {
+            $sql = 'SELECT * FROM ' . $tableName . ' LIMIT ' . $page['limit'] . ' OFFSET ' . ($page['current'] - 1) * $page['limit'];
+        } else {
+            $sql = 'SELECT * FROM ' . $tableName . ' ORDER BY ' . $order['col'] . ' ' . $order['order'] . ' LIMIT ' . $page['limit'] . ' OFFSET ' . ($page['current'] - 1) * $page['limit'];
+        }
+        $numberOF = 'SELECT COUNT(*) FROM ' . $tableName;
+        if (isset($page['id'])) {
+            $sql = 'SELECT * FROM ' . $tableName . ' WHERE ' . $page['col'] . ' = ' . $page['id'] . ' LIMIT ' . $page['limit'] . ' OFFSET ' . ($page['current'] - 1) * $page['limit'];
+            $numberOF = 'SELECT * FROM ' . $tableName . ' WHERE ' . $page['col'] . ' = ' . $page['id'];
+        }
+        $query = $this->conn->query($sql);
+        $data = [];
         while ($row = mysqli_fetch_assoc($query)) {
             array_push($data, $row);
         }
 
-        return $data;
+        $query = $this->conn->query($numberOF);
+        $pages = 0;
+        while ($row = mysqli_fetch_assoc($query)) {
+            $pages = array_values($row)[0];
+        }
+
+        return [
+            'data' => $data,
+            'pages' => $pages
+        ];
     }
 
     protected function getPrimaryCol($tableName)
@@ -44,7 +111,32 @@ class BaseModel extends Database
         }
         $key = array_column($data, 'Column_name');
 
-        return $key[0];
+        if (isset($key[0])) {
+            return $key[0];
+        }
+        return null;
+    }
+
+    protected function postMethod($tableName, $data = [])
+    {
+        $dataStringValues = array_map(function ($value) {
+            return "'$value'";
+        }, array_values($data));
+        $values = implode(",", array_values($dataStringValues));
+        $columns = implode(",", array_keys($data));
+
+        $resetAI = 'ALTER TABLE ' . $tableName . ' AUTO_INCREMENT = 1';
+        if (!$this->conn->query($resetAI)) {
+            return $this->conn->error;
+        }
+
+        $sql = "INSERT INTO $tableName($columns) VALUES ($values)";
+        echo $sql;
+        // if ($this->conn->query($sql)) {
+        //     return $this->alert->alert('Add succeed');
+        // } else {
+        //     return $this->conn->error;
+        // }
     }
 
     protected function updateMethod($tableName, $data, $colID, $id)
@@ -56,14 +148,79 @@ class BaseModel extends Database
         $result = implode(',', $result);
 
         $sql = 'UPDATE ' . $tableName . ' SET ' . $result . ' WHERE ' . $colID . ' = ' . $id;
-        $this->conn->query($sql);
+        // if ($this->conn->query($sql)) {
+        //     $this->alert->alert('Update succeed');
+        // } else {
+        //     $this->alert->alert('Update failed');
+        // }
+        echo $sql;
     }
 
-    protected function deleteMethod($tableName, $column, $id)
+    protected function updateQuCNMethod($data)
     {
-        $idString = implode(",", $id);
-        $sql = 'DELETE FROM ' . $tableName . ' WHERE ' . $column . ' IN ' . $idString;
-        $this->conn->query($sql);
+        $reset = 'UPDATE quyenchucnang SET hienthi = 0 WHERE hienThi = 1 AND maQuyen = ' . $data['maQuyen'];
+        if (!$this->conn->query($reset)) {
+            return $this->conn->error;
+        }
+
+        $sql = 'UPDATE quyenchucnang SET hienthi = 1 WHERE maQuyen = ' . $data['maQuyen'] . ' AND maCN = ' . $data['maCN'];
+        if ($this->conn->query($sql)) {
+            return $this->alert->alert('Delete succeed');
+        } else {
+            return $this->conn->error;
+        }
+    }
+
+    protected function deleteMethod($tableName, $column, $data)
+    {
+        $id = '';
+        if (isset($data['id']) && is_array($data['id'])) {
+            $length = count($data['id']);
+            for ($i = 0; $i < $length; $i++) {
+                $id = $id . $data['id'][$i];
+                if ($i != $length - 1) {
+                    $id = $id . ',';
+                }
+            }
+        } else
+        if (isset($data['id']) && !is_array($data['id'])) {
+            $id = $id . $data['id'];
+        } else {
+            $length = count($data);
+            for ($i = 0; $i < $length; $i++) {
+                $id = $id . $data[$i];
+                if ($i != $length - 1) {
+                    $id = $id . ',';
+                }
+            }
+        }
+        $sql = 'DELETE FROM ' . $tableName . ' WHERE ' . $column . ' IN (' . $id . ')';
+
+        if ($this->conn->query($sql)) {
+            $status = 0;
+            if (isset($data['imgPath']) && $data['imgPath'] != null) {
+                $pos = strpos($data['imgPath'][0], "public");
+                $filePath = substr($data['imgPath'][0], $pos, strpos($data['imgPath'][0], "-") - $pos + 1);
+                $ext = substr($data['imgPath'][0], strrpos($data['imgPath'][0], "."));
+                if (is_array($data['id'])) {
+                    foreach ($data['id'] as $key => $value) {
+                        if (unlink(__DIR__ . '/../../' . $filePath . $value .  $ext)) $status = 1;
+                        else $status = 0;
+                    }
+                } else {
+                    $filePath = substr($data['imgPath'], strpos($data['imgPath'], "public"));
+                    if (unlink(__DIR__ . '/../../' . $filePath)) $status = 1;
+                    else $status = 0;
+                }
+            }
+            if ($status == 1) {
+                return $this->alert->alert('Delete succeed');
+            } else {
+                return $this->alert->alert('No such file or directory');
+            }
+        } else {
+            return $this->conn->error;
+        }
     }
 
     protected function findMethod($tableName, $findValues, $page)
@@ -71,7 +228,24 @@ class BaseModel extends Database
         $sql = 'SELECT * FROM ' . $tableName .
             ' WHERE ' . $findValues['searchingCol'] . " LIKE '%" . $findValues['searchingText'] . "%'" .
             ' LIMIT ' . $page['limit'] . ' OFFSET ' . ($page['current'] - 1) * $page['limit'];
-        return $this->returnBackValues($sql);
+        $query = $this->conn->query($sql);
+        $data = [];
+        while ($row = mysqli_fetch_assoc($query)) {
+            array_push($data, $row);
+        }
+
+        $sql = 'SELECT COUNT(' . $findValues['searchingCol'] . ') as pages FROM ' . $tableName .
+            ' WHERE ' . $findValues['searchingCol'] . " LIKE '%" . $findValues['searchingText'] . "%'";
+        $query = $this->conn->query($sql);
+        $pages = 0;
+        while ($row = mysqli_fetch_assoc($query)) {
+            $pages = array_values($row)[0];
+        }
+
+        return [
+            'data' => $data,
+            'pages' => $pages
+        ];
     }
 
     protected function findWithFilterMethod($tableName, $findValues, $filterValues, $page)
@@ -81,7 +255,26 @@ class BaseModel extends Database
             ' AND ' . $filterValues['filterCol'] . ' <= ' . $filterValues['to'] .
             ' AND ' . $findValues['searchingCol'] . " LIKE '%" . $findValues['searchingText'] . "%'" .
             ' LIMIT ' . $page['limit'] . ' OFFSET ' . ($page['current'] - 1) * $page['limit'];
-        return $this->returnBackValues($sql);
+        $query = $this->conn->query($sql);
+        $data = [];
+        while ($row = mysqli_fetch_assoc($query)) {
+            array_push($data, $row);
+        }
+
+        $sql = 'SELECT COUNT(*) FROM ' . $tableName .
+            ' WHERE ' . $filterValues['filterCol'] . ' >= ' . $filterValues['from'] .
+            ' AND ' . $filterValues['filterCol'] . ' <= ' . $filterValues['to'] .
+            ' AND ' . $findValues['searchingCol'] . " LIKE '%" . $findValues['searchingText'] . "%'";
+        $query = $this->conn->query($sql);
+        $pages = 0;
+        while ($row = mysqli_fetch_assoc($query)) {
+            $pages = array_values($row)[0];
+        }
+
+        return [
+            'data' => $data,
+            'pages' => $pages
+        ];
     }
 
     protected function findWithSortMethod($tableName, $findValues, $sortValues, $page)
@@ -90,7 +283,25 @@ class BaseModel extends Database
             ' WHERE ' . $findValues['searchingCol'] . " LIKE '%" . $findValues['searchingText'] . "%'" .
             ' ORDER BY ' . $sortValues['sortCol'] . ' ' . $sortValues['order'] .
             ' LIMIT ' . $page['limit'] . ' OFFSET ' . ($page['current'] - 1) * $page['limit'];
-        return $this->returnBackValues($sql);
+        $query = $this->conn->query($sql);
+        $data = [];
+        while ($row = mysqli_fetch_assoc($query)) {
+            array_push($data, $row);
+        }
+
+
+        $sql = 'SELECT * FROM ' . $tableName .
+            ' WHERE ' . $findValues['searchingCol'] . " LIKE '%" . $findValues['searchingText'] . "%'";
+        $query = $this->conn->query($sql);
+        $pages = 0;
+        while ($row = mysqli_fetch_assoc($query)) {
+            $pages = array_values($row)[0];
+        }
+
+        return [
+            'data' => $data,
+            'pages' => $pages
+        ];
     }
 
     protected function findWithFilterAndSortMethod($tableName, $findValues, $filterValues, $sortValues, $page)
@@ -101,7 +312,26 @@ class BaseModel extends Database
             ' AND ' . $findValues['searchingCol'] . " LIKE '%" . $findValues['searchingText'] . "%'" .
             ' ORDER BY ' . $sortValues['sortCol'] . ' ' . $sortValues['order'] .
             ' LIMIT ' . $page['limit'] . ' OFFSET ' . ($page['current'] - 1) * $page['limit'];
-        return $this->returnBackValues($sql);
+        $query = $this->conn->query($sql);
+        $data = [];
+        while ($row = mysqli_fetch_assoc($query)) {
+            array_push($data, $row);
+        }
+
+        $sql = 'SELECT * FROM ' . $tableName .
+            ' WHERE ' . $filterValues['filterCol'] . ' >= ' . $filterValues['from'] .
+            ' AND ' . $filterValues['filterCol'] . ' <= ' . $filterValues['to'] .
+            ' AND ' . $findValues['searchingCol'] . " LIKE '%" . $findValues['searchingText'] . "%'";
+        $query = $this->conn->query($sql);
+        $pages = 0;
+        while ($row = mysqli_fetch_assoc($query)) {
+            $pages = array_values($row)[0];
+        }
+
+        return [
+            'data' => $data,
+            'pages' => $pages
+        ];
     }
 
     protected function filterMethod($tableName, $filterValues, $page)
@@ -116,7 +346,20 @@ class BaseModel extends Database
         while ($row = mysqli_fetch_assoc($query)) {
             array_push($data, $row);
         }
-        return $this->returnBackValues($sql);
+
+        $sql = 'SELECT * FROM ' . $tableName .
+            ' WHERE ' . $filterValues['filterCol'] . ' >= ' . $filterValues['from'] .
+            ' AND ' . $filterValues['filterCol'] . ' <= ' . $filterValues['to'];
+        $query = $this->conn->query($sql);
+        $pages = 0;
+        while ($row = mysqli_fetch_assoc($query)) {
+            $pages = array_values($row)[0];
+        }
+
+        return [
+            'data' => $data,
+            'pages' => $pages
+        ];
     }
 
     protected function sortMethod($tableName, $sortValues, $page)
@@ -130,10 +373,22 @@ class BaseModel extends Database
         while ($row = mysqli_fetch_assoc($query)) {
             array_push($data, $row);
         }
-        return $this->returnBackValues($sql);
+
+        $sql = 'SELECT * FROM ' . $tableName .
+            ' ORDER BY ' . $sortValues['sortCol'] . ' ' . $sortValues['order'];
+        $query = $this->conn->query($sql);
+        $pages = 0;
+        while ($row = mysqli_fetch_assoc($query)) {
+            $pages = array_values($row)[0];
+        }
+
+        return [
+            'data' => $data,
+            'pages' => $pages
+        ];
     }
 
-    protected function sortAndFilterMethod($tableName, $sortValues = [], $filterValues = [], $page)
+    protected function filterAndSortMethod($tableName, $sortValues = [], $filterValues = [], $page)
     {
         $sql = 'SELECT * FROM ' . $tableName .
             ' WHERE ' . $filterValues['filterCol'] . ' >= ' . $filterValues['from'] .
@@ -141,16 +396,24 @@ class BaseModel extends Database
             ' ORDER BY ' . $sortValues['sortCol'] . ' ' . $sortValues['order'] .
             ' LIMIT ' . $page['limit'] . ' OFFSET ' . ($page['current'] - 1) * $page['limit'];
 
-        return $this->returnBackValues($sql);
-    }
-
-    private function returnBackValues($sql)
-    {
         $query = $this->conn->query($sql);
         $data = [];
         while ($row = mysqli_fetch_assoc($query)) {
             array_push($data, $row);
         }
-        return $data;
+
+        $sql = 'SELECT * FROM ' . $tableName .
+            ' WHERE ' . $filterValues['filterCol'] . ' >= ' . $filterValues['from'] .
+            ' AND ' . $filterValues['filterCol'] . ' <= ' . $filterValues['to'];
+        $query = $this->conn->query($sql);
+        $pages = 0;
+        while ($row = mysqli_fetch_assoc($query)) {
+            $pages = array_values($row)[0];
+        }
+
+        return [
+            'data' => $data,
+            'pages' => $pages
+        ];
     }
 }

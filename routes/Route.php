@@ -15,20 +15,21 @@ class Route
 
     public function submit()
     {
+        $dir = __DIR__;
+
+        require "$dir/../config/database/Database.php";
+        require "$dir/../app/controllers/BaseController.php";
+        require "$dir/../app/models/BaseModel.php";
+        require "$dir/../common/UploadImage.php";
+        require "$dir/../common/Other.php";
+
         $uriGetParam = isset($_GET['uri']) ? '/' . $_GET['uri'] : '/';
-        $arrCount = count($this->_uri);
 
         foreach ($this->_uri as $key => $value) {
             if (preg_match("#^$value$#", $uriGetParam)) {
-                $useMethod = $this->_method[$key];
-
-                require_once('./app/index.php');
-
-                // new $useMethod;
-                break;
-            }
-            if ($arrCount === $key + 1) {
-                die("ERROR");
+                if (is_string($this->_method[$key])) {
+                    $useMethod = $this->_method[$key];
+                }
             }
         }
     }

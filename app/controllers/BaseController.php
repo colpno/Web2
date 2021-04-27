@@ -4,14 +4,24 @@ class BaseController
     private const VIEW_PATH = __DIR__ . '/../views/';
     private const MODEL_PATH = __DIR__ . '/../models/';
 
-    protected function view($fileName, array $data = [])
+    protected function view($view, array $data = [], $json = false)
     {
-        $fileName = self::VIEW_PATH . $fileName . '.php';
-
-        foreach ($data as $key => $value) {
-            $$key = $value;
+        // foreach ($data as $key => $value) {
+        //     $$key = $value;
+        // }
+        $filePath = self::VIEW_PATH . $view . '.php';
+        if (file_exists($filePath)) {
+            require_once $filePath;
         }
+    }
 
-        require_once $fileName;
+    protected function model($model)
+    {
+        $completeFileName = $model . 'Model';
+        $filePath = self::MODEL_PATH . $completeFileName . '.php';
+        if (file_exists($filePath)) {
+            require_once $filePath;
+            return new $completeFileName;
+        }
     }
 }

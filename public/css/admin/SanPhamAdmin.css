@@ -1,0 +1,253 @@
+.fa-arrow-circle-right {
+    color: #34aa34;
+}
+
+.report-item {
+    padding: 25px;
+    box-shadow: 0 0 2px 0.05px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    line-height: 1.2rem;
+    min-height: 130px;
+}
+
+.product-report__row__report:last-child .report-item {
+    background-color: var(--primary-color);
+    color: #fff;
+}
+
+.product-report__row__report .report-item p {
+    margin: 0;
+    margin-right: 50px;
+}
+
+.report-item__text {
+    display: flex;
+}
+
+.report-item p {
+    font-weight: 100;
+    letter-spacing: 1px;
+}
+.report-item__text span {
+    flex: 1;
+    font-weight: bold;
+    font-size: 30px;
+}
+.icon {
+    color: var(--main-color);
+    font-size: 40px;
+}
+
+.title--border {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-left: none;
+    border-right: none;
+    padding: 7px 0 7px 0;
+}
+
+.content--show h6 {
+    margin: 0;
+}
+
+.content--show .row span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.product__row,
+.category__row,
+.promotion__row,
+.detail-promotion__row {
+    background-color: #fff;
+}
+
+.checkbox {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.checkbox input {
+    margin-right: 4px;
+}
+
+.checkbox i {
+    cursor: pointer;
+}
+
+/* 
+    Tiêu đề cột
+ */
+.content-item__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 13px 0 13px;
+    margin-top: var(--padding-main-top);
+}
+
+.content-item__header span {
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.content-item__header button {
+    height: 35px;
+    width: 90px;
+    border-radius: 10px;
+    background-color: var(--primary-color);
+    color: #fff;
+    outline: none;
+    border: none;
+    margin: 12px 0 12px 0;
+    font-size: 0.95rem;
+    font-weight: 200;
+}
+
+/* 
+    Phân trang
+ */
+.content-item__pagination {
+    padding: 10px 0 10px 0;
+}
+
+.paginate {
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.current-page {
+    background-color: var(--primary-color) !important;
+    color: #fff !important;
+    cursor: default;
+}
+
+.content-item__pagination li {
+    width: 30px;
+    height: 30px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    background-color: #efefef;
+    color: #000;
+}
+
+.content-item__pagination li:hover:not(.current-page) {
+    background-color: #fae4ec;
+}
+
+/* 
+    chỗ ghi dữ liệu thêm
+ */
+.add-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    opacity: 1;
+    transition: opacity 1s;
+}
+
+.add-content input,
+.add-content select {
+    margin: 7px 0 7px 0;
+}
+
+.add-content select[name='maLoai'],
+.add-content select[name='maNSX'] {
+    width: 600px;
+}
+
+.add-content__input {
+    display: flex;
+    justify-content: space-evenly;
+    flex-direction: row;
+}
+
+.add-content__input-right {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    margin: 0 30px 0 30px;
+}
+
+.add-content__input-right input[type='text'] {
+    width: 200px;
+}
+
+.add-content__input-left {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    margin: 0 30px 0 30px;
+}
+
+.add-content__input-left input {
+    width: 250px;
+}
+
+.add-content input[type='submit'] {
+    background-color: #65ff65;
+    border: 1px solid #005f00;
+}
+
+/* 
+    chỗ ghi dữ liệu để lọc
+ */
+.filter-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.filter-content select {
+    margin: 7px 20px 7px 0;
+}
+
+.filter-content input {
+    margin: 7px 0 7px 0;
+}
+
+.filter-content input[type='submit'] {
+    background-color: #b9ddff;
+    border: 1px solid #0000ff;
+}
+
+/* 
+    vửa thêm vừa lọc
+ */
+.add-content,
+.filter-content {
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 20px 0 20px 0;
+}
+
+.add-content input[type='text'],
+.filter-content input[type='text'] {
+    border: none;
+    border-bottom: 1px solid #000;
+    text-align: center;
+}
+
+.add-content input[type='submit'],
+.filter-content input[type='submit'] {
+    width: 100px;
+    height: 30px;
+    border-radius: 10px;
+    outline: none;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    margin: 15px 0 5px 0;
+}
+
+/* 
+    thêm KHUYẾN MÃI
+ */
+.promotion__add-content .add-content__input {
+    display: flex;
+    flex-direction: column;
+}
+
+.promotion__add-content .add-content__input div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
