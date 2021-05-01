@@ -335,4 +335,9 @@ class PhieuNhapHangController extends BaseController
             'limit' => $this->limit
         ];
     }
+
+    public function thongke()
+    {
+        return $this->phieuNhapHangModel->thongke();
+    }
 }

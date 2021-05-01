@@ -250,9 +250,9 @@
                                     $length = $_SESSION['get']['Loai']['LoaiData']['pages'];
                                     for ($i = 1; $i <= $length; $i++) {
                                         if ($i == 1)
-                                            echo '<li onclick="paginate(this)" class="loai-' . $i . ' current-page">' . $i . '</li>';
+                                            echo '<li onclick="paginate(this)" class="sanpham-' . $i . ' current-page">' . $i . '</li>';
                                         else
-                                            echo '<li onclick="paginate(this)" class="loai-' . $i . '">' . $i . '</li>';
+                                            echo '<li onclick="paginate(this)" class="sanpham-' . $i . '">' . $i . '</li>';
                                     }
                                 }
                                 ?>
@@ -340,9 +340,9 @@
                                     $length = $_SESSION['get']['KhuyenMai']['KMData']['pages'];
                                     for ($i = 1; $i <= $length; $i++) {
                                         if ($i == 1)
-                                            echo '<li onclick="paginate(this)" class="khuyenmai-' . $i . ' current-page">' . $i . '</li>';
+                                            echo '<li onclick="paginate(this)" class="sanpham-' . $i . ' current-page">' . $i . '</li>';
                                         else
-                                            echo '<li onclick="paginate(this)" class="khuyenmai-' . $i . '">' . $i . '</li>';
+                                            echo '<li onclick="paginate(this)" class="sanpham-' . $i . '">' . $i . '</li>';
                                     }
                                 }
                                 ?>

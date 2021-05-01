@@ -11,7 +11,7 @@ class KhachHangModel extends BaseModel
         $this->primaryCol = $this->getPrimaryCol(self::TABLE_NAME);
 
         $this->findValues = [
-            'searchingCol' => 'tenKH'
+            'searchingCol' => 'ten'
         ];
     }
 

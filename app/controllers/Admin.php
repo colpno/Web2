@@ -184,7 +184,7 @@ class admin
 
     public function thongke($data = [])
     {
-        $components = ['TaiKhoan', 'NhanVien', 'KhachHang'];
+        $components = ['TaiKhoan',  'NhanVien', 'HoaDon', 'PhieuNhapHang'];
         foreach ($components as  $component) {
             require_once(__DIR__ . '/components/' . $component . 'Controller.php');
             require_once(__DIR__ . '/../models/' . $component . 'Model.php');
@@ -195,21 +195,14 @@ class admin
 
         $this->taiKhoan = new $components[0];
         $this->nhanVien = new $components[1];
-        $this->khachHang = new $components[2];
+        $this->hoaDon = new $components[2];
+        $this->phieuNhapHang = new $components[3];
 
         $returnBack = [
-            'TaiKhoan' => [
-                'Data' => $this->taiKhoan->get(),
-                'TongSoTaiKhoan' => $this->taiKhoan->countRow('maTK'),
-            ],
-            'NhanVien' => [
-                'Data' => $this->nhanVien->get(),
-                'TongSoNhanVien' => $this->nhanVien->countRow('maNV'),
-            ],
-            'KhachHang' => [
-                'Data' => $this->khachHang->get(),
-                'TongSoKhachHang' => $this->khachHang->countRow('maKH'),
-            ]
+            'TaiKhoan' => $this->taiKhoan->thongke(),
+            'NhanVien' => $this->nhanVien->thongke(),
+            'HoaDon' => $this->hoaDon->thongke(),
+            'PhieuNhapHang' => $this->phieuNhapHang->thongke(),
         ];
         if (isset($data['action'], $data['table'])) {
             $returnBack = $this->action($data['table'], $data['action'], $data);

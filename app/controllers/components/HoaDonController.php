@@ -44,6 +44,11 @@ class HoaDonController extends BaseController
         return $hoaDon;
     }
 
+    public function getMax($col)
+    {
+        return array_values($this->hoaDonModel->getMaxCol($col))[0];
+    }
+
     public function add($data)
     {
         if (
@@ -52,7 +57,6 @@ class HoaDonController extends BaseController
             && $data['ngayLapHoaDon']
             && $data['tongTien']
         ) {
-            $maxID = array_values($this->hoaDonModel->getMaxCol())[0];
 
 
 
@@ -340,5 +344,10 @@ class HoaDonController extends BaseController
             'current' => isset($_GET['page']) ? $_GET['page'] : 1,
             'limit' => $this->limit
         ];
+    }
+
+    public function thongke()
+    {
+        return $this->hoaDonModel->thongke();
     }
 }

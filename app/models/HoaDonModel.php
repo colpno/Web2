@@ -111,4 +111,9 @@ class HoaDonModel extends BaseModel
     {
         return $this->filterAndSortMethod(self::TABLE_NAME, $sortValues, $filterValues, $page);
     }
+
+    public function thongke()
+    {
+        return $this->thongkeMethod(self::TABLE_NAME, 'ngayLapHoaDon', 'tongTien');
+    }
 }

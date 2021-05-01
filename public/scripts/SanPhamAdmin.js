@@ -230,15 +230,29 @@ $(document).ready(function () {
             No failed testing
          */
         if (count == 0) {
+            const filterCol = '',
+                from = '',
+                to = '';
+
             that.find('[name]').each(function () {
                 const that = $(this),
                     name = that.attr('name'),
                     val = that.val();
 
                 fd.append(name, val);
+
+                if (name == 'filterCol') {
+                    filterCol = val;
+                }
+                if (name == 'from') {
+                    from = val;
+                }
+                if (name == 'to') {
+                    to = val;
+                }
             });
 
-            const params = '?controller=admin&action=sanpham';
+            const params = `?controller=admin&action=sanpham&filterCol=${filterCol}&from=${from}&to=${to}&page=1`;
 
             $.ajax({
                 url: '/Web2/app/index.php' + params,

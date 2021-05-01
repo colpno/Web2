@@ -67,6 +67,11 @@ if (!isset($_POST['action'])) {
                 $_SESSION['get'] = $controllerObject->taikhoan();
                 break;
             }
+        case 'thongke':
+        case 'ThongKe': {
+                $_SESSION['get'] = $controllerObject->thongke();
+                break;
+            }
     }
 }
 
@@ -99,6 +104,11 @@ if (isset($_POST['action'])) {
                     case 'taikhoan':
                     case 'TaiKhoan': {
                             echo json_encode($controllerObject->taikhoan($_POST));
+                            break;
+                        }
+                    case 'thongke':
+                    case 'ThongKe': {
+                            echo json_encode($controllerObject->thongke($_POST));
                             break;
                         }
                 }

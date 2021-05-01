@@ -25,7 +25,7 @@
 
     <input type="checkbox" class="hidden" id="sidebar--toggle">
     <nav class="sidebar-menu">
-        <a class="brand">
+        <a href="/Web2/admin/sanpham" class="brand">
             <img src="/Web2/public/images/TaiKhoan/TK-1.jpg" alt="logo">
             <h1>Nhãn</h1>
         </a>
@@ -63,9 +63,77 @@
                 <i class="fas fa-search"></i>
                 <input type="text" id="searchSanPham" name="search" placeholder="Search" oninput="onInput()">
                 <select name="item-search" id="itemSearch">
-                    <option value="sanpham">Sản phẩm</option>
-                    <option value="loai">Loại</option>
-                    <option value="khuyenmai">Khuyến mãi</option>
+                    <?php
+                    $SanPham = [
+                        [
+                            'value' => 'sanpham',
+                            'display' => 'Sản phẩm'
+                        ],
+                        [
+                            'value' => 'loai',
+                            'display' => 'Loại'
+                        ],
+                        [
+                            'value' => 'khuyenmai',
+                            'display' => 'Khuyễn mãi'
+                        ],
+                    ];
+                    $TaiKhoan = [
+                        [
+                            'value' => 'taikhoan',
+                            'display' => 'Tài khoản'
+                        ],
+                        [
+                            'value' => 'nhanvien',
+                            'display' => 'Nhân viên'
+                        ],
+                        [
+                            'value' => 'khachhang',
+                            'display' => 'Khách hàng'
+                        ]
+                    ];
+                    $DoiTac = [
+                        [
+                            'value' => 'nhacungcap',
+                            'display' => 'Nhà cung cấp'
+                        ],
+                        [
+                            'value' => 'nhasanxuat',
+                            'display' => 'Nhà sản xuất'
+                        ],
+                    ];
+                    $uri = isset($_GET['uri']) ? $_GET['uri'] : '';
+                    $splitUri = explode('/', $uri);
+
+                    switch ($splitUri[1]) {
+                        case 'sanpham':
+                        case 'SanPham': {
+                                foreach ($SanPham as $key => $value) {
+                                    echo '<option value="' . $value['value'] . '">' . $value['display'] . '</option>';
+                                }
+                                break;
+                            }
+                        case 'nhapxuat':
+                        case 'NhapXuat': {
+                                echo '<script>$(".search-wrapper").remove()</script>';
+                                break;
+                            }
+                        case 'taikhoan':
+                        case 'TaiKhoan': {
+                                foreach ($TaiKhoan as $key => $value) {
+                                    echo '<option value="' . $value['value'] . '">' . $value['display'] . '</option>';
+                                }
+                                break;
+                            }
+                        case 'doitac':
+                        case 'DoiTac': {
+                                foreach ($DoiTac as $key => $value) {
+                                    echo '<option value="' . $value['value'] . '">' . $value['display'] . '</option>';
+                                }
+                                break;
+                            }
+                    }
+                    ?>
                 </select>
             </div>
 

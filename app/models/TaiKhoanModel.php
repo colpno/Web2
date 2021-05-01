@@ -110,4 +110,9 @@ class TaiKhoanModel extends BaseModel
     {
         return $this->selectDisplayMethod(self::TABLE_NAME, $this->primaryCol, 'tenTaiKhoan');
     }
+
+    public function thongke()
+    {
+        return $this->thongkeMethod(self::TABLE_NAME, 'maQuyen', 'thoiGianTao');
+    }
 }

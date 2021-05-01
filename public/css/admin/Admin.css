@@ -327,7 +327,8 @@ header label {
     cursor: default;
 }
 
-.content-item__pagination li {
+.content-item__pagination li,
+.content-item__pagination a {
     width: 30px;
     height: 30px;
     border: 1px solid rgba(0, 0, 0, 0.1);
@@ -336,7 +337,8 @@ header label {
     cursor: pointer;
 }
 
-.content-item__pagination li:hover:not(.current-page) {
+.content-item__pagination li:hover:not(.current-page),
+.content-item__pagination a:hover:not(.current-page) {
     background-color: #fae4ec;
 }
 

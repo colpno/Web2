@@ -349,4 +349,9 @@ class NhanVienController extends BaseController
             'limit' => $this->limit
         ];
     }
+
+    public function thongke()
+    {
+        return $this->nhanVienModel->thongke();
+    }
 }

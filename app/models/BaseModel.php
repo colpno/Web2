@@ -137,6 +137,10 @@ class BaseModel extends Database
             $sql = 'SELECT * FROM ' . $tableName . ' ORDER BY ' . $order['col'] . ' ' . $order['order'] . ' LIMIT ' . $data['limit'] . ' OFFSET ' . ($data['current'] - 1) * $data['limit'];
         }
         $numberOF = 'SELECT COUNT(*) FROM ' . $tableName;
+
+        /* 
+            bang Chi tiet
+         */
         if (isset($data['id'])) {
             $sql = 'SELECT * FROM ' . $tableName . ' WHERE ' . $data['col'] . ' = ' . $data['id'] . ' LIMIT ' . $data['limit'] . ' OFFSET ' . ($data['current'] - 1) * $data['limit'];
             $numberOF = 'SELECT * FROM ' . $tableName . ' WHERE ' . $data['col'] . ' = ' . $data['id'];
@@ -573,6 +577,25 @@ class BaseModel extends Database
             'path' => !empty($path) ? $path . $fileName . '.png' : "",
             'fileName' => $fileName,
             'instance' => $uploadInstance,
+        ];
+    }
+    public function thongkeMethod($tableName, ...$cols)
+    {
+        $addComma = array_map(function ($col) {
+            return $col . ',';
+        }, $cols);
+        $select = implode($addComma);
+        $select = substr($select, 0, -1);
+
+        $sql = 'SELECT ' . $select . ' FROM ' . $tableName;
+        $query = $this->conn->query($sql);
+        $data = [];
+        while ($row = mysqli_fetch_assoc($query)) {
+            array_push($data, $row);
+        }
+
+        return [
+            'Data' => $data
         ];
     }
 }

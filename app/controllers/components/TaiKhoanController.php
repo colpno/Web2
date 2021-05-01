@@ -28,13 +28,7 @@ class TaiKhoanController extends BaseController
         if (!$this->AllRowLength) {
             $this->AllRowLength = array_values($this->taiKhoanModel->countRow())[0];
         }
-        $taiKhoan = [];
-        if (!empty($page)) {
-            $page['limit'] = $this->getPage()['limit'];
-            $taiKhoan = $this->taiKhoanModel->get();
-        } else {
-            $taiKhoan = $this->taiKhoanModel->get($this->getPage());
-        }
+        $taiKhoan = $this->taiKhoanModel->get($this->getPage());
         $numOfPages = $this->getNumOfPages($taiKhoan['pages']);
 
         $taiKhoan['pages'] = $numOfPages;
@@ -339,5 +333,10 @@ class TaiKhoanController extends BaseController
             'current' => isset($_GET['page']) ? $_GET['page'] : 1,
             'limit' => $this->limit
         ];
+    }
+
+    public function thongke()
+    {
+        return $this->taiKhoanModel->thongke();
     }
 }
