@@ -52,7 +52,7 @@ class SanPhamModel extends BaseModel
         return $this->selectDisplayMethod(self::TABLE_NAME, $this->primaryCol, 'tenSP', 'donViTinh');
     }
 
-    public function get($page, $order)
+    public function get($page = [], $order = null)
     {
         if (!empty($order)) {
             $order = [
@@ -63,9 +63,9 @@ class SanPhamModel extends BaseModel
         return $this->getMethod(self::TABLE_NAME, $page, $order);
     }
 
-    public function post($data = [])
+    public function post($data = [], $maxID)
     {
-        return $this->postMethod(self::TABLE_NAME, $data);
+        return $this->postMethod(self::TABLE_NAME, $data, $maxID);
     }
 
     public function update($data = [], $id)

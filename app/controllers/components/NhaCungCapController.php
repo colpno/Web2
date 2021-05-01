@@ -28,7 +28,7 @@ class NhaCungCapController extends BaseController
         $nhaCungCap = [];
         if (!empty($page)) {
             $page['limit'] = $this->getPage()['limit'];
-            $nhaCungCap = $this->nhaCungCapModel->get($page);
+            $nhaCungCap  = $this->nhaCungCapModel->get($page);
         } else {
             $nhaCungCap = $this->nhaCungCapModel->get($this->getPage());
         }
@@ -68,7 +68,7 @@ class NhaCungCapController extends BaseController
             && $data['diaChi']
             && $data['soDienThoai']
         ) {
-            $id = $data['maSP'];
+            $id = $data['maNCC'];
             //  
             $values = $this->getValues($data);
             $this->nhaCungCapModel->update($values, $id);
@@ -84,8 +84,7 @@ class NhaCungCapController extends BaseController
             $data['maNCC']
         ) {
             $remove = [
-                'id' => $data['maSP'],
-                'imgPath' => $data['anhDaiDien']
+                'id' => $data['maNCC'],
             ];
             return [
                 'error' => $this->nhaCungCapModel->delete($remove),
@@ -290,6 +289,11 @@ class NhaCungCapController extends BaseController
     private function getNumOfPages($number)
     {
         return ceil((int) $number / $this->getPage()['limit']);
+    }
+
+    public function selectDisplay()
+    {
+        return $this->nhaCungCapModel->selectDisplay();
     }
 
     private function dieIfPageNotValid($numOfPages)

@@ -25,10 +25,10 @@ class NhaSanXuatController extends BaseController
         if (!$this->AllRowLength) {
             $this->AllRowLength = array_values($this->nhaSanXuatModel->countRow())[0];
         }
-        $nhaSanXuat = [];
+        $nhaSanXuat   = [];
         if (!empty($page)) {
             $page['limit'] = $this->getPage()['limit'];
-            $nhaSanXuat = $this->nhaSanXuatModel->get($page);
+            $nhaSanXuat  = $this->nhaSanXuatModel->get($page);
         } else {
             $nhaSanXuat = $this->nhaSanXuatModel->get($this->getPage());
         }
@@ -73,7 +73,7 @@ class NhaSanXuatController extends BaseController
             && $data['diaChi']
             && $data['soDienThoai']
         ) {
-            $id = $data['maSP'];
+            $id = $data['maNSX'];
             //  
             $values = $this->getValues($data);
             $this->nhaSanXuatModel->update($values, $id);
@@ -89,8 +89,7 @@ class NhaSanXuatController extends BaseController
             $data['maNSX']
         ) {
             $remove = [
-                'id' => $data['maSP'],
-                'imgPath' => $data['anhDaiDien']
+                'id' => $data['maNSX'],
             ];
             return [
                 'error' => $this->nhaSanXuatModel->delete($remove),

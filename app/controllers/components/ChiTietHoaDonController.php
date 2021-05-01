@@ -2,6 +2,7 @@
 class ChiTietHoaDonController extends BaseController
 {
     private $chiTietHoaDonModel;
+    private $sanPhamModel;
     private $AllRowLength;
     private $limit = 15;
     private $alert;
@@ -20,25 +21,22 @@ class ChiTietHoaDonController extends BaseController
         return $number;
     }
 
-    public function get($page = [])
+    public function get($id = [])
     {
         if (!$this->AllRowLength) {
             $this->AllRowLength = array_values($this->chiTietHoaDonModel->countRow())[0];
         }
-        $chiTietHoaDon = [];
-        if (!empty($page)) {
-            $page['limit'] = $this->getPage()['limit'];
-            $chiTietHoaDon = $this->chiTietHoaDonModel->get($page);
-        } else {
-            $chiTietHoaDon = $this->chiTietHoaDonModel->get($this->getPage());
+        if (!empty($id)) {
+            $chiTietHoaDon = $this->chiTietHoaDonModel->get($this->getPage(), $id);
+            $numOfPages = $this->getNumOfPages($chiTietHoaDon['pages']);
+
+            $chiTietHoaDon['pages'] = $numOfPages;
+
+            $this->dieIfPageNotValid($numOfPages);
+            $this->changeProp($chiTietHoaDon['data']);
+
+            return $chiTietHoaDon;
         }
-        $numOfPages = $this->getNumOfPages($chiTietHoaDon['pages']);
-
-        $chiTietHoaDon['pages'] = $numOfPages;
-
-        $this->dieIfPageNotValid($numOfPages);
-
-        return $chiTietHoaDon;
     }
 
     public function add($data)
@@ -56,7 +54,7 @@ class ChiTietHoaDonController extends BaseController
 
             $values = $this->getValues($data);
             $this->chiTietHoaDonModel->post($values);
-            return $this->get();
+            return;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để thêm");
         }
@@ -75,7 +73,7 @@ class ChiTietHoaDonController extends BaseController
             //  
             $values = $this->getValues($data);
             $this->chiTietHoaDonModel->update($values, $id);
-            return $this->get();
+            return;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để sửa đổi");
         }
@@ -88,7 +86,6 @@ class ChiTietHoaDonController extends BaseController
         ) {
             $remove = [
                 'id' => $data['maSP'],
-                'imgPath' => $data['anhDaiDien']
             ];
             return [
                 'error' => $this->chiTietHoaDonModel->delete($remove),
@@ -140,14 +137,16 @@ class ChiTietHoaDonController extends BaseController
             && $data['filterCol']
             && $data['from']
             && $data['to']
+            && $data['maHD']
         ) {
-            $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
+            $filterValues = $this->getFilterValues($data);
             $found = $this->chiTietHoaDonModel->findWithFilter($data['search'], $filterValues, $this->getPage());
             $numOfPages = $this->getNumOfPages($found['pages']);
 
             $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
+            $this->changeProp($found['data']);
 
             return $found;
         } else {
@@ -183,15 +182,17 @@ class ChiTietHoaDonController extends BaseController
             && $data['filterCol']
             && $data['from']
             && $data['to']
+            && $data['maHD']
         ) {
             $sortValues = $this->getSortValues();
-            $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
+            $filterValues = $this->getFilterValues($data);
             $found = $this->chiTietHoaDonModel->findWithFilterAndSort($data['search'], $filterValues, $sortValues, $this->getPage());
             $numOfPages = $this->getNumOfPages($found['pages']);
 
             $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
+            $this->changeProp($found['data']);
 
             return $found;
         } else {
@@ -205,14 +206,16 @@ class ChiTietHoaDonController extends BaseController
             $data['filterCol']
             && $data['from']
             && $data['to']
+            && $data['maHD']
         ) {
-            $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
+            $filterValues = $this->getFilterValues($data);
             $filtered = $this->chiTietHoaDonModel->filter($filterValues, $this->getPage());
             $numOfPages = $this->getNumOfPages($filtered['pages']);
 
             $filtered['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
+            $this->changeProp($filtered['data']);
 
             return $filtered;
         } else {
@@ -248,15 +251,17 @@ class ChiTietHoaDonController extends BaseController
             && $data['to']
             && $_GET['sortCol']
             && $_GET['order']
+            && $data['maHD']
         ) {
             $sortValues = $this->getSortValues();
-            $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
+            $filterValues = $this->getFilterValues($data);
             $filtered = $this->chiTietHoaDonModel->filterAndSort($sortValues, $filterValues, $this->getPage());
             $numOfPages = $this->getNumOfPages($filtered['pages']);
 
             $filtered['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
+            $this->changeProp($filtered['data']);
 
             return $filtered;
         } else {
@@ -283,13 +288,11 @@ class ChiTietHoaDonController extends BaseController
         ];
     }
 
-    private function getFilterValues($col, $from, $to)
+    private function getFilterValues($data)
     {
-        return [
-            'filterCol' => $col,
-            'from' => $from,
-            'to' => $to
-        ];
+        $data['col'] = 'maHD';
+        $data['id'] = $data['maHD'];
+        return $data;
     }
 
     private function getNumOfPages($number)
@@ -302,6 +305,20 @@ class ChiTietHoaDonController extends BaseController
         if ($this->getPage()['current'] > $numOfPages) {
             die('ERROR');
         }
+    }
+
+    private function changeProp(&$list)
+    {
+        require_once(__DIR__ . '/../../models/SanPhamModel.php');
+
+        $this->sanPhamModel = new SanPhamModel();
+
+        $length = count($list);
+        for ($i = 0; $i < $length; $i++) {
+            $list[$i]['sanPham'] = $this->sanPhamModel->getRow('maSP', $list[$i]['maSP']);
+            unset($list[$i]['maSP']);
+        }
+        return $list;
     }
 
     private function getPage()

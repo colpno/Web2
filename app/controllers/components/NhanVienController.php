@@ -26,10 +26,10 @@ class NhanVienController extends BaseController
         if (!$this->AllRowLength) {
             $this->AllRowLength = array_values($this->nhanVienModel->countRow())[0];
         }
-        $nhanVien = [];
+        $nhanVien   = [];
         if (!empty($page)) {
             $page['limit'] = $this->getPage()['limit'];
-            $nhanVien = $this->nhanVienModel->get($page);
+            $nhanVien  = $this->nhanVienModel->get($page);
         } else {
             $nhanVien = $this->nhanVienModel->get($this->getPage());
         }
@@ -38,7 +38,7 @@ class NhanVienController extends BaseController
         $nhanVien['pages'] = $numOfPages;
 
         $this->dieIfPageNotValid($numOfPages);
-        $this->changeProp($nhanVien);
+        $this->changeProp($nhanVien['data']);
 
         return $nhanVien;
     }
@@ -78,7 +78,7 @@ class NhanVienController extends BaseController
             && $data['diaChi']
             && $data['luong']
         ) {
-            $id = $data['maSP'];
+            $id = $data['maNV'];
             //  
             $values = $this->getValues($data);
             $this->nhanVienModel->update($values, $id);
@@ -94,8 +94,7 @@ class NhanVienController extends BaseController
             $data['maNV']
         ) {
             $remove = [
-                'id' => $data['maSP'],
-                'imgPath' => $data['anhDaiDien']
+                'id' => $data['maNV'],
             ];
             return [
                 'error' => $this->nhanVienModel->delete($remove),
@@ -117,7 +116,7 @@ class NhanVienController extends BaseController
             $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
-            $this->changeProp($found);
+            $this->changeProp($found['data']);
 
             return $found;
         } else {
@@ -129,7 +128,7 @@ class NhanVienController extends BaseController
     {
         $found = $this->nhanVienModel->getMaxCol($col);
 
-        $this->changeProp($found);
+        $this->changeProp($found['data']);
 
         return  $found;
     }
@@ -138,7 +137,7 @@ class NhanVienController extends BaseController
     {
         $found = $this->nhanVienModel->getMinCol($col);
 
-        $this->changeProp($found);
+        $this->changeProp($found['data']);
 
         return $found;
     }
@@ -158,7 +157,7 @@ class NhanVienController extends BaseController
             $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
-            $this->changeProp($found);
+            $this->changeProp($found['data']);
 
             return $found;
         } else {
@@ -180,7 +179,7 @@ class NhanVienController extends BaseController
             $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
-            $this->changeProp($found);
+            $this->changeProp($found['data']);
 
             return $found;
         } else {
@@ -204,7 +203,7 @@ class NhanVienController extends BaseController
             $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
-            $this->changeProp($found);
+            $this->changeProp($found['data']);
 
             return $found;
         } else {
@@ -226,7 +225,7 @@ class NhanVienController extends BaseController
             $filtered['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
-            $this->changeProp($filtered);
+            $this->changeProp($filtered['data']);
 
             return $filtered;
         } else {
@@ -247,7 +246,7 @@ class NhanVienController extends BaseController
             $sorted['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
-            $this->changeProp($sorted);
+            $this->changeProp($sorted['data']);
 
             return $sorted;
         } else {
@@ -272,7 +271,7 @@ class NhanVienController extends BaseController
             $filtered['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
-            $this->changeProp($filtered);
+            $this->changeProp($filtered['data']);
 
             return $filtered;
         } else {
@@ -315,6 +314,11 @@ class NhanVienController extends BaseController
         return ceil((int) $number / $this->getPage()['limit']);
     }
 
+    public function selectDisplay()
+    {
+        return $this->nhanVienModel->selectDisplay();
+    }
+
     private function dieIfPageNotValid($numOfPages)
     {
         if ($this->getPage()['current'] > $numOfPages) {
@@ -324,7 +328,7 @@ class NhanVienController extends BaseController
 
     private function changeProp(&$list)
     {
-        require_once(__DIR__ . '/../models/TaiKhoanModel.php');
+        require_once(__DIR__ . '/../../models/TaiKhoanModel.php');
 
         $this->taikhoanModel = new TaiKhoanModel();
 

@@ -27,19 +27,19 @@ class HoaDonController extends BaseController
         if (!$this->AllRowLength) {
             $this->AllRowLength = array_values($this->hoaDonModel->countRow())[0];
         }
-        $hoaDon = [];
+        $hoaDon  = [];
         if (!empty($page)) {
             $page['limit'] = $this->getPage()['limit'];
-            $hoaDon = $this->hoaDonModel->get($page);
+            $hoaDon   = $this->hoaDonModel->get($page, 'desc');
         } else {
-            $hoaDon = $this->hoaDonModel->get($this->getPage());
+            $hoaDon = $this->hoaDonModel->get($this->getPage(), 'desc');
         }
         $numOfPages = $this->getNumOfPages($hoaDon['pages']);
 
         $hoaDon['pages'] = $numOfPages;
 
         $this->dieIfPageNotValid($numOfPages);
-        $this->changeProp($hoaDon);
+        $this->changeProp($hoaDon['data']);
 
         return $hoaDon;
     }
@@ -73,7 +73,7 @@ class HoaDonController extends BaseController
             && $data['ngayLapHoaDon']
             && $data['tongTien']
         ) {
-            $id = $data['maSP'];
+            $id = $data['maHD'];
             //  
             $values = $this->getValues($data);
             $this->hoaDonModel->update($values, $id);
@@ -89,8 +89,7 @@ class HoaDonController extends BaseController
             $data['maHD']
         ) {
             $remove = [
-                'id' => $data['maSP'],
-                'imgPath' => $data['anhDaiDien']
+                'id' => $data['maHD'],
             ];
             return [
                 'error' => $this->hoaDonModel->delete($remove),
@@ -112,7 +111,7 @@ class HoaDonController extends BaseController
             $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
-            $this->changeProp($found);
+            $this->changeProp($found['data']);
 
             return $found;
         } else {
@@ -124,7 +123,7 @@ class HoaDonController extends BaseController
     {
         $found = $this->hoaDonModel->getMaxCol($col);
 
-        $this->changeProp($found);
+        $this->changeProp($found['data']);
 
         return  $found;
     }
@@ -133,7 +132,7 @@ class HoaDonController extends BaseController
     {
         $found = $this->hoaDonModel->getMinCol($col);
 
-        $this->changeProp($found);
+        $this->changeProp($found['data']);
 
         return $found;
     }
@@ -153,7 +152,7 @@ class HoaDonController extends BaseController
             $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
-            $this->changeProp($found);
+            $this->changeProp($found['data']);
 
             return $found;
         } else {
@@ -175,7 +174,7 @@ class HoaDonController extends BaseController
             $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
-            $this->changeProp($found);
+            $this->changeProp($found['data']);
 
             return $found;
         } else {
@@ -199,7 +198,7 @@ class HoaDonController extends BaseController
             $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
-            $this->changeProp($found);
+            $this->changeProp($found['data']);
 
             return $found;
         } else {
@@ -221,7 +220,7 @@ class HoaDonController extends BaseController
             $filtered['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
-            $this->changeProp($filtered);
+            $this->changeProp($filtered['data']);
 
             return $filtered;
         } else {
@@ -242,7 +241,7 @@ class HoaDonController extends BaseController
             $sorted['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
-            $this->changeProp($sorted);
+            $this->changeProp($sorted['data']);
 
             return $sorted;
         } else {
@@ -267,7 +266,7 @@ class HoaDonController extends BaseController
             $filtered['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
-            $this->changeProp($filtered);
+            $this->changeProp($filtered['data']);
 
             return $filtered;
         } else {
@@ -316,8 +315,8 @@ class HoaDonController extends BaseController
 
     private function changeProp(&$list)
     {
-        require_once(__DIR__ . '/../models/KhachHangModel.php');
-        require_once(__DIR__ . '/../models/NhanVienModel.php');
+        require_once(__DIR__ . '/../../models/KhachHangModel.php');
+        require_once(__DIR__ . '/../../models/NhanVienModel.php');
 
         $this->khachHangModel = new KhachHangModel();
         $this->nhanVienModel = new NhanVienModel();

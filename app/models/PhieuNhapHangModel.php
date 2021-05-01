@@ -47,9 +47,19 @@ class PhieuNhapHangModel extends BaseModel
         }
     }
 
-    public function get($page)
+    public function get($page, $order)
     {
-        return $this->getMethod(self::TABLE_NAME, $page);
+        if (isset($data['maNCC']) && !empty($data['maNCC'])) {
+            $data['col'] = 'maNCC';
+            $data['id'] = $data['maNCC'];
+        }
+        if (!empty($order)) {
+            $order = [
+                'order' => $order,
+                'col' => $this->primaryCol
+            ];
+        }
+        return $this->getMethod(self::TABLE_NAME, $page, $order);
     }
 
     public function post($data = [])

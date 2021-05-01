@@ -3,8 +3,8 @@
     <?php
     if (isset($_GET['uri'])) {
         $splitUri = explode('/',  $_GET['uri']);
-        if (isset($_GET['action'])) {
-            $change = strtolower($_GET['action']);
+        if (isset($splitUri[1])) {
+            $change = strtolower($splitUri[1]);
             echo "
         <style>
             .sidebar-menu__item.$change {
@@ -24,7 +24,7 @@
     ?>
 
     <input type="checkbox" class="hidden" id="sidebar--toggle">
-    <!-- <nav class="sidebar-menu">
+    <nav class="sidebar-menu">
         <a class="brand">
             <img src="/Web2/public/images/TaiKhoan/TK-1.jpg" alt="logo">
             <h1>Nhãn</h1>
@@ -51,7 +51,7 @@
                 <li>Thống kê</li>
             </a>
         </ul>
-    </nav> -->
+    </nav>
     <div class="main-content">
         <header>
             <label for="sidebar--toggle">
@@ -78,7 +78,37 @@
             </div>
         </header>
         <main>
-            <?php include_once 'admin/SanPham.php'; ?>
+            <?php
+            $uri = isset($_GET['uri']) ? $_GET['uri'] : "";
+            $splitUri = explode("/", $uri);
+            switch ($splitUri[1]) {
+                case 'sanpham':
+                case 'SanPham': {
+                        include_once 'admin/SanPham.php';
+                        break;
+                    }
+                case 'nhapxuat':
+                case 'NhapXuat': {
+                        include_once 'admin/NhapXuat.php';
+                        break;
+                    }
+                case 'taikhoan':
+                case 'TaiKhoan': {
+                        include_once 'admin/TaiKhoan.php';
+                        break;
+                    }
+                case 'doitac':
+                case 'DoiTac': {
+                        include_once 'admin/DoiTac.php';
+                        break;
+                    }
+                case 'thongke':
+                case 'ThongKe': {
+                        include_once 'admin/ThongKe.php';
+                        break;
+                    }
+            }
+            ?>
         </main>
     </div>
 

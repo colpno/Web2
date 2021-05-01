@@ -25,10 +25,10 @@ class LoaiSanPhamController extends BaseController
         if (!$this->AllRowLength) {
             $this->AllRowLength = array_values($this->loaiSanPhamModel->countRow())[0];
         }
-        $loaiSanPham = [];
+        $loaiSanPham   = [];
         if (!empty($page)) {
             $page['limit'] = $this->getPage()['limit'];
-            $loaiSanPham = $this->loaiSanPhamModel->get($page);
+            $loaiSanPham  = $this->loaiSanPhamModel->get($page);
         } else {
             $loaiSanPham = $this->loaiSanPhamModel->get($this->getPage());
         }
@@ -69,7 +69,7 @@ class LoaiSanPhamController extends BaseController
             $data['maLoai']
             && $data['tenLoai']
         ) {
-            $id = $data['maSP'];
+            $id = $data['maLoai'];
             //  
             $values = $this->getValues($data);
             $this->loaiSanPhamModel->update($values, $id);
@@ -85,8 +85,7 @@ class LoaiSanPhamController extends BaseController
             $data['maLoai']
         ) {
             $remove = [
-                'id' => $data['maSP'],
-                'imgPath' => $data['anhDaiDien']
+                'id' => $data['maLoai'],
             ];
             return [
                 'error' => $this->loaiSanPhamModel->delete($remove),

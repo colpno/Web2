@@ -1,117 +1,297 @@
 $(document).ready(function () {
+    const chiChuVaKhoangTrangArr = ['tenSP', 'tenLoai'],
+        chiSoArr = [
+            { name: 'donGia', length: 10 },
+            { name: 'soLuong', length: 10 },
+            { name: 'phanTramKhuyenMai', length: 3 },
+        ],
+        kiemNgayArr = ['ngayBatDau', 'ngayKetThuc'];
+
     $('.add-content').submit(function (e) {
         e.preventDefault();
-        if (confirm('Thông tin có chính xác?')) {
-            let that = $(this),
+
+        const that = $(this),
+            clas = that.attr('class').replace(' ', '.'),
+            table = clas.substring(clas.lastIndexOf('.') + 1, clas.lastIndexOf('__'));
+
+        /* 
+            Add
+        */
+        if ($(`.${clas} [type='submit']`).val() == 'Thêm' && confirm('Thông tin có chính xác?')) {
+            $(`.chitiet${clas}__add-content`)
+                .find('[class="hidden"]')
+                .each(function () {
+                    const that = $(this);
+                    that.remove();
+                });
+
+            const that = $(this),
                 fd = new FormData(),
                 checkboxes = [],
-                radios = [],
-                typeArr = ['file', 'checkbox', 'submit'];
-
-            const clas = e.target.getAttribute('class');
-            const tableEn = clas.substring(clas.lastIndexOf(' ') + 1, clas.lastIndexOf('__'));
-            let table = '';
-            switch (tableEn) {
-                case 'product': {
-                    table = 'sanpham';
-                    break;
-                }
-                case 'category': {
-                    table = 'loai';
-                    break;
-                }
-                case 'promotion': {
-                    table = 'khuyenmai';
-                    break;
-                }
-                case 'detail-promotion': {
-                    table = 'chitietkhuyenmai';
-                    break;
-                }
-            }
+                radios = [];
+            let count = 0;
 
             fd.append('action', 'add');
             fd.append('table', table);
-            that.find('[name]').each(function (i, value) {
-                let that = $(this),
+
+            that.find('[name]').each(function () {
+                const that = $(this),
                     name = that.attr('name'),
-                    type = that.attr('type');
+                    value = that.val();
+
+                if (chiChuVaKhoangTrangArr.includes(name)) {
+                    if (chiChuVaKhoangTrang(value, name, 255) === false) {
+                        count++;
+                    }
+                }
+
+                chiSoArr.some((obj) => {
+                    if (obj.name === name) {
+                        if (chiSo(value, name, obj.length) === false) {
+                            count++;
+                        }
+                        return;
+                    }
+                });
+
+                if (kiemNgayArr.includes(name)) {
+                    if (kiemNgay(value, name) === false) {
+                        count++;
+                    }
+                }
+            });
+
+            if (count === 0) {
+                that.find('[name]').each(function () {
+                    const that = $(this),
+                        name = that.attr('name'),
+                        type = that.attr('type'),
+                        value = that.val();
+
+                    if (type == 'file') {
+                        const files = this.files[0];
+                        fd.append(name, files);
+                    } else if (type == 'checkbox' && this.checked == true) {
+                        checkboxes.push(value);
+                        fd.append('checked_checkboxes', checkboxes);
+                    } else if (type == 'radio' && this.checked == true) {
+                        radios.push(value);
+                        fd.append('checked_radios', radios);
+                    } else {
+                        fd.append(name, value);
+                    }
+                });
+                console.log('sent');
+
+                let params = `?controller=admin&action=sanpham`;
+
+                $.ajax({
+                    url: '/Web2/app/index.php' + params,
+                    type: 'post',
+                    data: fd,
+                    contentType: false,
+                    processData: false,
+                    success: function (data) {
+                        if (isJson(data)) {
+                            const json = JSON.parse(data);
+                            $(`.${table}--show`).html(getHTML(table, json.data));
+                        } else {
+                            console.log(data);
+                        }
+                    },
+                });
+            }
+        }
+
+        /* 
+            Update
+         */
+        if ($(`.${clas} [type='submit']`).val() == 'Sửa' && confirm('Thông tin có chính xác?')) {
+            const fd = new FormData();
+
+            let count = 0;
+
+            fd.append('table', table);
+            fd.append('action', 'update');
+
+            that.find('[name]').each(function () {
+                const that = $(this),
+                    name = that.attr('name'),
+                    value = that.val();
+
+                if (chiChuVaKhoangTrangArr.includes(name)) {
+                    if (chiChuVaKhoangTrang(value, name, 255) === false) {
+                        count++;
+                    }
+                }
+
+                chiSoArr.some((obj) => {
+                    if (obj.name === name) {
+                        if (chiSo(value, name, obj.length) === false) {
+                            count++;
+                        }
+                        return;
+                    }
+                });
+
+                if (kiemNgayArr.includes(name)) {
+                    if (kiemNgay(value, name) === false) {
+                        count++;
+                    }
+                }
+            });
+
+            that.find('[name]').each(function () {
+                const that = $(this),
+                    name = that.attr('name'),
+                    type = that.attr('type'),
+                    value = that.val();
 
                 if (type == 'file') {
-                    let files = this.files[0];
+                    const files = this.files[0];
                     fd.append(name, files);
-                }
-
-                if (type == 'checkbox' && this.checked == true) {
-                    checkboxes.push(that.val());
-                    fd.append('checked_checkboxes', checkboxes);
-                }
-
-                if (type == 'radio' && this.checked == true) {
-                    radios.push(that.val());
-                    fd.append('checked_radios', radios);
-                }
-
-                if (!typeArr.includes(type)) {
-                    value = that.val();
+                } else {
                     fd.append(name, value);
                 }
             });
 
-            let url = window.location.href;
-            let params = url.indexOf('?') != -1 ? url.substring(url.indexOf('?')) : '';
+            const params = `?controller=admin&action=sanpham`;
 
             $.ajax({
-                url: 'app/index.php' + params,
+                url: '/Web2/app/index.php' + params,
                 type: 'post',
                 data: fd,
                 contentType: false,
                 processData: false,
                 success: function (data) {
-                    console.log(data);
+                    if (isJson(data)) {
+                        const json = JSON.parse(data);
+                        $(`.${table}--show`).html(getHTML(table, json.data));
+                        $(`.${table}__add-content`).addClass('hidden');
+                        alert('Updated');
+                        if (table == 'sanpham') {
+                            location.reload();
+                        }
+                    } else {
+                        console.log(data);
+                    }
                 },
             });
         }
     });
 
-    $('.product--add').on('click', function (e) {
-        $('.product__add-content').toggleClass('hidden');
+    /* 
+        Filter
+     */
+    $('.filter-content').on('submit', function (e) {
+        e.preventDefault();
+
+        const that = $(this),
+            fd = new FormData(),
+            clas = e.target.getAttribute('class'),
+            table = clas.substring(clas.lastIndexOf(' ') + 1, clas.lastIndexOf('__'));
+
+        let count = 0;
+
+        fd.append('action', 'filter');
+        fd.append('table', table);
+
+        const fill = [];
+        that.find('[name]').each(function () {
+            const that = $(this),
+                value = that.val();
+
+            fill.push(value);
+        });
+
+        /* 
+            Tester
+         */
+        chiSoArr.some((obj) => {
+            if (obj.name === fill[0]) {
+                for (let i = 1; i < fill.length; i++) {
+                    if (chiSo(fill[i], fill[0], obj.length) === false) {
+                        count++;
+                    }
+                }
+                return;
+            }
+        });
+
+        if (kiemNgayArr.includes(fill[0])) {
+            for (let i = 1; i < fill.length; i++) {
+                if (kiemNgay(fill[i], fill[0]) === false) {
+                    count++;
+                }
+            }
+        }
+
+        /* 
+            No failed testing
+         */
+        if (count == 0) {
+            that.find('[name]').each(function () {
+                const that = $(this),
+                    name = that.attr('name'),
+                    val = that.val();
+
+                fd.append(name, val);
+            });
+
+            const params = '?controller=admin&action=sanpham';
+
+            $.ajax({
+                url: '/Web2/app/index.php' + params,
+                type: 'post',
+                data: fd,
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    if (isJson(data)) {
+                        const json = JSON.parse(data);
+                        $(`.${table}--show`).html(getHTML(table, json.data));
+                    } else {
+                        console.log(data);
+                    }
+                },
+            });
+        }
     });
-    $('.product--filter').on('click', function (e) {
-        $('.product__filter-content').toggleClass('hidden');
+
+    const toggleAddContents = ['sanpham', 'loai', 'khuyenmai', 'chitietkhuyenmai'];
+    toggleAddContents.forEach((element) => {
+        $(`.${element}--add`).on('click', function () {
+            $(`.${element}__add-content [type="submit"]`).val('Thêm');
+
+            $(`.${element}__add-content`)
+                .find('[name]')
+                .each(function () {
+                    $(this).val('');
+                });
+
+            $(`.${element}__add-content`).toggleClass('hidden');
+        });
     });
-    $('.category--add').on('click', function (e) {
-        $('.category__add-content').toggleClass('hidden');
-    });
-    $('.promotion--add').on('click', function (e) {
-        $('.promotion__add-content').toggleClass('hidden');
-    });
-    $('.promotion--filter').on('click', function (e) {
-        $('.promotion__filter-content').toggleClass('hidden');
-    });
-    $('.detail-promotion--add').on('click', function (e) {
-        $('.detail-promotion__add-content').toggleClass('hidden');
-    });
-    $('.detail-promotion--filter').on('click', function (e) {
-        $('.detail-promotion__filter-content').toggleClass('hidden');
+
+    const toggleFilterContents = ['sanpham', 'khuyenmai', 'chitietkhuyenmai'];
+    toggleFilterContents.forEach((element) => {
+        $(`.${element}--filter`).on('click', function () {
+            $(`.${element}__filter-content`).toggleClass('hidden');
+        });
     });
 });
 
 function ajaxOpenDetail(ele) {
-    const clas = ele.getAttribute('class');
-    const ID = clas.substring(clas.indexOf('-') + 1, clas.indexOf(' '));
-    const general = clas.substring(0, clas.indexOf('-'));
-    const detail = 'detail-' + general;
-    $(`.${detail}--add`).addClass(`${general}-${ID}`);
-    $(`.${detail}--filter`).addClass(`${general}-${ID}`);
+    const clas = ele.getAttribute('class'),
+        ID = clas.substring(clas.indexOf('-') + 1, clas.indexOf(' ')),
+        general = clas.substring(0, clas.indexOf('-')),
+        params = `?controller=admin&action=sanpham`;
 
-    const url = window.location.href;
-    const params = url.indexOf('?') != -1 ? url.substring(url.indexOf('?')) : '';
     $.ajax({
-        url: 'app/index.php' + params,
+        url: '/Web2/app/index.php' + params,
         type: 'post',
         data: {
-            table: 'chitietkhuyenmai',
+            table: `chitiet${general}`,
             id: ID,
             col: 'maKM',
             action: 'get',
@@ -119,465 +299,299 @@ function ajaxOpenDetail(ele) {
         success: function (data) {
             if (isJson(data)) {
                 const json = JSON.parse(data);
-                const html = detailPromotionHTML(json.data);
-                $('.detail-promotion--show').html(html);
+
+                const html = chiTietKhuyenMaiHTML(json.data);
+
+                $(`.chitiet${general}--show`).html(html);
 
                 let page = `
-                <div>
-                    <ul class="text-center center paginate">
-                        <li class="chitietkhuyenmai-first"></li>
-                        <li class="chitietkhuyenmai-prev"></li>
-            `;
+                    <div>
+                        <ul class="text-center center paginate">
+                            <li class="chitiet${general}-first"></li>
+                            <li class="chitiet${general}-prev"></li>
+                `;
                 for (let i = 1; i <= json.pages; i++) {
                     if (i == 1)
-                        page += `<li onclick="paginate(this)" class="chitietkhuyenmai-1 current-page">${i}</li>`;
+                        page += `<li onclick="paginate(this)" class="chitiet${general}-1 current-page">${i}</li>`;
                     else
-                        page += `<li onclick="paginate(this)" class="chitietkhuyenmai-${i}">${i}</li>`;
+                        page += `<li onclick="paginate(this)" class="chitiet${general}-${i}">${i}</li>`;
                 }
                 page += `
-                        <li class="chitietkhuyenmai-next"></li>
-                        <li class="chitietkhuyenmai-last"></li>
-                    </ul>
-                </div>
-            `;
-                $('.detail-promotion__row .content-item__pagination').html(page);
+                            <li class="chitiet${general}-next"></li>
+                            <li class="chitiet${general}-last"></li>
+                        </ul>
+                    </div>
+                `;
+                $(`.chitiet${general}__row .content-item__pagination`).html(page);
             } else {
-                $('.detail-promotion--show').html(`
+                console.log(data);
+                $(`.chitiet${general}--show`).html(`
                         <div style="display:flex;align-items: center;justify-content: center;height: 200px;">
                             <h1>Empty</h1>
                         </div>
                 `);
-                $('.detail-promotion__row .content-item__pagination').html('');
+                $(`.chitiet${general}__row .content-item__pagination`).html('');
             }
         },
+    });
+    ['add', 'filter'].forEach((element) => {
+        $(`.chitiet${general}__${element}-content`)
+            .find('[class="hidden"]')
+            .each(function () {
+                const that = $(this),
+                    text = that.val();
+                if (text != ID) {
+                    that.remove();
+                }
+            });
+        $(`.chitiet${general}__${element}-content`).append(
+            `<input type="text" class="hidden" value="${ID}" name="maKM">`,
+        );
     });
 }
 
 function ajaxPaginate(ele) {
-    const eleID = ele.getAttribute('class');
-    const page = eleID.substr(eleID.indexOf('-') + 1, 1);
-    const table = eleID.substring(0, eleID.indexOf('-'));
-    let order = '';
-    switch (table) {
-        case 'sanpham': {
-            order = 'desc';
-            break;
-        }
-    }
-    const url = window.location.href;
-    const params = url.indexOf('?') != -1 ? url.substring(url.indexOf('?')) : '';
+    const eleID = ele.getAttribute('class'),
+        page = eleID.substr(eleID.indexOf('-') + 1, 1),
+        table = eleID.substring(0, eleID.indexOf('-')),
+        parent = ele.parentNode,
+        params = `?controller=admin&action=sanpham&page=${page}`;
+
     $.ajax({
-        url: 'app/index.php' + params,
+        url: '/Web2/app/index.php' + params,
         type: 'post',
         data: {
             table,
-            current: page,
-            order: order,
             action: 'get',
         },
         success: function (data) {
             if (isJson(data)) {
                 const json = JSON.parse(data);
-                const parent = ele.parentNode;
                 parent.querySelector('.current-page').classList.remove('current-page');
                 parent.querySelector(`.${table}-${page}`).classList.add('current-page');
-                switch (table) {
-                    case 'sanpham': {
-                        const html = productHTML(json.data);
-                        $('.product--show').html(html);
-                        break;
-                    }
-                    case 'loai': {
-                        const html = categoryHTML(json.data);
-                        $('.category--show').html(html);
-                        break;
-                    }
-                    case 'khuyenmai': {
-                        const html = promotionHTML(json.data);
-                        $('.promotion--show').html(html);
-                        break;
-                    }
-                    case 'chitietkhuyenmai': {
-                        const html = detailPromotionHTML(json.data);
-                        $('.detail-promotion--show').html(html);
-                        break;
-                    }
-                }
+                $(`.${table}--show`).html(getHTML(table, json.data));
+            } else {
+                console.log(data);
             }
         },
     });
 }
 
-function ajaxCheckAll(element) {
-    const clas = element.getAttribute('class');
-    const str = clas.substr(0, clas.indexOf('_'));
-    const checkboxes = document.querySelectorAll(`.${str}__checkbox`);
-
-    if (element.checked) {
-        checkboxes.forEach((element) => {
-            element.checked = true;
-        });
-    } else {
-        checkboxes.forEach((element) => {
-            element.checked = false;
-        });
-    }
-}
-
 function ajaxUpdateOne(ele) {
-    const clas = ele.getAttribute('class');
-    const str = clas.substr(0, clas.lastIndexOf('-'));
-    const id = clas.substring(clas.lastIndexOf('-') + 1, clas.lastIndexOf('btn') - 1);
+    const that = $(ele),
+        clas = that.attr('class'),
+        id = clas.substring(clas.indexOf('-') + 1, clas.indexOf(' ')),
+        table = clas.substr(0, clas.lastIndexOf('-')),
+        href = that.attr('href');
 
-    const url = window.location.href;
-    const params = url.indexOf('?') != -1 ? url.substring(url.indexOf('?')) : '';
-    let htmls = '';
+    /* 
+        Ghi lại các giá trị vào field
+     */
+    $(`.${table}--show .row-${id}`).each(function () {
+        const that = $(this),
+            clas = that.attr('class'),
+            prop = clas.substring(clas.lastIndexOf(' ') + 1);
 
-    switch (str) {
-        case 'product': {
-            const anhDaiDien = '/ok',
-                maLoai = '2',
-                maNSX = '5',
-                tenSP = 'ten',
-                donGia = '20000',
-                donViTinh = 'vnd',
-                soLuong = '1000';
-            $.ajax({
-                url: '/Web2/app/index.php' + params,
-                type: 'post',
-                data: {
-                    maSP: id,
-                    anhDaiDien,
-                    maLoai,
-                    maNSX,
-                    tenSP,
-                    donGia,
-                    donViTinh,
-                    soLuong,
-                    action: 'update',
-                    table: 'sanpham',
-                },
-                success: function (data) {
-                    console.log(data);
-                },
+        const val = that.text();
+        $(`${href} [name='${prop}']`).val(val);
+    });
+
+    /* 
+        xóa tất cả trước khi append
+     */
+    $(`.${table}__add-content`)
+        .find('[class="hidden"]')
+        .each(function () {
+            const that = $(this),
+                text = that.text();
+            if (text != id) {
+                that.remove();
+            }
+        });
+
+    switch (table) {
+        case 'sanpham': {
+            $(`.${table}--show .row-${id}`).each(function () {
+                const that = $(this),
+                    val = that.text() != '' ? that.text() : that.val();
+
+                if (that.hasClass('donGia')) {
+                    money = val.substring(0, val.indexOf(' '));
+                    $(`${href} [name='donGia']`).val(money);
+
+                    unit = val.substring(val.indexOf(' ') + 1);
+                    $(`${href} [name='donViTinh']`).val(unit);
+                }
             });
+
+            $(`.${table}__add-content`).append(
+                `<input class="hidden" name="maSP" type="text" value="${id}">`,
+            );
+
             break;
         }
-        case 'category': {
-            const maLoai = '2',
-                tenLoai = 'ten';
-            $.ajax({
-                url: '/Web2/app/index.php' + params,
-                type: 'post',
-                data: {
-                    maLoai: id,
-                    tenLoai,
-                    action: 'update',
-                    table: 'loai',
-                },
-                success: function (data) {
-                    console.log(data);
-                },
-            });
+        case 'loai': {
+            $(`.${table}__add-content`).append(
+                `<input class="hidden" value="${id}" name="maLoai" type="text">`,
+            );
+
             break;
         }
-        case 'promotion': {
-            const maKM = id,
-                tenKM = 'tenKM',
-                ngayBatDau = 'ngayBD',
-                ngayKetThuc = 'ngayKT';
-            $.ajax({
-                url: '/Web2/app/index.php' + params,
-                type: 'post',
-                data: {
-                    maKM: id,
-                    tenKM,
-                    ngayBatDau,
-                    ngayKetThuc,
-                    action: 'update',
-                    table: 'khuyenmai',
-                },
-                success: function (data) {
-                    console.log(data);
-                },
-            });
+        case 'khuyenmai': {
+            $(`.${table}__add-content`).append(
+                `<input class="hidden" value="${id}" name="maKM" type="text">`,
+            );
+
             break;
         }
-        case 'detail-promotion': {
-            const maKM = id,
-                maSP = '3',
-                hinhThucKhuyenMai = 'hinhthuc',
-                phanTramKhuyenMai = 'phantram';
-            $.ajax({
-                url: '/Web2/app/index.php' + params,
-                type: 'post',
-                data: {
-                    maSP,
-                    maKM,
-                    hinhThucKhuyenMai,
-                    phanTramKhuyenMai,
-                    action: 'update',
-                    table: 'chitietkhuyenmai',
-                },
-                success: function (data) {
-                    console.log(data);
-                },
-            });
+        case 'chitietkhuyenmai': {
+            const maKM = $(`.hidden.maKM.row-${id}`).text();
+            $(`.${table}__add-content`).append(
+                `<input class="hidden" value="${id}" name="maSP" type="text">`,
+                `<input class="hidden" value="${maKM}" name="maKM" type="text">`,
+            );
+
             break;
         }
     }
+
+    if ($(href).hasClass('hidden')) {
+        $(href).removeClass('hidden');
+    }
+
+    $(`.${table}__add-content [type='submit']`).val('Sửa');
 }
 
 function ajaxDeleteOne(ele) {
     if (window.confirm('Chắc chắn muốn xóa?')) {
-        const clas = ele.getAttribute('class');
-        const str = clas.substr(0, clas.lastIndexOf('-'));
-        const url = window.location.href;
-        const params = url.indexOf('?') != -1 ? url.substring(url.indexOf('?')) : '';
-        let htmls = '';
-        const id = clas.substring(clas.lastIndexOf('-') + 1, clas.lastIndexOf('btn') - 1);
-        const image = document.querySelector(`.product-${id}`).getAttribute('src');
+        const clas = ele.getAttribute('class'),
+            table = clas.substr(0, clas.lastIndexOf('-')),
+            params = `?controller=admin&action=sanpham`,
+            id = clas.substring(clas.lastIndexOf('-') + 1, clas.lastIndexOf('btn') - 1),
+            fd = new FormData();
 
-        switch (str) {
-            case 'product': {
-                $.ajax({
-                    url: '/Web2/app/index.php' + params,
-                    type: 'post',
-                    data: {
-                        maSP: id,
-                        anhDaiDien: image,
-                        action: 'delete',
-                        table: 'sanpham',
-                    },
-                    success: function (data) {
-                        if (isJson(data)) {
-                            const json = JSON.parse(data);
-                            if (!json.error) {
-                                htmls = productHTML(json.data.SPArr);
-                                console.log(htmls);
-                            } else {
-                                alert(json.error);
-                            }
-                        } else {
-                            console.log(data);
-                        }
-                    },
-                });
+        switch (table) {
+            case 'sanpham': {
+                const anhDaiDien = document.querySelector(`.sanpham-${id}`).getAttribute('src');
+                fd.append('maSP', id);
+                fd.append('anhDaiDien', anhDaiDien);
                 break;
             }
-            case 'category':
-                {
-                    $.ajax({
-                        url: '/Web2/app/index.php' + params,
-                        type: 'post',
-                        data: {
-                            maLoai: id,
-                            action: 'delete',
-                            table: 'loai',
-                        },
-                        success: function (data) {
-                            console.log(data);
-                        },
-                    });
-                }
-                break;
-            case 'promotion': {
-                $.ajax({
-                    url: '/Web2/app/index.php' + params,
-                    type: 'post',
-                    data: {
-                        maKM: id,
-                        action: 'delete',
-                        table: 'khuyenmai',
-                    },
-                    success: function (data) {
-                        console.log(data);
-                    },
-                });
+            case 'loai': {
+                fd.append('maLoai', id);
                 break;
             }
-            case 'detail-promotion': {
-                $.ajax({
-                    url: '/Web2/app/index.php' + params,
-                    type: 'post',
-                    data: {
-                        maSP: id,
-                        action: 'delete',
-                        table: 'chitietkhuyenmai',
-                    },
-                    success: function (data) {
-                        console.log(data);
-                    },
-                });
+            case 'khuyenmai': {
+                fd.append('maKM', id);
+                break;
+            }
+            case 'chitietkhuyenmai': {
+                fd.append('maSP', id);
                 break;
             }
         }
+        fd.append('action', 'delete');
+        fd.append('table', table);
+
+        $.ajax({
+            url: '/Web2/app/index.php' + params,
+            type: 'post',
+            data: fd,
+            contentType: false,
+            processData: false,
+            success: function (data) {
+                if (isJson(data)) {
+                    const json = JSON.parse(data);
+                    $(`.${table}--show`).html(getHTML(table, json.data));
+                } else {
+                    console.log(data);
+                }
+            },
+        });
     }
 }
 
 function ajaxMultiDel(ele) {
-    const clas = ele.getAttribute('class');
-    const str = clas.substr(0, clas.indexOf('--'));
-    const masterCheckbox = document.querySelector(`.${str}__master-checkbox`);
-    const checkboxes = document.querySelectorAll(`.${str}__checkbox`);
-    let table = '',
-        id = [],
-        image = [];
-
     if (window.confirm('Chắc chắn muốn xóa?')) {
+        const clas = ele.getAttribute('class'),
+            table = clas.substr(0, clas.indexOf('--')),
+            masterCheckbox = document.querySelector(`.${table}__master-checkbox`),
+            checkboxes = document.querySelectorAll(`.${table}__checkbox`),
+            fd = new FormData();
+
+        let id = [],
+            anhDaiDien = [];
+
         checkboxes.forEach((element) => {
             if (element.checked == true) {
                 id.push(element.value);
-                image.push(document.querySelector(`.product-${element.value}`).getAttribute('src'));
+                if (table == 'sanpham') {
+                    anhDaiDien.push(
+                        document.querySelector(`.sanpham-${element.value}`).getAttribute('src'),
+                    );
+                }
             }
         });
-        if (id.length > 0) {
-            const url = window.location.href;
-            const params = url.indexOf('?') != -1 ? url.substring(url.indexOf('?')) : '';
-            let htmls = '';
-            switch (str) {
-                case 'product': {
-                    $.ajax({
-                        url: '/Web2/app/index.php' + params,
-                        type: 'post',
-                        data: {
-                            maSP: id,
-                            anhDaiDien: image,
-                            action: 'delete',
-                            table: 'sanpham',
-                        },
-                        success: function (data) {
-                            console.log(data);
-                        },
-                    });
-                    break;
-                }
-                case 'category':
-                    {
-                        $.ajax({
-                            url: '/Web2/app/index.php' + params,
-                            type: 'post',
-                            data: {
-                                maLoai: id,
-                                action: 'delete',
-                                table: 'loai',
-                            },
-                            success: function (data) {
-                                console.log(data);
-                            },
-                        });
-                    }
-                    break;
-                case 'promotion': {
-                    $.ajax({
-                        url: '/Web2/app/index.php' + params,
-                        type: 'post',
-                        data: {
-                            maKM: id,
-                            action: 'delete',
-                            table: 'khuyenmai',
-                        },
-                        success: function (data) {
-                            console.log(data);
-                        },
-                    });
-                    break;
-                }
-                case 'detail-promotion': {
-                    $.ajax({
-                        url: '/Web2/app/index.php' + params,
-                        type: 'post',
-                        data: {
-                            maSP: id,
-                            action: 'delete',
-                            table: 'chitietkhuyenmai',
-                        },
-                        success: function (data) {
-                            console.log(data);
-                        },
-                    });
-                    break;
-                }
+
+        switch (table) {
+            case 'sanpham': {
+                fd.append('maSP', id);
+                fd.append('anhDaiDien', anhDaiDien);
+                break;
             }
+            case 'loai': {
+                fd.append('maLoai', id);
+                break;
+            }
+            case 'khuyenmai': {
+                fd.append('maKM', id);
+                break;
+            }
+            case 'chitietkhuyenmai': {
+                fd.append('maSP', id);
+                break;
+            }
+        }
+        fd.append('action', 'delete');
+        fd.append('table', table);
+
+        if (id.length > 0) {
+            const params = `?controller=admin&action=sanpham`;
+            $.ajax({
+                url: '/Web2/app/index.php' + params,
+                type: 'post',
+                data: fd,
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    if (isJson(data)) {
+                        const json = JSON.parse(data);
+                        $(`.${table}--show`).html(getHTML(table, json.data));
+                    } else {
+                        console.log(data);
+                    }
+                },
+            });
         } else {
             alert('Chọn ít nhất 1 phần tử');
         }
     }
 }
 
-function productHTML(list) {
-    let htmls = '';
-    for (let i = 0; i < list.length; i++) {
-        htmls += `
-                    <div class="center checkbox col-lg-1 col-md-12 col-sm-12">
-                        <input type="checkbox" value="${list[i].maSP}" ></input>
-                    </div>
-                    <div class="center col-lg-2 col-md-2 col-sm-12">
-                        <img src="${list[i].anhDaiDien}" onerror="this.src="images/no-img.png""  />
-                    </div>
-                    <span class="center-left col-lg-3 col-md-4 col-sm-12">${list[i].tenSP}</span>
-                    <span class="center-right col-lg-2 col-md-1 col-sm-12">${list[i].donGia} ${list[i].donViTinh}</span>
-                    <span class="center col-lg-2 col-md-2 col-sm-12">${list[i].soLuong}</span>
-                    <div class="center col-lg-2 col-md-3 col-sm-12">
-                        <button class="btn " onclick="updateOne(this)"><i class="far fa-edit"></i></button>
-                        <button class="btn " onclick="delOneete(this)"><i class="far fa-trash-alt"></i></button>
-                    </div>
-                `;
+function getHTML(table, data) {
+    switch (table) {
+        case 'sanpham': {
+            return sanPhamHTML(data);
+        }
+        case 'loai': {
+            return loaiHTML(data);
+        }
+        case 'khuyenmai': {
+            return khuyenMaiHTML(data);
+        }
+        case 'chitietkhuyenmai': {
+            return chiTietKhuyenMaiHTML(data);
+        }
     }
-    return htmls;
-}
-
-function categoryHTML(list) {
-    let htmls = '';
-    for (let i = 0; i < list.length; i++) {
-        htmls += `
-            <div class="checkbox col-lg-2 col-md-12 col-sm-12">
-                <input type="checkbox" class="category__checkbox" value="${list[i].maLoai}"></input>
-            </div>
-            <span class="center-left col-lg-6 col-md-4 col-sm-12">${list[i].tenLoai}</span>
-            <div class="center cake__cmd col-lg-4 col-md-3 col-sm-12">
-                <button class="category-${list[i].maLoai} btn" onclick="updateOne(this)"><i class="far fa-edit"></i></button>
-                <button class="category-${list[i].maLoai} btn" onclick="deleteOne(this)"><i class="far fa-trash-alt"></i></button>
-            </div>
-        `;
-    }
-    return htmls;
-}
-
-function promotionHTML(list) {
-    let htmls = '';
-    for (let i = 0; i < list.length; i++) {
-        htmls += `
-            <div class="checkbox col-lg-1 col-md-12 col-sm-12">
-                <input type="checkbox" class="promotion__checkbox" value="${list[i].maKM}"></input>
-            </div>
-            <span class="center-left col-lg-5 col-md-4 col-sm-12">${list[i].tenKM}</span>
-            <span class="center col-lg-2 col-md-4 col-sm-12">${list[i].ngayBatDau}</span>
-            <span class="center col-lg-2 col-md-4 col-sm-12">${list[i].ngayKetThuc}</span>
-            <div class="center cake__cmd col-lg-2 col-md-3 col-sm-12">
-                <button class="promotion-${list[i].maKM} btn " onclick="updateOne(this)"><i class="far fa-edit"></i></button>
-                <button class="promotion-${list[i].maKM} btn" onclick="deleteOne(this)"><i class="far fa-trash-alt"></i></button>
-                <button class="promotion-${list[i].maKM} btn" onclick="openDetail(this)"><i class="fas fa-arrow-circle-right"></i></button>
-            </div>
-        `;
-    }
-    return htmls;
-}
-
-function detailPromotionHTML(list) {
-    let htmls = '';
-    for (let i = 0; i < list.length; i++) {
-        htmls += `
-            <div class="checkbox col-lg-2 col-md-12 col-sm-12">
-                <input type="checkbox" class="detail-promotion__checkbox" value="${list[i].maSP}"></input>
-            </div>
-            <span class="center-left col-lg-6 col-md-4 col-sm-12">${list[i].hinhThucKhuyenMai}</span>
-            <span class="center col-lg-1 col-md-4 col-sm-12">${list[i].phanTramKhuyenMai}</span>
-            <div class="center cake__cmd col-lg-3 col-md-3 col-sm-12">
-                <button class="detail-promotion-${list[i].maSP} btn" onclick="updateOne(this)"><i class="far fa-edit"></i></button>
-                <button class="detail-promotion-${list[i].maSP} btn" onclick="deleteOne(this)"><i class="far fa-trash-alt"></i></button>
-            </div>
-        `;
-    }
-    return htmls;
+    return null;
 }

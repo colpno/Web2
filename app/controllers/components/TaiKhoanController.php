@@ -11,8 +11,8 @@ class TaiKhoanController extends BaseController
     public function __construct()
     {
         $this->taiKhoanModel = new TaiKhoanModel();
-
         $this->uploadInstance = new UploadImage("TaiKhoan");
+
         $this->alert = new Other();
     }
 
@@ -31,7 +31,7 @@ class TaiKhoanController extends BaseController
         $taiKhoan = [];
         if (!empty($page)) {
             $page['limit'] = $this->getPage()['limit'];
-            $taiKhoan = $this->taiKhoanModel->get($page);
+            $taiKhoan = $this->taiKhoanModel->get();
         } else {
             $taiKhoan = $this->taiKhoanModel->get($this->getPage());
         }
@@ -40,7 +40,7 @@ class TaiKhoanController extends BaseController
         $taiKhoan['pages'] = $numOfPages;
 
         $this->dieIfPageNotValid($numOfPages);
-        $this->changeProp($taiKhoan);
+        $this->changeProp($taiKhoan['data']);
 
         return $taiKhoan;
     }
@@ -53,12 +53,9 @@ class TaiKhoanController extends BaseController
             && $data['matKhau']
             && $data['anhDaiDien']
         ) {
-            $maxID = array_values($this->taiKhoanModel->getMaxCol())[0];
-            $fileName = "SP-" .  ($maxID + 1);
-            $this->uploadInstance->upload($fileName);
-
             $values = $this->getValues($data);
-            $this->taiKhoanModel->post($values);
+            $maxID = array_values($this->sanPhamModel->getMaxCol())[0];
+            $this->taiKhoanModel->post($values, $maxID);
             return $this->get();
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để thêm");
@@ -74,8 +71,7 @@ class TaiKhoanController extends BaseController
             && $data['matKhau']
             && $data['anhDaiDien']
         ) {
-            $id = $data['maSP'];
-            // $this->uploadInstance->upload("SP-" . $id);
+            $id = $data['maTK'];
             $values = $this->getValues($data);
             $this->taiKhoanModel->update($values, $id);
             return $this->get();
@@ -91,7 +87,7 @@ class TaiKhoanController extends BaseController
             && $data['anhDaiDien']
         ) {
             $remove = [
-                'id' => $data['maSP'],
+                'id' => $data['maTK'],
                 'imgPath' => $data['anhDaiDien']
             ];
             return [
@@ -114,7 +110,7 @@ class TaiKhoanController extends BaseController
             $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
-            $this->changeProp($found);
+            $this->changeProp($found['data']);
 
             return $found;
         } else {
@@ -126,7 +122,7 @@ class TaiKhoanController extends BaseController
     {
         $found = $this->taiKhoanModel->getMaxCol($col);
 
-        $this->changeProp($found);
+        $this->changeProp($found['data']);
 
         return  $found;
     }
@@ -135,7 +131,7 @@ class TaiKhoanController extends BaseController
     {
         $found = $this->taiKhoanModel->getMinCol($col);
 
-        $this->changeProp($found);
+        $this->changeProp($found['data']);
 
         return $found;
     }
@@ -155,7 +151,7 @@ class TaiKhoanController extends BaseController
             $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
-            $this->changeProp($found);
+            $this->changeProp($found['data']);
 
             return $found;
         } else {
@@ -177,7 +173,7 @@ class TaiKhoanController extends BaseController
             $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
-            $this->changeProp($found);
+            $this->changeProp($found['data']);
 
             return $found;
         } else {
@@ -201,7 +197,7 @@ class TaiKhoanController extends BaseController
             $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
-            $this->changeProp($found);
+            $this->changeProp($found['data']);
 
             return $found;
         } else {
@@ -223,7 +219,7 @@ class TaiKhoanController extends BaseController
             $filtered['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
-            $this->changeProp($filtered);
+            $this->changeProp($filtered['data']);
 
             return $filtered;
         } else {
@@ -244,7 +240,7 @@ class TaiKhoanController extends BaseController
             $sorted['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
-            $this->changeProp($sorted);
+            $this->changeProp($sorted['data']);
 
             return $sorted;
         } else {
@@ -269,7 +265,7 @@ class TaiKhoanController extends BaseController
             $filtered['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
-            $this->changeProp($filtered);
+            $this->changeProp($filtered['data']);
 
             return $filtered;
         } else {
@@ -284,7 +280,7 @@ class TaiKhoanController extends BaseController
             'tenTaiKhoan' => $data['tenTaiKhoan'],
             'matKhau' => $data['matKhau'],
             'trangThai' => 0,
-            'anhDaiDien' => $this->uploadInstance->noiChuaFile,
+            'anhDaiDien' => '/Web2/' . $this->uploadInstance->noiChuaFile,
             'dangNhap' => 0,
         ];
     }
@@ -311,6 +307,11 @@ class TaiKhoanController extends BaseController
         return ceil((int) $number / $this->getPage()['limit']);
     }
 
+    public function selectDisplay()
+    {
+        return $this->taiKhoanModel->selectDisplay();
+    }
+
     private function dieIfPageNotValid($numOfPages)
     {
         if ($this->getPage()['current'] > $numOfPages) {
@@ -320,7 +321,7 @@ class TaiKhoanController extends BaseController
 
     private function changeProp(&$list)
     {
-        require_once(__DIR__ . '/../models/QuyenModel.php');
+        require_once(__DIR__ . '/../../models/QuyenModel.php');
 
         $this->quyenModel = new QuyenModel();
 

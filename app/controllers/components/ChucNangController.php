@@ -25,10 +25,10 @@ class ChucNangController extends BaseController
         if (!$this->AllRowLength) {
             $this->AllRowLength = array_values($this->chucNangModel->countRow())[0];
         }
-        $chucNang = [];
+        $chucNang   = [];
         if (!empty($page)) {
             $page['limit'] = $this->getPage()['limit'];
-            $chucNang = $this->chucNangModel->get($page);
+            $chucNang  = $this->chucNangModel->get($page);
         } else {
             $chucNang = $this->chucNangModel->get($this->getPage());
         }
