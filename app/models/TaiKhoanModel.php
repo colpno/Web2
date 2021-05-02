@@ -52,9 +52,9 @@ class TaiKhoanModel extends BaseModel
         return $this->getMethod(self::TABLE_NAME, $page);
     }
 
-    public function post($data = [])
+    public function post($data = [], $maxID)
     {
-        return $this->postMethod(self::TABLE_NAME, $data);
+        return $this->postMethod(self::TABLE_NAME, $data, $maxID);
     }
 
     public function update($data = [], $id)
@@ -104,5 +104,15 @@ class TaiKhoanModel extends BaseModel
     public function filterAndSort($sortValues, $filterValues, $page)
     {
         return $this->filterAndSortMethod(self::TABLE_NAME, $sortValues, $filterValues, $page);
+    }
+
+    public function selectDisplay()
+    {
+        return $this->selectDisplayMethod(self::TABLE_NAME, $this->primaryCol, 'tenTaiKhoan');
+    }
+
+    public function thongke()
+    {
+        return $this->thongkeMethod(self::TABLE_NAME, 'maQuyen', 'thoiGianTao');
     }
 }

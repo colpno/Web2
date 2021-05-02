@@ -26,10 +26,10 @@ class KhachHangController extends BaseController
         if (!$this->AllRowLength) {
             $this->AllRowLength = array_values($this->khachHangModel->countRow())[0];
         }
-        $khachHang = [];
+        $khachHang   = [];
         if (!empty($page)) {
             $page['limit'] = $this->getPage()['limit'];
-            $khachHang = $this->khachHangModel->get($page);
+            $khachHang  = $this->khachHangModel->get($page);
         } else {
             $khachHang = $this->khachHangModel->get($this->getPage());
         }
@@ -38,7 +38,7 @@ class KhachHangController extends BaseController
         $khachHang['pages'] = $numOfPages;
 
         $this->dieIfPageNotValid($numOfPages);
-        $this->changeProp($khachHang);
+        $this->changeProp($khachHang['data']);
 
         return $khachHang;
     }
@@ -76,7 +76,7 @@ class KhachHangController extends BaseController
             && $data['ngaySinh']
             && $data['diaChi']
         ) {
-            $id = $data['maSP'];
+            $id = $data['maKH'];
             //  
             $values = $this->getValues($data);
             $this->khachHangModel->update($values, $id);
@@ -92,8 +92,7 @@ class KhachHangController extends BaseController
             $data['maKH']
         ) {
             $remove = [
-                'id' => $data['maSP'],
-                'imgPath' => $data['anhDaiDien']
+                'id' => $data['maKH'],
             ];
             return [
                 'error' => $this->khachHangModel->delete($remove),
@@ -115,7 +114,7 @@ class KhachHangController extends BaseController
             $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
-            $this->changeProp($found);
+            $this->changeProp($found['data']);
 
             return $found;
         } else {
@@ -127,7 +126,7 @@ class KhachHangController extends BaseController
     {
         $found = $this->khachHangModel->getMaxCol($col);
 
-        $this->changeProp($found);
+        $this->changeProp($found['data']);
 
         return  $found;
     }
@@ -136,7 +135,7 @@ class KhachHangController extends BaseController
     {
         $found = $this->khachHangModel->getMinCol($col);
 
-        $this->changeProp($found);
+        $this->changeProp($found['data']);
 
         return $found;
     }
@@ -156,7 +155,7 @@ class KhachHangController extends BaseController
             $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
-            $this->changeProp($found);
+            $this->changeProp($found['data']);
 
             return $found;
         } else {
@@ -178,7 +177,7 @@ class KhachHangController extends BaseController
             $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
-            $this->changeProp($found);
+            $this->changeProp($found['data']);
 
             return $found;
         } else {
@@ -202,7 +201,7 @@ class KhachHangController extends BaseController
             $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
-            $this->changeProp($found);
+            $this->changeProp($found['data']);
 
             return $found;
         } else {
@@ -224,7 +223,7 @@ class KhachHangController extends BaseController
             $filtered['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
-            $this->changeProp($filtered);
+            $this->changeProp($filtered['data']);
 
             return $filtered;
         } else {
@@ -245,7 +244,7 @@ class KhachHangController extends BaseController
             $sorted['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
-            $this->changeProp($sorted);
+            $this->changeProp($sorted['data']);
 
             return $sorted;
         } else {
@@ -270,7 +269,7 @@ class KhachHangController extends BaseController
             $filtered['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
-            $this->changeProp($filtered);
+            $this->changeProp($filtered['data']);
 
             return $filtered;
         } else {
@@ -312,6 +311,11 @@ class KhachHangController extends BaseController
         return ceil((int) $number / $this->getPage()['limit']);
     }
 
+    public function selectDisplay()
+    {
+        return $this->khachHangModel->selectDisplay();
+    }
+
     private function dieIfPageNotValid($numOfPages)
     {
         if ($this->getPage()['current'] > $numOfPages) {
@@ -321,7 +325,7 @@ class KhachHangController extends BaseController
 
     private function changeProp(&$list)
     {
-        require_once(__DIR__ . '/../models/TaiKhoanModel.php');
+        require_once(__DIR__ . '/../../models/TaiKhoanModel.php');
 
         $this->taikhoanModel = new TaiKhoanModel();
 

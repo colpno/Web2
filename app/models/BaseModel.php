@@ -12,7 +12,7 @@ class BaseModel extends Database
 
     protected function countRowMethod($tableName, $primaryCol)
     {
-        $sql = 'SELECT COUNT(' . $primaryCol . ') as tongSoLuong FROM ' . $tableName;
+        $sql = 'SELECT COUNT(' . $primaryCol . ') as soLuong FROM ' . $tableName;
         $query = $this->conn->query($sql);
 
         while ($row = mysqli_fetch_assoc($query)) {
@@ -69,18 +69,81 @@ class BaseModel extends Database
         return $data;
     }
 
-    protected function getMethod($tableName, $page, $order = null)
+    protected function getDetailMethod($tableName, $page, $data)
+    {
+        $sql = 'SELECT * FROM ' . $tableName .
+            ' WHERE ' . $data['col'] . ' = ' . $data['id'] .
+            ' LIMIT ' . $page['limit'] . ' OFFSET ' . ($page['current'] - 1) * $page['limit'];
+
+        $query = $this->conn->query($sql);
+        $result = [];
+        while ($row = mysqli_fetch_assoc($query)) {
+            array_push($result, $row);
+        }
+
+        $numberOF = 'SELECT COUNT(*) as pages FROM ' . $tableName .
+            ' WHERE ' . $data['col'] . ' = ' . $data['id'];
+        $query = $this->conn->query($numberOF);
+        $pages = 0;
+        while ($row = mysqli_fetch_assoc($query)) {
+            $pages = array_values($row)[0];
+        }
+
+        return [
+            'data' => $result,
+            'pages' => $pages
+        ];
+    }
+
+    protected function filterDetailMethod($tableName, $data, $page)
+    {
+        $sql = 'SELECT * FROM ' . $tableName .
+            ' WHERE ' . $data['col'] . ' = ' . $data['id'] .
+            ' AND ' . $data['filterCol'] . ' >= "' . $data['from'] .
+            '" AND ' . $data['filterCol'] . ' <= "' . $data['to'] .
+            '" LIMIT ' . $page['limit'] . ' OFFSET ' . ($page['current'] - 1) * $page['limit'];
+
+        $query = $this->conn->query($sql);
+        $result = [];
+        while ($row = mysqli_fetch_assoc($query)) {
+            array_push($result, $row);
+        }
+
+        $numberOF = 'SELECT COUNT(*) as pages FROM ' . $tableName .
+            ' WHERE ' . $data['col'] . ' = ' . $data['id'] .
+            ' AND ' . $data['filterCol'] . ' >= "' . $data['from'] .
+            '" AND ' . $data['filterCol'] . ' <= "' . $data['to'] . '"';
+        $query = $this->conn->query($numberOF);
+        $pages = 0;
+        while ($row = mysqli_fetch_assoc($query)) {
+            $pages = array_values($row)[0];
+        }
+
+        return [
+            'data' => $result,
+            'pages' => $pages
+        ];
+    }
+
+    protected function getMethod($tableName, $data, $order = [])
     {
         $sql = '';
+        if (!isset($data['current'])) {
+            $data['current'] = 1;
+        }
         if (empty($order)) {
-            $sql = 'SELECT * FROM ' . $tableName . ' LIMIT ' . $page['limit'] . ' OFFSET ' . ($page['current'] - 1) * $page['limit'];
+            $sql = 'SELECT * FROM ' . $tableName . ' LIMIT ' . $data['limit'] . ' OFFSET ' . ($data['current'] - 1) * $data['limit'];
         } else {
-            $sql = 'SELECT * FROM ' . $tableName . ' ORDER BY ' . $order['col'] . ' ' . $order['order'] . ' LIMIT ' . $page['limit'] . ' OFFSET ' . ($page['current'] - 1) * $page['limit'];
+            $sql = 'SELECT * FROM ' . $tableName . ' ORDER BY ' . $order['col'] . ' ' . $order['order'] . ' LIMIT ' . $data['limit'] . ' OFFSET ' . ($data['current'] - 1) * $data['limit'];
         }
         $numberOF = 'SELECT COUNT(*) FROM ' . $tableName;
-        if (isset($page['id'])) {
-            $sql = 'SELECT * FROM ' . $tableName . ' WHERE ' . $page['col'] . ' = ' . $page['id'] . ' LIMIT ' . $page['limit'] . ' OFFSET ' . ($page['current'] - 1) * $page['limit'];
-            $numberOF = 'SELECT * FROM ' . $tableName . ' WHERE ' . $page['col'] . ' = ' . $page['id'];
+
+        /* 
+            bang Chi tiet
+         */
+        if (isset($data['id'])) {
+            $sql = 'SELECT * FROM ' . $tableName . ' WHERE ' . $data['col'] . ' = ' . $data['id'] . ' LIMIT ' . $data['limit'] . ' OFFSET ' . ($data['current'] - 1) * $data['limit'];
+            $numberOF = 'SELECT * FROM ' . $tableName . ' WHERE ' . $data['col'] . ' = ' . $data['id'];
         }
         $query = $this->conn->query($sql);
         $data = [];
@@ -117,8 +180,35 @@ class BaseModel extends Database
         return null;
     }
 
-    protected function postMethod($tableName, $data = [])
+    protected function postMethod($tableName, $data = [], $maxID = null)
     {
+        /* 
+            Chi tiết phiếu nhập
+        */
+        if ($tableName == 'chitietphieunhaphang') {
+            $sql = 'SELECT tongTien FROM phieunhaphang' .
+                ' WHERE maPhieu = ' . $data['maPhieu'];
+
+            $query = $this->conn->query($sql);
+            $needed = null;
+            while ($row = mysqli_fetch_assoc($query)) {
+                $needed = $row;
+            }
+
+            $total = $needed['tongTien'] + $data['thanhTien'];
+            $sql = 'UPDATE phieunhaphang SET tongTien = ' . $total . ' WHERE maPhieu = ' . $data['maPhieu'];
+            $this->conn->query($sql);
+
+            $sql = 'UPDATE chitietphieunhaphang SET thanhTien = ' . $data['thanhTien'] . ' WHERE maPhieu = ' . $data['maPhieu'] . ' AND maSP = ' . $data['maSP'];
+            $this->conn->query($sql);
+        }
+
+        $func = null;
+        if (isset($data['anhDaiDien']) && $data['anhDaiDien'] != null && $maxID != null) {
+            $func = $this->createImgFile($tableName, $maxID, $data['anhDaiDien']);
+            $data['anhDaiDien'] = $func['path'];
+        }
+
         $dataStringValues = array_map(function ($value) {
             return "'$value'";
         }, array_values($data));
@@ -131,16 +221,26 @@ class BaseModel extends Database
         }
 
         $sql = "INSERT INTO $tableName($columns) VALUES ($values)";
-        echo $sql;
-        // if ($this->conn->query($sql)) {
-        //     return $this->alert->alert('Add succeed');
-        // } else {
-        //     return $this->conn->error;
-        // }
+
+        if ($this->conn->query($sql)) {
+            if (isset($func['path']) && $func['path'] != "") {
+                $func['instance']->upload($func['fileName']);
+            }
+
+            return;
+        } else {
+            return $this->conn->error;
+        }
     }
 
     protected function updateMethod($tableName, $data, $colID, $id)
     {
+        $func = null;
+        if (isset($data['anhDaiDien']) && $data['anhDaiDien'] != null) {
+            $func = $this->createImgFile($tableName, $id, $data['anhDaiDien']);
+            $data['anhDaiDien'] = $func['path'];
+        }
+
         $result = [];
         foreach ($data as $key => $value) {
             array_push($result, "$key = '$value'");
@@ -148,12 +248,32 @@ class BaseModel extends Database
         $result = implode(',', $result);
 
         $sql = 'UPDATE ' . $tableName . ' SET ' . $result . ' WHERE ' . $colID . ' = ' . $id;
-        // if ($this->conn->query($sql)) {
-        //     $this->alert->alert('Update succeed');
-        // } else {
-        //     $this->alert->alert('Update failed');
-        // }
-        echo $sql;
+
+        if ($this->conn->query($sql)) {
+            if (isset($func['path']) && $func['path'] != "") {
+                $func['instance']->upload($func['fileName']);
+            }
+
+            if ($tableName == 'chitietphieunhaphang') {
+                $sql = 'SELECT SUM(thanhTien) as thanhTien FROM chitietphieunhaphang' .
+                    ' WHERE maPhieu = ' . $data['maPhieu'];
+
+                $query = $this->conn->query($sql);
+                while ($row = mysqli_fetch_assoc($query)) {
+                    $tongTien = $row;
+                    if (!empty($tongTien)) {
+                        $sql = 'UPDATE phieunhaphang SET tongTien = ' . $tongTien['thanhTien'] . ' WHERE maPhieu = ' . $data['maPhieu'];
+                        $this->conn->query($sql);
+                    } else {
+                        $sql = 'UPDATE phieunhaphang SET tongTien = 0 WHERE maPhieu = ' . $data['maPhieu'];
+                        $this->conn->query($sql);
+                    }
+                }
+            }
+            return;
+        } else {
+            $this->alert->alert('Update failed');
+        }
     }
 
     protected function updateQuCNMethod($data)
@@ -165,7 +285,7 @@ class BaseModel extends Database
 
         $sql = 'UPDATE quyenchucnang SET hienthi = 1 WHERE maQuyen = ' . $data['maQuyen'] . ' AND maCN = ' . $data['maCN'];
         if ($this->conn->query($sql)) {
-            return $this->alert->alert('Delete succeed');
+            return;
         } else {
             return $this->conn->error;
         }
@@ -197,8 +317,9 @@ class BaseModel extends Database
         $sql = 'DELETE FROM ' . $tableName . ' WHERE ' . $column . ' IN (' . $id . ')';
 
         if ($this->conn->query($sql)) {
-            $status = 0;
             if (isset($data['imgPath']) && $data['imgPath'] != null) {
+                $status = 0;
+
                 $pos = strpos($data['imgPath'][0], "public");
                 $filePath = substr($data['imgPath'][0], $pos, strpos($data['imgPath'][0], "-") - $pos + 1);
                 $ext = substr($data['imgPath'][0], strrpos($data['imgPath'][0], "."));
@@ -212,12 +333,31 @@ class BaseModel extends Database
                     if (unlink(__DIR__ . '/../../' . $filePath)) $status = 1;
                     else $status = 0;
                 }
+                if ($status == 0) {
+                    return $this->alert->alert('No such file or directory');
+                }
             }
-            if ($status == 1) {
-                return $this->alert->alert('Delete succeed');
-            } else {
-                return $this->alert->alert('No such file or directory');
+
+            /* 
+                Chi tiết phiếu nhập
+             */
+            if ($tableName == 'chitietphieunhaphang') {
+                $sql = 'SELECT SUM(thanhTien) as thanhTien FROM chitietphieunhaphang' .
+                    ' WHERE maPhieu = ' . $data['maPhieu'];
+
+                $query = $this->conn->query($sql);
+                while ($row = mysqli_fetch_assoc($query)) {
+                    $tongTien = $row;
+                    if (!empty($tongTien)) {
+                        $sql = 'UPDATE phieunhaphang SET tongTien = ' . $tongTien['thanhTien'] . ' WHERE maPhieu = ' . $data['maPhieu'];
+                        $this->conn->query($sql);
+                    } else {
+                        $sql = 'UPDATE phieunhaphang SET tongTien = 0 WHERE maPhieu = ' . $data['maPhieu'];
+                        $this->conn->query($sql);
+                    }
+                }
             }
+            return;
         } else {
             return $this->conn->error;
         }
@@ -337,9 +477,9 @@ class BaseModel extends Database
     protected function filterMethod($tableName, $filterValues, $page)
     {
         $sql = 'SELECT * FROM ' . $tableName .
-            ' WHERE ' . $filterValues['filterCol'] . ' >= ' . $filterValues['from'] .
-            ' AND ' . $filterValues['filterCol'] . ' <= ' . $filterValues['to'] .
-            ' LIMIT ' . $page['limit'] . ' OFFSET ' . ($page['current'] - 1) * $page['limit'];
+            ' WHERE ' . $filterValues['filterCol'] . ' >= "' . $filterValues['from'] .
+            '" AND ' . $filterValues['filterCol'] . ' <= "' . $filterValues['to'] .
+            '" LIMIT ' . $page['limit'] . ' OFFSET ' . ($page['current'] - 1) * $page['limit'];
 
         $query = $this->conn->query($sql);
         $data = [];
@@ -348,8 +488,9 @@ class BaseModel extends Database
         }
 
         $sql = 'SELECT * FROM ' . $tableName .
-            ' WHERE ' . $filterValues['filterCol'] . ' >= ' . $filterValues['from'] .
-            ' AND ' . $filterValues['filterCol'] . ' <= ' . $filterValues['to'];
+            ' WHERE ' . $filterValues['filterCol'] . ' >= "' . $filterValues['from'] .
+            '" AND ' . $filterValues['filterCol'] . ' <= "' . $filterValues['to'] . '"';
+
         $query = $this->conn->query($sql);
         $pages = 0;
         while ($row = mysqli_fetch_assoc($query)) {
@@ -414,6 +555,47 @@ class BaseModel extends Database
         return [
             'data' => $data,
             'pages' => $pages
+        ];
+    }
+    private function createImgFile($tableName, $id, $path)
+    {
+        $uploadInstance = null;
+        $fileName = "";
+        switch ($tableName) {
+            case 'sanpham': {
+                    $uploadInstance = new UploadImage("SanPham");
+                    $fileName = "SP-" .  $id;
+                    break;
+                }
+            case 'taikhoan': {
+                    $uploadInstance = new UploadImage("TaiKhoan");
+                    $fileName = "TK-" .  $id;
+                    break;
+                }
+        }
+        return [
+            'path' => !empty($path) ? $path . $fileName . '.png' : "",
+            'fileName' => $fileName,
+            'instance' => $uploadInstance,
+        ];
+    }
+    public function thongkeMethod($tableName, ...$cols)
+    {
+        $addComma = array_map(function ($col) {
+            return $col . ',';
+        }, $cols);
+        $select = implode($addComma);
+        $select = substr($select, 0, -1);
+
+        $sql = 'SELECT ' . $select . ' FROM ' . $tableName;
+        $query = $this->conn->query($sql);
+        $data = [];
+        while ($row = mysqli_fetch_assoc($query)) {
+            array_push($data, $row);
+        }
+
+        return [
+            'Data' => $data
         ];
     }
 }

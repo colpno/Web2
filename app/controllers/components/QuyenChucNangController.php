@@ -44,14 +44,14 @@ class QuyenChucNangController extends BaseController
         $quyenChucNang = [];
         if (!empty($page)) {
             $page['limit'] = $this->getPage()['limit'];
-            $quyenChucNang = $this->quyenChucNangModel->get($page);
+            $quyenChucNang = $this->quyenChucNangModel->get();
         } else {
             $quyenChucNang = $this->quyenChucNangModel->get($this->getPage());
         }
         $numOfPages = $this->getNumOfPages($quyenChucNang['pages']);
 
         $this->dieIfPageNotValid($numOfPages);
-        $this->changeProp($quyenChucNang);
+        $this->changeProp($quyenChucNang['data']);
 
         return [
             'QuCNArr' => $quyenChucNang,
@@ -101,8 +101,8 @@ class QuyenChucNangController extends BaseController
 
     private function changeProp(&$list)
     {
-        require_once(__DIR__ . '/../models/LoaiQuyenChucNangModel.php');
-        require_once(__DIR__ . '/../models/NhaSanXuatModel.php');
+        require_once(__DIR__ . '/../../models/LoaiQuyenChucNangModel.php');
+        require_once(__DIR__ . '/../../models/NhaSanXuatModel.php');
 
         $this->chucNangModel = new ChucNangModel();
         $this->quyenModel = new NhaSanXuatModel();

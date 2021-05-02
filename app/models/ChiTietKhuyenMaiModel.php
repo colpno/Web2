@@ -50,9 +50,9 @@ class ChiTietKhuyenMaiModel extends BaseModel
         }
     }
 
-    public function get($page)
+    public function get($page, $id)
     {
-        return $this->getMethod(self::TABLE_NAME, $page);
+        return $this->getDetailMethod(self::TABLE_NAME, $page, $id);
     }
 
     public function post($data = [])
@@ -96,7 +96,7 @@ class ChiTietKhuyenMaiModel extends BaseModel
 
     public function filter($filterValues, $page)
     {
-        return $this->filterMethod(self::TABLE_NAME,  $filterValues, $page);
+        return $this->filterDetailMethod(self::TABLE_NAME,  $filterValues, $page);
     }
 
     public function sort($sortValues, $page)

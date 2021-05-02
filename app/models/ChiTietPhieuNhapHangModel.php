@@ -51,18 +51,24 @@ class ChiTietPhieuNhapHangModel extends BaseModel
         }
     }
 
-    public function get($page)
+    public function get($page, $id)
     {
-        return $this->getMethod(self::TABLE_NAME, $page);
+        if (isset($data['maPhieu']) && !empty($data['maPhieu'])) {
+            $data['col'] = 'maPhieu';
+            $data['id'] = $data['maPhieu'];
+        }
+        return $this->getDetailMethod(self::TABLE_NAME, $page, $id);
     }
 
     public function post($data = [])
     {
+        $data['thanhTien'] = $data['soLuong'] * $data['donGiaGoc'];
         return $this->postMethod(self::TABLE_NAME, $data);
     }
 
     public function update($data = [], $id)
     {
+        $data['thanhTien'] = $data['soLuong'] * $data['donGiaGoc'];
         return $this->updateMethod(self::TABLE_NAME, $data, $this->primaryCol, $id);
     }
 
@@ -97,7 +103,7 @@ class ChiTietPhieuNhapHangModel extends BaseModel
 
     public function filter($filterValues, $page)
     {
-        return $this->filterMethod(self::TABLE_NAME,  $filterValues, $page);
+        return $this->filterDetailMethod(self::TABLE_NAME,  $filterValues, $page);
     }
 
     public function sort($sortValues, $page)

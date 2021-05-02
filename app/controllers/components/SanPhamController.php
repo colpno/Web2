@@ -24,27 +24,18 @@ class SanPhamController extends BaseController
         return $number;
     }
 
-    public function get($page = [], $order = '')
+    public function get()
     {
         if (!$this->AllRowLength) {
             $this->AllRowLength = array_values($this->sanPhamModel->countRow())[0];
         }
-        $sanPham = [];
-        if (!empty($page)) {
-            if (!empty($page['order'])) {
-                $order = $page['order'];
-            }
-            $page['limit'] = $this->getPage()['limit'];
-            $sanPham = $this->sanPhamModel->get($page, $order);
-        } else {
-            $sanPham = $this->sanPhamModel->get($this->getPage(), $order);
-        }
+        $sanPham = $this->sanPhamModel->get($this->getPage(), 'desc');
         $numOfPages = $this->getNumOfPages($sanPham['pages']);
 
         $sanPham['pages'] = $numOfPages;
 
         $this->dieIfPageNotValid($numOfPages);
-        $this->changeProp($sanPham);
+        $this->changeProp($sanPham['data']);
 
         return $sanPham;
     }
@@ -65,13 +56,10 @@ class SanPhamController extends BaseController
             && $data['soLuong']
             && $data['anhDaiDien']
         ) {
-            $maxID = array_values($this->sanPhamModel->getMaxCol())[0];
-            $fileName = "SP-" .  ($maxID + 1);
-            $this->uploadInstance->upload($fileName);
-
             $values = $this->getValues($data);
-            $this->sanPhamModel->post($values);
-            return $this->get();
+            $maxID = array_values($this->sanPhamModel->getMaxCol())[0];
+            $this->sanPhamModel->post($values, $maxID);
+            return $this->get('desc');
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để thêm");
         }
@@ -90,10 +78,9 @@ class SanPhamController extends BaseController
             && $data['anhDaiDien']
         ) {
             $id = $data['maSP'];
-            // $this->uploadInstance->upload("SP-" . $id);
             $values = $this->getValues($data);
             $this->sanPhamModel->update($values, $id);
-            return $this->get();
+            return $this->get('desc');
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để sửa đổi");
         }
@@ -111,7 +98,7 @@ class SanPhamController extends BaseController
             ];
             return [
                 'error' => $this->sanPhamModel->delete($remove),
-                'data' => $this->get()
+                'data' => $this->get('desc')
             ];
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để xóa");
@@ -129,7 +116,7 @@ class SanPhamController extends BaseController
             $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
-            $this->changeProp($found);
+            $this->changeProp($found['data']);
 
             return $found;
         } else {
@@ -141,7 +128,7 @@ class SanPhamController extends BaseController
     {
         $found = $this->sanPhamModel->getMaxCol($col);
 
-        $this->changeProp($found);
+        $this->changeProp($found['data']);
 
         return  $found;
     }
@@ -150,7 +137,7 @@ class SanPhamController extends BaseController
     {
         $found = $this->sanPhamModel->getMinCol($col);
 
-        $this->changeProp($found);
+        $this->changeProp($found['data']);
 
         return $found;
     }
@@ -170,7 +157,7 @@ class SanPhamController extends BaseController
             $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
-            $this->changeProp($found);
+            $this->changeProp($found['data']);
 
             return $found;
         } else {
@@ -192,7 +179,7 @@ class SanPhamController extends BaseController
             $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
-            $this->changeProp($found);
+            $this->changeProp($found['data']);
 
             return $found;
         } else {
@@ -216,7 +203,7 @@ class SanPhamController extends BaseController
             $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
-            $this->changeProp($found);
+            $this->changeProp($found['data']);
 
             return $found;
         } else {
@@ -238,7 +225,7 @@ class SanPhamController extends BaseController
             $filtered['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
-            $this->changeProp($filtered);
+            $this->changeProp($filtered['data']);
 
             return $filtered;
         } else {
@@ -259,7 +246,7 @@ class SanPhamController extends BaseController
             $sorted['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
-            $this->changeProp($sorted);
+            $this->changeProp($sorted['data']);
 
             return $sorted;
         } else {
@@ -284,7 +271,7 @@ class SanPhamController extends BaseController
             $filtered['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
-            $this->changeProp($filtered);
+            $this->changeProp($filtered['data']);
 
             return $filtered;
         } else {

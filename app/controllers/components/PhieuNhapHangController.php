@@ -26,19 +26,19 @@ class PhieuNhapHangController extends BaseController
         if (!$this->AllRowLength) {
             $this->AllRowLength = array_values($this->phieuNhapHangModel->countRow())[0];
         }
-        $phieuNhapHang = [];
+        $phieuNhapHang   = [];
         if (!empty($page)) {
             $page['limit'] = $this->getPage()['limit'];
-            $phieuNhapHang = $this->phieuNhapHangModel->get($page);
+            $phieuNhapHang  = $this->phieuNhapHangModel->get($page, 'desc');
         } else {
-            $phieuNhapHang = $this->phieuNhapHangModel->get($this->getPage());
+            $phieuNhapHang = $this->phieuNhapHangModel->get($this->getPage(), 'desc');
         }
         $numOfPages = $this->getNumOfPages($phieuNhapHang['pages']);
 
         $phieuNhapHang['pages'] = $numOfPages;
 
         $this->dieIfPageNotValid($numOfPages);
-        $this->changeProp($phieuNhapHang);
+        $this->changeProp($phieuNhapHang['data']);
 
         return $phieuNhapHang;
     }
@@ -49,7 +49,6 @@ class PhieuNhapHangController extends BaseController
             $data['maNCC']
             && $data['maNV']
             && $data['ngayNhap']
-            && $data['tongTien']
         ) {
             $maxID = array_values($this->phieuNhapHangModel->getMaxCol())[0];
 
@@ -57,7 +56,7 @@ class PhieuNhapHangController extends BaseController
 
             $values = $this->getValues($data);
             $this->phieuNhapHangModel->post($values);
-            return $this->get();
+            return $this->get($data);
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để thêm");
         }
@@ -70,12 +69,11 @@ class PhieuNhapHangController extends BaseController
             && $data['maNCC']
             && $data['maNV']
             && $data['ngayNhap']
-            && $data['tongTien']
         ) {
-            $id = $data['maSP'];
+            $id = $data['maPhieu'];
             $values = $this->getValues($data);
             $this->phieuNhapHangModel->update($values, $id);
-            return $this->get();
+            return $this->get($data);
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để sửa đổi");
         }
@@ -87,13 +85,13 @@ class PhieuNhapHangController extends BaseController
             $data['maPhieu']
         ) {
             $remove = [
-                'id' => $data['maSP'],
-                'imgPath' => $data['anhDaiDien']
+                'id' => $data['maPhieu'],
             ];
-            return [
-                'error' => $this->phieuNhapHangModel->delete($remove),
-                'data' => $this->get()
-            ];
+            $error = $this->phieuNhapHangModel->delete($remove);
+            if (!empty($error)) {
+                return $this->alert->alert($error);
+            };
+            return $this->get($data);
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để xóa");
         }
@@ -110,7 +108,7 @@ class PhieuNhapHangController extends BaseController
             $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
-            $this->changeProp($found);
+            $this->changeProp($found['data']);
 
             return $found;
         } else {
@@ -122,7 +120,7 @@ class PhieuNhapHangController extends BaseController
     {
         $found = $this->phieuNhapHangModel->getMaxCol($col);
 
-        $this->changeProp($found);
+        $this->changeProp($found['data']);
 
         return  $found;
     }
@@ -131,7 +129,7 @@ class PhieuNhapHangController extends BaseController
     {
         $found = $this->phieuNhapHangModel->getMinCol($col);
 
-        $this->changeProp($found);
+        $this->changeProp($found['data']);
 
         return $found;
     }
@@ -151,7 +149,7 @@ class PhieuNhapHangController extends BaseController
             $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
-            $this->changeProp($found);
+            $this->changeProp($found['data']);
 
             return $found;
         } else {
@@ -173,7 +171,7 @@ class PhieuNhapHangController extends BaseController
             $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
-            $this->changeProp($found);
+            $this->changeProp($found['data']);
 
             return $found;
         } else {
@@ -197,7 +195,7 @@ class PhieuNhapHangController extends BaseController
             $found['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
-            $this->changeProp($found);
+            $this->changeProp($found['data']);
 
             return $found;
         } else {
@@ -219,7 +217,7 @@ class PhieuNhapHangController extends BaseController
             $filtered['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
-            $this->changeProp($filtered);
+            $this->changeProp($filtered['data']);
 
             return $filtered;
         } else {
@@ -240,7 +238,7 @@ class PhieuNhapHangController extends BaseController
             $sorted['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
-            $this->changeProp($sorted);
+            $this->changeProp($sorted['data']);
 
             return $sorted;
         } else {
@@ -265,7 +263,7 @@ class PhieuNhapHangController extends BaseController
             $filtered['pages'] = $numOfPages;
 
             $this->dieIfPageNotValid($numOfPages);
-            $this->changeProp($filtered);
+            $this->changeProp($filtered['data']);
 
             return $filtered;
         } else {
@@ -279,7 +277,6 @@ class PhieuNhapHangController extends BaseController
             'maNCC' => $data['maNCC'],
             'maNV' => $data['maNV'],
             'ngayNhap' => $data['ngayNhap'],
-            'tongTien' => $data['tongTien'],
         ];
     }
 
@@ -314,8 +311,8 @@ class PhieuNhapHangController extends BaseController
 
     private function changeProp(&$list)
     {
-        require_once(__DIR__ . '/../models/NhaCungCapModel.php');
-        require_once(__DIR__ . '/../models/NhanVienModel.php');
+        require_once(__DIR__ . '/../../models/NhaCungCapModel.php');
+        require_once(__DIR__ . '/../../models/NhanVienModel.php');
 
         $this->nhaCungCapModel = new NhaCungCapModel();
         $this->nhanVienModel = new NhanVienModel();
@@ -337,5 +334,10 @@ class PhieuNhapHangController extends BaseController
             'current' => isset($_GET['page']) ? $_GET['page'] : 1,
             'limit' => $this->limit
         ];
+    }
+
+    public function thongke()
+    {
+        return $this->phieuNhapHangModel->thongke();
     }
 }

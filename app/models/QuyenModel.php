@@ -105,4 +105,9 @@ class QuyenModel extends BaseModel
     {
         return $this->filterAndSortMethod(self::TABLE_NAME, $sortValues, $filterValues, $page);
     }
+
+    public function selectDisplay()
+    {
+        return $this->selectDisplayMethod(self::TABLE_NAME, 'maQuyen', 'tenQuyen');
+    }
 }

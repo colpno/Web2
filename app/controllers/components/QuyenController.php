@@ -28,7 +28,7 @@ class QuyenController extends BaseController
         $quyen = [];
         if (!empty($page)) {
             $page['limit'] = $this->getPage()['limit'];
-            $quyen = $this->quyenModel->get($page);
+            $quyen = $this->quyenModel->get();
         } else {
             $quyen = $this->quyenModel->get($this->getPage());
         }
@@ -284,6 +284,11 @@ class QuyenController extends BaseController
     private function getNumOfPages($number)
     {
         return ceil((int) $number / $this->getPage()['limit']);
+    }
+
+    public function selectDisplay()
+    {
+        return $this->quyenModel->selectDisplay();
     }
 
     private function dieIfPageNotValid($numOfPages)

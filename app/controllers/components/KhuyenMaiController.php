@@ -25,10 +25,10 @@ class KhuyenMaiController extends BaseController
         if (!$this->AllRowLength) {
             $this->AllRowLength = array_values($this->khuyenMaiModel->countRow())[0];
         }
-        $khuyenMai = [];
+        $khuyenMai   = [];
         if (!empty($page)) {
             $page['limit'] = $this->getPage()['limit'];
-            $khuyenMai = $this->khuyenMaiModel->get($page, '');
+            $khuyenMai  = $this->khuyenMaiModel->get($page);
         } else {
             $khuyenMai = $this->khuyenMaiModel->get($this->getPage(), '');
         }
@@ -73,7 +73,7 @@ class KhuyenMaiController extends BaseController
             && $data['ngayBatDau']
             && $data['ngayKetThuc']
         ) {
-            $id = $data['maSP'];
+            $id = $data['maKM'];
             //  
             $values = $this->getValues($data);
             $this->khuyenMaiModel->update($values, $id);
@@ -89,8 +89,7 @@ class KhuyenMaiController extends BaseController
             $data['maKM']
         ) {
             $remove = [
-                'id' => $data['maSP'],
-                'imgPath' => $data['anhDaiDien']
+                'id' => $data['maKM'],
             ];
             return [
                 'error' => $this->khuyenMaiModel->delete($remove),

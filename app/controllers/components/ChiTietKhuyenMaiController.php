@@ -20,21 +20,12 @@ class ChiTietKhuyenMaiController extends BaseController
         return $number;
     }
 
-    public function get($page = [])
+    public function get($id = [])
     {
         if (!$this->AllRowLength) {
             $this->AllRowLength = array_values($this->chiTietKhuyenMaiModel->countRow())[0];
         }
-        $chiTietKhuyenMai = [];
-        if (!empty($page)) {
-            $page['limit'] = $this->getPage()['limit'];
-            if (!isset($page['current'])) {
-                $page['current'] = $this->getPage()['current'];
-            }
-            $chiTietKhuyenMai = $this->chiTietKhuyenMaiModel->get($page);
-        } else {
-            $chiTietKhuyenMai = $this->chiTietKhuyenMaiModel->get($this->getPage());
-        }
+        $chiTietKhuyenMai = $this->chiTietKhuyenMaiModel->get($this->getPage(), $id);
         $numOfPages = $this->getNumOfPages($chiTietKhuyenMai['pages']);
 
         $chiTietKhuyenMai['pages'] = $numOfPages;
@@ -53,12 +44,9 @@ class ChiTietKhuyenMaiController extends BaseController
             && $data['phanTramKhuyenMai']
         ) {
             $maxID = array_values($this->chiTietKhuyenMaiModel->getMaxCol())[0];
-
-
-
             $values = $this->getValues($data);
             $this->chiTietKhuyenMaiModel->post($values);
-            return $this->get();
+            return;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để thêm");
         }
@@ -76,7 +64,7 @@ class ChiTietKhuyenMaiController extends BaseController
             //  
             $values = $this->getValues($data);
             $this->chiTietKhuyenMaiModel->update($values, $id);
-            return $this->get();
+            return;
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để sửa đổi");
         }
@@ -89,7 +77,6 @@ class ChiTietKhuyenMaiController extends BaseController
         ) {
             $remove = [
                 'id' => $data['maSP'],
-                'imgPath' => $data['anhDaiDien']
             ];
             return [
                 'error' => $this->chiTietKhuyenMaiModel->delete($remove),
@@ -141,8 +128,9 @@ class ChiTietKhuyenMaiController extends BaseController
             && $data['filterCol']
             && $data['from']
             && $data['to']
+            && $data['maKM']
         ) {
-            $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
+            $filterValues = $this->getFilterValues($data);
             $found = $this->chiTietKhuyenMaiModel->findWithFilter($data['search'], $filterValues, $this->getPage());
             $numOfPages = $this->getNumOfPages($found['pages']);
 
@@ -184,9 +172,10 @@ class ChiTietKhuyenMaiController extends BaseController
             && $data['filterCol']
             && $data['from']
             && $data['to']
+            && $data['maKM']
         ) {
             $sortValues = $this->getSortValues();
-            $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
+            $filterValues = $this->getFilterValues($data);
             $found = $this->chiTietKhuyenMaiModel->findWithFilterAndSort($data['search'], $filterValues, $sortValues, $this->getPage());
             $numOfPages = $this->getNumOfPages($found['pages']);
 
@@ -206,8 +195,9 @@ class ChiTietKhuyenMaiController extends BaseController
             $data['filterCol']
             && $data['from']
             && $data['to']
+            && $data['maKM']
         ) {
-            $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
+            $filterValues = $this->getFilterValues($data);
             $filtered = $this->chiTietKhuyenMaiModel->filter($filterValues, $this->getPage());
             $numOfPages = $this->getNumOfPages($filtered['pages']);
 
@@ -249,9 +239,10 @@ class ChiTietKhuyenMaiController extends BaseController
             && $data['to']
             && $_GET['sortCol']
             && $_GET['order']
+            && $data['maKM']
         ) {
             $sortValues = $this->getSortValues();
-            $filterValues = $this->getFilterValues($data['filterCol'], $data['from'], $data['to']);
+            $filterValues = $this->getFilterValues($data);
             $filtered = $this->chiTietKhuyenMaiModel->filterAndSort($sortValues, $filterValues, $this->getPage());
             $numOfPages = $this->getNumOfPages($filtered['pages']);
 
@@ -283,13 +274,11 @@ class ChiTietKhuyenMaiController extends BaseController
         ];
     }
 
-    private function getFilterValues($col, $from, $to)
+    private function getFilterValues($data)
     {
-        return [
-            'filterCol' => $col,
-            'from' => $from,
-            'to' => $to
-        ];
+        $data['col'] = 'maKM';
+        $data['id'] = $data['maKM'];
+        return $data;
     }
 
     private function getNumOfPages($number)
@@ -300,7 +289,7 @@ class ChiTietKhuyenMaiController extends BaseController
     private function dieIfPageNotValid($numOfPages)
     {
         if ($this->getPage()['current'] > $numOfPages) {
-            die('ERROR');
+            die('chitietkhuyenmai: ERROR');
         }
     }
 
