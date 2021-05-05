@@ -1,0 +1,14 @@
+.anhDaiDien {
+    width: 70px;
+    height: 60px;
+}
+
+.product-report__row__report:last-child .report-item {
+    background-color: var(--primary-color);
+    color: #fff;
+}
+
+.product-report__row__report .report-item p {
+    margin: 0;
+    margin-right: 50px;
+}
