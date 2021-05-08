@@ -1,0 +1,88 @@
+.anhDaiDien {
+    width: 50px;
+    height: 50px;
+    margin: 2px 0;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+.taikhoan-report__row__report:last-child .report-item {
+    background-color: var(--primary-color);
+    color: #fff;
+}
+
+.button-huy {
+    width: 100px;
+    height: 30px;
+    background-color: rgb(62, 107, 175);
+    color: #fff;
+    border-radius: 10px;
+}
+
+.trangThai-header {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.trangThai-header select {
+    margin-top: 10px;
+    border-radius: 6px;
+}
+
+.trangThai {
+    position: relative;
+    margin: 8px 0;
+    height: 35px;
+}
+
+.check-trangThai {
+    position: absolute;
+    width: 75%;
+    height: 75%;
+    -webkit-appearance: none;
+    background: linear-gradient(0deg, #c7c7c7, #ddd);
+    border-radius: 20px;
+    outline: none;
+    box-shadow: 0 0 0 4px #cccccc, 0 0 0 5px #eee, inset 0 0 7px rgba(0, 0, 0, 0.2);
+}
+
+.check-trangThai::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 45px;
+    height: 100%;
+    background: linear-gradient(0deg, #bebebe, #b3b3b3);
+    border-radius: 20px;
+    transition: 0.3s;
+}
+
+.check-trangThai:checked::before {
+    left: 28px;
+}
+
+.check-trangThai::after {
+    content: '';
+    position: absolute;
+    top: calc(50% - 2px);
+    right: 50%;
+    width: 5px;
+    height: 5px;
+    background: linear-gradient(0deg, #a3a3a3, #7c7c7c);
+    border-radius: 50%;
+    transition: 0.3s;
+}
+
+.check-trangThai:checked::after {
+    background: var(--primary-color);
+    box-shadow: 0 0 12px 3px var(--primary-color);
+}
+
+.check-trangThai:checked::after {
+    right: 5px;
+}
+
+.check-trangThai:checked {
+    background: var(--primary-color);
+}

@@ -1,0 +1,72 @@
+.phieunhaphang__add-content select {
+    width: 340px;
+}
+
+.tinhTrang-header {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.tinhTrang-header select {
+    margin-top: 10px;
+    border-radius: 6px;
+}
+
+.tinhTrang {
+    position: relative;
+    margin: 8px 0;
+    height: 35px;
+}
+
+.check-tinhTrang {
+    position: absolute;
+    width: 75%;
+    height: 75%;
+    -webkit-appearance: none;
+    background: linear-gradient(0deg, #c7c7c7, #ddd);
+    border-radius: 20px;
+    outline: none;
+    box-shadow: 0 0 0 4px #cccccc, 0 0 0 5px #eee, inset 0 0 7px rgba(0, 0, 0, 0.2);
+}
+
+.check-tinhTrang::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 45px;
+    height: 100%;
+    background: linear-gradient(0deg, #bebebe, #b3b3b3);
+    border-radius: 20px;
+    transition: 0.3s;
+}
+
+.check-tinhTrang:checked::before {
+    left: 28px;
+}
+
+.check-tinhTrang::after {
+    content: '';
+    position: absolute;
+    top: calc(50% - 2px);
+    right: 50%;
+    width: 5px;
+    height: 5px;
+    background: linear-gradient(0deg, #a3a3a3, #7c7c7c);
+    border-radius: 50%;
+    transition: 0.3s;
+}
+
+.check-tinhTrang:checked::after {
+    background: var(--primary-color);
+    box-shadow: 0 0 12px 3px var(--primary-color);
+}
+
+.check-tinhTrang:checked::after {
+    right: 5px;
+}
+
+.check-tinhTrang:checked {
+    background: var(--primary-color);
+}

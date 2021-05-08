@@ -1,0 +1,20 @@
+.anhDaiDien {
+    width: 70px;
+    height: 60px;
+    margin: 2px 0;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+.product-report__row__report:last-child .report-item {
+    background-color: var(--primary-color);
+    color: #fff;
+}
+
+.product-report__row__report .report-item p {
+    margin: 0;
+    margin-right: 50px;
+}
+
+[name='moTa'] {
+    padding: 5px;
+}
