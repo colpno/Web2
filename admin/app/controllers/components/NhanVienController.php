@@ -74,7 +74,6 @@ class NhanVienController extends BaseController
             && $data['luong']
         ) {
             $id = $data['maNV'];
-            //  
             $values = $this->getValues($data);
             $this->nhanVienModel->update($values, $id);
             return $this->get();
@@ -85,13 +84,19 @@ class NhanVienController extends BaseController
 
     public function delete($data)
     {
+        if (isset($data['maTK'])) {
+            $data['maNV'] = $data['maTK'];
+        }
         if (
             $data['maNV']
         ) {
             $remove = [
                 'id' => $data['maNV'],
             ];
-            $this->nhanVienModel->delete($remove);
+            if (isset($data['maTK'])) {
+                return $this->nhanVienModel->delete($remove, 'maTK');
+            }
+            $this->nhanVienModel->delete($remove, 'maNV');
             return $this->get();
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để xóa");

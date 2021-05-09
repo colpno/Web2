@@ -63,7 +63,11 @@ class ChiTietPhieuNhapHangModel extends BaseModel
     public function post($data = [])
     {
         $data['thanhTien'] = $data['soLuong'] * $data['donGiaGoc'];
-        return $this->postMethod(self::TABLE_NAME, $data);
+        $check = [
+            'col' => 'maSP',
+            'value' => $data['maSP'],
+        ];
+        return $this->postMethod(self::TABLE_NAME, $data, $check);
     }
 
     public function update($data = [], $id)

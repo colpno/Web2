@@ -121,8 +121,20 @@ class BaseModel extends Database
         return null;
     }
 
-    protected function postMethod($tableName, $data = [], $maxID = null)
+    protected function postMethod($tableName, $data = [], $check = [], $maxID = null)
     {
+        if (
+            !empty($check) &&
+            $this->checkExisting($tableName, $check['col'], $check['value'])
+        ) {
+            if ($tableName != 'chitietphieunhaphang') {
+                die($check['value'] . ' đã tồn tại');
+            } else {
+                $this->congDonPNH($data);
+                return;
+            }
+        }
+
         /* 
             Thêm file ảnh vào thư mục
          */
@@ -154,21 +166,7 @@ class BaseModel extends Database
             Chi tiết phiếu nhập
             */
             if ($tableName == 'chitietphieunhaphang') {
-                $sql = 'SELECT tongTien FROM phieunhaphang' .
-                    ' WHERE maPhieu = ' . $data['maPhieu'];
-
-                $query = $this->conn->query($sql);
-                $needed = null;
-                while ($row = mysqli_fetch_assoc($query)) {
-                    $needed = $row;
-                }
-
-                $total = $needed['tongTien'] + $data['thanhTien'];
-                $sql = 'UPDATE phieunhaphang SET tongTien = ' . $total . ' WHERE maPhieu = ' . $data['maPhieu'];
-                $this->conn->query($sql);
-
-                $sql = 'UPDATE chitietphieunhaphang SET thanhTien = ' . $data['thanhTien'] . ' WHERE maPhieu = ' . $data['maPhieu'] . ' AND maSP = ' . $data['maSP'];
-                $this->conn->query($sql);
+                $this->sumChiTietPhieuNhap($data);
             }
 
             return;
@@ -177,8 +175,15 @@ class BaseModel extends Database
         }
     }
 
-    protected function postQuyenMethod($tableName, $data, $need)
+    protected function postQuyenMethod($tableName, $data, $need, $check = [])
     {
+        if (
+            !empty($check) &&
+            $this->checkExisting($tableName, $check['col'], $check['value'])
+        ) {
+            die($check['value'] . ' đã tồn tại');
+        }
+
         // Reset AI
         $resetAI = 'ALTER TABLE ' . $tableName . ' AUTO_INCREMENT = 1';
         if (!$this->conn->query($resetAI)) {
@@ -254,20 +259,7 @@ class BaseModel extends Database
             }
 
             if ($tableName == 'chitietphieunhaphang') {
-                $sql = 'SELECT SUM(thanhTien) as thanhTien FROM chitietphieunhaphang' .
-                    ' WHERE maPhieu = ' . $data['maPhieu'];
-
-                $query = $this->conn->query($sql);
-                while ($row = mysqli_fetch_assoc($query)) {
-                    $tongTien = $row;
-                    if (!empty($tongTien)) {
-                        $sql = 'UPDATE phieunhaphang SET tongTien = ' . $tongTien['thanhTien'] . ' WHERE maPhieu = ' . $data['maPhieu'];
-                        $this->conn->query($sql);
-                    } else {
-                        $sql = 'UPDATE phieunhaphang SET tongTien = 0 WHERE maPhieu = ' . $data['maPhieu'];
-                        $this->conn->query($sql);
-                    }
-                }
+                $this->sumChiTietPhieuNhap($data);
             }
             return;
         } else {
@@ -343,6 +335,7 @@ class BaseModel extends Database
                     return $this->alert->alert('No such file or directory');
                 }
             }
+            return;
         } else {
             return $this->conn->error;
         }
@@ -378,20 +371,8 @@ class BaseModel extends Database
             ') AND ' . $data['col'] . ' = ' . $data['value'];
         $this->conn->query($sql) or die($this->conn->error);
 
-        $sql = 'SELECT SUM(thanhTien) as thanhTien FROM chitietphieunhaphang' .
-            ' WHERE maPhieu = ' . $data['value'];
-        $query = $this->conn->query($sql);
-
-        while ($row = mysqli_fetch_assoc($query)) {
-            $tongTien = $row['thanhTien'];
-            if ($tongTien != 0) {
-                $sql = 'UPDATE phieunhaphang SET tongTien = ' . $tongTien . ' WHERE maPhieu = ' . $data['value'];
-                $this->conn->query($sql);
-            } else {
-                $sql = 'UPDATE phieunhaphang SET tongTien = 0 WHERE maPhieu = ' . $data['value'];
-                $this->conn->query($sql);
-            }
-        }
+        $data['maPhieu'] = $data['value'];
+        $this->sumChiTietPhieuNhap($data);
         return;
     }
 
@@ -580,5 +561,50 @@ class BaseModel extends Database
             'data' => $result,
             'pages' => $pages
         ];
+    }
+
+    private function checkExisting($tableName, $col, $value)
+    {
+        $sql = 'SELECT EXISTS(SELECT * FROM ' . $tableName . ' WHERE ' . $col . ' = "' . $value . '") as tonTai ';
+        $query = $this->conn->query($sql);
+        $isExisted = 0;
+        while ($row = mysqli_fetch_assoc($query)) {
+            $isExisted = $row['tonTai'];
+        }
+        return $isExisted;
+    }
+
+    private function congDonPNH($data)
+    {
+        $sql = 'SELECT soLuong,donGiaGoc,thanhTien FROM chitietphieunhaphang WHERE maPhieu = ' . $data['maPhieu'] . ' AND maSP = ' . $data['maSP'];
+        $query = $this->conn->query($sql);
+        $duLieu = [];
+        while ($row = mysqli_fetch_assoc($query)) {
+            $duLieu = $row;
+        }
+
+        $sql = 'UPDATE chitietphieunhaphang SET soLuong = ' . ($data['soLuong'] + $duLieu['soLuong']) .
+            ', donGiaGoc = ' . ($data['donGiaGoc'] + $duLieu['donGiaGoc']) .
+            ', thanhTien = ' . ($data['thanhTien'] + $duLieu['thanhTien']) .
+            ' WHERE maPhieu = ' . $data['maPhieu'] . ' AND maSP = ' . $data['maSP'];
+        $this->conn->query($sql);
+        $this->sumChiTietPhieuNhap($data);
+    }
+    private function sumChiTietPhieuNhap($data)
+    {
+        $sql = 'SELECT SUM(thanhTien) as thanhTien FROM chitietphieunhaphang' .
+            ' WHERE maPhieu = ' . $data['maPhieu'];
+
+        $query = $this->conn->query($sql);
+        while ($row = mysqli_fetch_assoc($query)) {
+            $tongTien = $row['thanhTien'];
+            if (!empty($tongTien)) {
+                $sql = 'UPDATE phieunhaphang SET tongTien = ' . $tongTien . ' WHERE maPhieu = ' . $data['maPhieu'];
+                $this->conn->query($sql);
+            } else {
+                $sql = 'UPDATE phieunhaphang SET tongTien = 0 WHERE maPhieu = ' . $data['maPhieu'];
+                $this->conn->query($sql);
+            }
+        }
     }
 }

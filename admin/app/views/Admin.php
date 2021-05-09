@@ -29,7 +29,6 @@
         </a>
         <ul class="sidebar-menu__list">
             <?php
-
             if (isset($_SESSION['user'])) {
                 if (isset($_COOKIE['user'])) {
                     setcookie("user", '', time() - 60 * 60);

@@ -83,13 +83,19 @@ class KhachHangController extends BaseController
 
     public function delete($data)
     {
+        if (isset($data['maTK'])) {
+            $data['maKH'] = $data['maTK'];
+        }
         if (
             $data['maKH']
         ) {
             $remove = [
                 'id' => $data['maKH'],
             ];
-            $this->khachHangModel->delete($remove);
+            if (isset($data['maTK'])) {
+                return $this->khachHangModel->delete($remove, 'maTK');
+            }
+            $this->khachHangModel->delete($remove, 'maKH');
             return $this->get();
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để xóa");

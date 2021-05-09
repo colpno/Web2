@@ -50,10 +50,6 @@ class LoaiSanPhamController extends BaseController
         if (
             $data['tenLoai']
         ) {
-            $maxID = array_values($this->loaiSanPhamModel->getMaxCol())[0];
-
-
-
             $values = $this->getValues($data);
             $this->loaiSanPhamModel->post($values);
             return $this->get();

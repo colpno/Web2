@@ -1,27 +1,21 @@
-$(document).ready(function () {
-    $(window).resize(function (e) {
-        e.preventDefault();
-    });
-});
-
 function ajaxChangeReport(ele) {
     switch (ele.value) {
         case 'tongthu': {
             $('.tongthu').removeClass('hidden');
             $('.doanhthu').addClass('hidden');
-            $('.taikhoan-report').addClass('hidden');
+            $('.taikhoan').addClass('hidden');
             break;
         }
         case 'doanhthu': {
             $('.tongthu').addClass('hidden');
             $('.doanhthu').removeClass('hidden');
-            $('.taikhoan-report').addClass('hidden');
+            $('.taikhoan').addClass('hidden');
             break;
         }
-        case 'taikhoan-report': {
+        case 'taikhoan': {
             $('.tongthu').addClass('hidden');
             $('.doanhthu').addClass('hidden');
-            $('.taikhoan-report').removeClass('hidden');
+            $('.taikhoan').removeClass('hidden');
             break;
         }
     }
@@ -37,29 +31,27 @@ function ajaxChangeYear(ele) {
             action: 'thongke',
         },
         success: function (data) {
-            if (isJson(data)) {
+            if (isJson(data) && data != null) {
                 const json = JSON.parse(data),
                     idString = ele.getAttribute('id'),
                     table = idString.substring(0, idString.indexOf('-'));
 
-                if (json.data != null) {
-                    let html = '';
-                    switch (table) {
-                        case 'tongthu': {
-                            html += renderTongThu(json);
-                            break;
-                        }
-                        case 'doanhthu': {
-                            html += renderDoanhThu(json);
-                            break;
-                        }
-                        case 'taikhoan': {
-                            html += renderTaiKhoan(json);
-                            break;
-                        }
+                let html = '';
+                switch (table) {
+                    case 'tongthu': {
+                        html += renderTongThu(json);
+                        break;
                     }
-                    $(`.${table} .chart-layout`).html(html);
+                    case 'doanhthu': {
+                        html += renderDoanhThu(json);
+                        break;
+                    }
+                    case 'taikhoan': {
+                        html += renderTaiKhoan(json);
+                        break;
+                    }
                 }
+                $(`.${table} .chart-layout`).html(html);
             } else {
                 alert(data);
             }

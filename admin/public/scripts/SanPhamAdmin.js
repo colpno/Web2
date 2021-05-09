@@ -90,7 +90,7 @@ $(document).ready(function () {
                     contentType: false,
                     processData: false,
                     success: function (data) {
-                        if (isJson(data)) {
+                        if (isJson(data) && data != null) {
                             const json = JSON.parse(data);
                             if (json.data != null) {
                                 $(`.${table}--show`).html(getHTML(table, json.data));
@@ -163,28 +163,30 @@ $(document).ready(function () {
 
             const params = `?controller=admin&action=sanpham`;
 
-            $.ajax({
-                url: '/Web2/admin/app/index.php' + params,
-                type: 'post',
-                data: fd,
-                contentType: false,
-                processData: false,
-                success: function (data) {
-                    if (isJson(data)) {
-                        $(`.${table}__add-content`).addClass('hidden');
-                        const json = JSON.parse(data);
-                        if (json.data != null) {
-                            $(`.${table}--show`).html(getHTML(table, json.data));
+            if (count == 0) {
+                $.ajax({
+                    url: '/Web2/admin/app/index.php' + params,
+                    type: 'post',
+                    data: fd,
+                    contentType: false,
+                    processData: false,
+                    success: function (data) {
+                        if (isJson(data) && data != null) {
+                            $(`.${table}__add-content`).addClass('hidden');
+                            const json = JSON.parse(data);
+                            if (json.data != null) {
+                                $(`.${table}--show`).html(getHTML(table, json.data));
+                            }
+                            alert('Updated');
+                            if (table == 'sanpham') {
+                                location.reload();
+                            }
+                        } else {
+                            alert(data);
                         }
-                        alert('Updated');
-                        if (table == 'sanpham') {
-                            location.reload();
-                        }
-                    } else {
-                        alert(data);
-                    }
-                },
-            });
+                    },
+                });
+            }
         }
     });
 
@@ -277,7 +279,7 @@ $(document).ready(function () {
                 contentType: false,
                 processData: false,
                 success: function (data) {
-                    if (isJson(data)) {
+                    if (isJson(data) && data != null) {
                         const json = JSON.parse(data);
                         if (json.data != null) {
                             $(`.${table}--show`).html(getHTML(table, json.data));
@@ -344,7 +346,7 @@ function ajaxPaginate(ele) {
         contentType: false,
         processData: false,
         success: function (data) {
-            if (isJson(data)) {
+            if (isJson(data) && data != null) {
                 parent.querySelector('.current-page').classList.remove('current-page');
                 parent.querySelector(`.${table}-${page}`).classList.add('current-page');
                 const json = JSON.parse(data);
@@ -457,11 +459,13 @@ function ajaxDeleteOne(ele) {
             contentType: false,
             processData: false,
             success: function (data) {
-                if (isJson(data)) {
+                console.log(data);
+                if (isJson(data) && data != 'null') {
                     const json = JSON.parse(data);
                     if (json.data != null) {
-                        $(`.${table}--show`).html(getHTML(table, json.data));
-                        $(`.${table}__row .paginate`).html(renderPaginate(table, json.pages));
+                        // $(`.${table}--show`).html(getHTML(table, json.data));
+                        // $(`.${table}__row .paginate`).html(renderPaginate(table, json.pages));
+                        location.reload();
                     }
                 } else {
                     alert(data);
@@ -516,11 +520,12 @@ function ajaxMultiDel(ele) {
                 contentType: false,
                 processData: false,
                 success: function (data) {
-                    if (isJson(data)) {
+                    if (isJson(data) && data != null) {
                         const json = JSON.parse(data);
                         if (json.data != null) {
-                            $(`.${table}--show`).html(getHTML(table, json.data));
-                            $(`.${table}__row .paginate`).html(renderPaginate(table, json.pages));
+                            // $(`.${table}--show`).html(getHTML(table, json.data));
+                            // $(`.${table}__row .paginate`).html(renderPaginate(table, json.pages));
+                            location.reload();
                         }
                     } else {
                         alert(data);

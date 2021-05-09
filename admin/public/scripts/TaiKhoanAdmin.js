@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    let chiSoVaChuArr = ['tenTaiKhoan'],
+    const chiSoVaChuArr = ['tenTaiKhoan'],
         chiChuVaKhoangTrangArr = ['ho', 'ten'],
         chiSoArr = [{ name: 'luong', length: 10 }],
         kiemKhoangTrangArr = ['matKhau'],
@@ -109,7 +109,7 @@ $(document).ready(function () {
                     contentType: false,
                     processData: false,
                     success: function (data) {
-                        if (isJson(data)) {
+                        if (isJson(data) && data != null) {
                             const json = JSON.parse(data);
                             if (json.data != null) {
                                 $(`.${table}--show`).html(getHTML(table, json.data));
@@ -130,9 +130,6 @@ $(document).ready(function () {
             Update
          */
         if ($(`.${clas} [type='submit']`).val() == 'Sửa' && confirm('Thông tin có chính xác?')) {
-            let chiSoVaChuArr = ['tenTaiKhoan'],
-                kiemKhoangTrangArr = ['matKhau'];
-
             const fd = new FormData();
             let count = 0;
 
@@ -155,26 +152,26 @@ $(document).ready(function () {
                         if (soDienThoaiHopLe(value, name, 10) === false) {
                             count++;
                         }
+                    }
 
-                        if (chiChuVaKhoangTrangArr.includes(name)) {
-                            if (chiChuVaKhoangTrang(value, name, 255) === false) {
-                                count++;
-                            }
+                    if (chiChuVaKhoangTrangArr.includes(name)) {
+                        if (chiChuVaKhoangTrang(value, name, 255) === false) {
+                            count++;
                         }
+                    }
 
-                        chiSoArr.some((obj) => {
-                            if (obj.name === name) {
-                                if (chiSo(value, name, obj.length) === false) {
-                                    count++;
-                                }
-                                return;
-                            }
-                        });
-
-                        if (kiemNgayArr.includes(name)) {
-                            if (kiemNgay(value, name) === false) {
+                    chiSoArr.some((obj) => {
+                        if (obj.name === name) {
+                            if (chiSo(value, name, obj.length) === false) {
                                 count++;
                             }
+                            return;
+                        }
+                    });
+
+                    if (kiemNgayArr.includes(name)) {
+                        if (kiemNgay(value, name) === false) {
+                            count++;
                         }
                     }
                 }
@@ -216,15 +213,13 @@ $(document).ready(function () {
                     contentType: false,
                     processData: false,
                     success: function (data) {
-                        if (isJson(data)) {
+                        if (isJson(data) && data != null) {
                             const json = JSON.parse(data);
                             if (json.data != null) {
                                 $(`.${table}--show`).html(getHTML(table, json.data));
                                 $(`.${table}__add-content`).addClass('hidden');
                                 alert('Updated');
-                                if (table == 'taikhoan') {
-                                    location.reload();
-                                }
+                                location.reload();
                             }
                         } else {
                             alert(data);
@@ -289,7 +284,15 @@ $(document).ready(function () {
                 fd.append(name, val);
             });
 
-            const params = '?controller=admin&action=taikhoan';
+            let params = `?filterCol=${filterCol}&from=${from}&to=${to}&page=1`;
+            const newurl =
+                window.location.protocol +
+                '//' +
+                window.location.host +
+                window.location.pathname +
+                params;
+            window.history.pushState({ path: newurl }, '', newurl);
+            params = `?controller=admin&action=taikhoan&` + params.substring(1);
 
             $.ajax({
                 url: '/Web2/admin/app/index.php' + params,
@@ -298,7 +301,7 @@ $(document).ready(function () {
                 contentType: false,
                 processData: false,
                 success: function (data) {
-                    if (isJson(data)) {
+                    if (isJson(data) && data != null) {
                         const json = JSON.parse(data);
                         let html = '';
                         if (json.data != null) {
@@ -317,9 +320,19 @@ $(document).ready(function () {
         const that = $(this),
             value = that.val();
 
+        let params = `?trangthai=${value}&page=1`;
+        const newurl =
+            window.location.protocol +
+            '//' +
+            window.location.host +
+            window.location.pathname +
+            params;
+        window.history.pushState({ path: newurl }, '', newurl);
+        params = `?controller=admin&action=taikhoan&` + params.substring(1);
+
         if (value != '') {
             $.ajax({
-                url: '/Web2/admin/app/index.php?controller=admin&action=taikhoan',
+                url: '/Web2/admin/app/index.php' + params,
                 type: 'post',
                 data: {
                     trangThai: value,
@@ -327,7 +340,7 @@ $(document).ready(function () {
                     action: 'get',
                 },
                 success: function (data) {
-                    if (isJson(data)) {
+                    if (isJson(data) && data != null) {
                         const json = JSON.parse(data);
                         if (json.data != null) {
                             $('.taikhoan--show').html(getHTML('taikhoan', json.data));
@@ -342,14 +355,14 @@ $(document).ready(function () {
             });
         } else {
             $.ajax({
-                url: '/Web2/admin/app/index.php?controller=admin&action=taikhoan',
+                url: '/Web2/admin/app/index.php' + params,
                 type: 'post',
                 data: {
                     table: 'taikhoan',
                     action: 'get',
                 },
                 success: function (data) {
-                    if (isJson(data)) {
+                    if (isJson(data) && data != null) {
                         const json = JSON.parse(data);
                         if (json.data != null) {
                             $('.taikhoan--show').html(getHTML('taikhoan', json.data));
@@ -409,6 +422,12 @@ function ajaxPaginate(ele) {
         fd.append('to', url.searchParams.get('to'));
         fd.append('action', 'filter');
     }
+    if (params.includes('trangthai')) {
+        const url_string = window.location.href,
+            url = new URL(url_string);
+        fd.append('trangThai', url.searchParams.get('trangthai'));
+        fd.append('action', 'get');
+    }
 
     $.ajax({
         url: '/Web2/admin/app/index.php' + params,
@@ -417,7 +436,7 @@ function ajaxPaginate(ele) {
         contentType: false,
         processData: false,
         success: function (data) {
-            if (isJson(data)) {
+            if (isJson(data) && data != null) {
                 const json = JSON.parse(data);
                 const parent = ele.parentNode;
                 parent.querySelector('.current-page').classList.remove('current-page');
@@ -497,7 +516,6 @@ function ajaxUpdateOne(ele) {
 
             $(`.${table}__add-content`).append(
                 `<input class="hidden" name="maTK" type="text" value="${id}">`,
-                `<input class="hidden" name="maQuyen" type="text" value="${maQuyen}">`,
             );
 
             break;
@@ -545,10 +563,13 @@ function ajaxDeleteOne(ele) {
         switch (str) {
             case 'taikhoan': {
                 const image = ele.parentNode.parentNode
-                    .querySelector(`.row-${id}.anhDaiDien`)
-                    .getAttribute('src');
+                        .querySelector(`.row-${id}.anhDaiDien`)
+                        .getAttribute('src'),
+                    maQuyen = ele.parentNode.parentNode.querySelector(`.row-${id}.maQuyen`)
+                        .textContent;
                 fd.append('anhDaiDien', image);
                 fd.append('maTK', id);
+                fd.append('maQuyen', maQuyen);
                 break;
             }
             case 'nhanvien': {
@@ -568,11 +589,12 @@ function ajaxDeleteOne(ele) {
             contentType: false,
             processData: false,
             success: function (data) {
-                if (isJson(data)) {
+                if (isJson(data) && data != null) {
                     const json = JSON.parse(data);
                     if (json.data != null) {
-                        $(`.${str}--show`).html(getHTML(str, json.data));
-                        $(`.${str}__row .paginate`).html(renderPaginate(str, json.pages));
+                        // $(`.${str}--show`).html(getHTML(str, json.data));
+                        // $(`.${str}__row .paginate`).html(renderPaginate(str, json.pages));
+                        location.reload();
                     }
                 } else {
                     alert(data);
@@ -631,7 +653,7 @@ function ajaxMultiDel(ele) {
                 contentType: false,
                 processData: false,
                 success: function (data) {
-                    if (isJson(data)) {
+                    if (isJson(data) && data != null) {
                         const json = JSON.parse(data);
                         if (json.data != null) {
                             $(`.${str}--show`).html(getHTML(str, json.data));
@@ -675,6 +697,16 @@ function ajaxChangeQuyen(ele) {
         default: {
             $('.nhanvien-taikhoan__add-content').addClass('hidden');
             $('.khachhang-taikhoan__add-content').addClass('hidden');
+            const length1 = $('.nhanvien-taikhoan__add-content input');
+            for (let i = 0; i < length1.length; i++) {
+                let element = $(length1[i]);
+                element.text('');
+            }
+            const length2 = $('.khachhang-taikhoan__add-content input');
+            for (let i = 0; i < length2.length; i++) {
+                let element = $(length2[i]);
+                element.text('');
+            }
             break;
         }
     }

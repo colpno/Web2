@@ -195,7 +195,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 taikhoan-report hidden">
+        <div class="col-12 taikhoan hidden">
             <div class="content-row">
                 <div class="chart-head">Khách hàng mới</div>
                 <div class="chart">

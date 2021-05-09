@@ -173,9 +173,9 @@
                                 <span class="center col-1  row-' . $TaiKhoan[$i]['maTK'] . ' trangThai">';
 
                             if ($TaiKhoan[$i]['trangThai'] == 0) {
-                                echo '<input type="checkbox" checked class="center col-1 check-trangThai  row-' . $TaiKhoan[$i]['maTK'] . ' trangThai" onclick="capNhatTrangThai(this)">' . $TaiKhoan[$i]['trangThai'] . '</input>';
+                                echo '<input type="checkbox" checked class="center check-trangThai  row-' . $TaiKhoan[$i]['maTK'] . ' trangThai" onclick="capNhatTrangThai(this)">' . $TaiKhoan[$i]['trangThai'] . '</input>';
                             } else {
-                                echo '<input type="checkbox" class="center col-1 check-trangThai  row-' . $TaiKhoan[$i]['maTK'] . ' trangThai" onclick="capNhatTrangThai(this)">' . $TaiKhoan[$i]['trangThai'] . '</input>';
+                                echo '<input type="checkbox" class="center check-trangThai  row-' . $TaiKhoan[$i]['maTK'] . ' trangThai" onclick="capNhatTrangThai(this)">' . $TaiKhoan[$i]['trangThai'] . '</input>';
                             }
 
                             echo '
@@ -287,7 +287,6 @@
                                 <span class="center col-1  row-' . $NhanVien[$i]['maNV'] . ' luong">' . $NhanVien[$i]['luong'] . '</span>
                                 <div class="center col-1 ">
                                     <a href="#sua-nhanvien" class="nhanvien-' . $NhanVien[$i]['maNV'] . ' btn" onclick="updateOne(this)"><i class="far fa-edit"></i></a>
-                                    <button class="nhanvien-' . $NhanVien[$i]['maNV'] . ' btn" onclick="deleteOne(this)"><i class="far fa-trash-alt"></i></button>
                                 </div>
                             ';
                         }
@@ -380,8 +379,8 @@
                                 <div class="checkbox col-1  ">
                                     <input type="checkbox" class="khachhang__checkbox" value="' . $KhachHang[$i]['maKH'] . '"></input>
                                 </div>
-                                <span class="center-left col-1 ">' . $KhachHang[$i]['taikhoan']['tenTaiKhoan'] . '</span>
                                 <span class="hidden row-' . $KhachHang[$i]['maKH'] . ' maTK">' . $KhachHang[$i]['taikhoan']['maTK'] . '</span>
+                                <span class="center-left col-1 ">' . $KhachHang[$i]['taikhoan']['tenTaiKhoan'] . '</span>
                                 <span class="center-left col-1  row-' . $KhachHang[$i]['maKH'] . ' ho">' . $KhachHang[$i]['ho'] . '</span>
                                 <span class="center-left col-1  row-' . $KhachHang[$i]['maKH'] . ' ten">' . $KhachHang[$i]['ten'] . '</span>
                                 <span class="center col-2  row-' . $KhachHang[$i]['maKH'] . ' ngaySinh">' . $KhachHang[$i]['ngaySinh'] . '</span>
@@ -389,7 +388,6 @@
                                 <span class="center col-1  row-' . $KhachHang[$i]['maKH'] . ' soDienThoai">' . $KhachHang[$i]['soDienThoai'] . '</span>
                                 <div class="center col-2 ">
                                     <a href="#sua-khachhang" class="khachhang-' . $KhachHang[$i]['maKH'] . ' btn" onclick="updateOne(this)"><i class="far fa-edit"></i></a>
-                                    <button class="khachhang-' . $KhachHang[$i]['maKH'] . ' btn" onclick="deleteOne(this)"><i class="far fa-trash-alt"></i></button>
                                 </div>
                             ';
                         }

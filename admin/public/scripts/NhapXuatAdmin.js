@@ -92,7 +92,7 @@ $(document).ready(function () {
                     contentType: false,
                     processData: false,
                     success: function (data) {
-                        if (isJson(data)) {
+                        if (isJson(data) && data != null) {
                             const json = JSON.parse(data);
                             if (json.data != null) {
                                 $(`.${table}--show`).html(getHTML(table, json.data));
@@ -109,7 +109,7 @@ $(document).ready(function () {
                                             action: 'get',
                                         },
                                         success: function (data) {
-                                            if (isJson(data)) {
+                                            if (isJson(data) && data != null) {
                                                 const json = JSON.parse(data);
                                                 if (json.data != null) {
                                                     $(`.phieunhaphang--show`).html(
@@ -189,7 +189,7 @@ $(document).ready(function () {
                     contentType: false,
                     processData: false,
                     success: function (data) {
-                        if (isJson(data)) {
+                        if (isJson(data) && data != null) {
                             const json = JSON.parse(data);
                             if (json.data != null) {
                                 $(`.${table}--show`).html(getHTML(table, json.data));
@@ -204,7 +204,7 @@ $(document).ready(function () {
                                             action: 'update',
                                         },
                                         success: function (data) {
-                                            if (isJson(data)) {
+                                            if (isJson(data) && data != null) {
                                                 const json = JSON.parse(data);
                                                 if (json.data != null) {
                                                     $(`.phieunhaphang--show`).html(
@@ -276,7 +276,15 @@ $(document).ready(function () {
                 fd.append(name, val);
             });
 
-            const params = '?controller=admin&action=nhapxuat';
+            let params = `?filterCol=${filterCol}&from=${from}&to=${to}&page=1`;
+            const newurl =
+                window.location.protocol +
+                '//' +
+                window.location.host +
+                window.location.pathname +
+                params;
+            window.history.pushState({ path: newurl }, '', newurl);
+            params = `?controller=admin&action=nhapxuat&` + params.substring(1);
 
             $.ajax({
                 url: '/Web2/admin/app/index.php' + params,
@@ -285,7 +293,7 @@ $(document).ready(function () {
                 contentType: false,
                 processData: false,
                 success: function (data) {
-                    if (isJson(data)) {
+                    if (isJson(data) && data != null) {
                         const json = JSON.parse(data);
                         let html = '';
                         switch (table) {
@@ -320,9 +328,19 @@ $(document).ready(function () {
         const that = $(this),
             value = that.val();
 
+        let params = `?tinhtrang=${value}&page=1`;
+        const newurl =
+            window.location.protocol +
+            '//' +
+            window.location.host +
+            window.location.pathname +
+            params;
+        window.history.pushState({ path: newurl }, '', newurl);
+        params = `?controller=admin&action=nhapxuat&` + params.substring(1);
+
         if (value != '') {
             $.ajax({
-                url: '/Web2/admin/app/index.php?controller=admin&action=nhapxuat',
+                url: '/Web2/admin/app/index.php' + params,
                 type: 'post',
                 data: {
                     tinhTrang: value,
@@ -330,7 +348,7 @@ $(document).ready(function () {
                     action: 'get',
                 },
                 success: function (data) {
-                    if (isJson(data)) {
+                    if (isJson(data) && data != null) {
                         const json = JSON.parse(data);
                         if (json.data != null) {
                             $('.hoadon--show').html(getHTML('hoadon', json.data));
@@ -342,14 +360,14 @@ $(document).ready(function () {
             });
         } else {
             $.ajax({
-                url: '/Web2/admin/app/index.php?controller=admin&action=nhapxuat',
+                url: '/Web2/admin/app/index.php' + params,
                 type: 'post',
                 data: {
                     table: 'hoadon',
                     action: 'get',
                 },
                 success: function (data) {
-                    if (isJson(data)) {
+                    if (isJson(data) && data != null) {
                         const json = JSON.parse(data);
                         if (json.data != null) {
                             $('.hoadon--show').html(getHTML('hoadon', json.data));
@@ -424,7 +442,7 @@ function ajaxOpenDetail(ele) {
             action: 'get',
         },
         success: function (data) {
-            if (isJson(data) && JSON.parse(data).data.length > 0) {
+            if (isJson(data) && data != null && JSON.parse(data).data.length > 0) {
                 const json = JSON.parse(data);
                 if (json.data != null) {
                     $(`.chitiet${general}--show`).html(getHTML(`chitiet${general}`, json.data));
@@ -434,7 +452,7 @@ function ajaxOpenDetail(ele) {
                 }
             } else {
                 $(`.chitiet${general}--show`).html(`
-                        <div style="display:flex;align-items: center;justify-content: center;height: 200px;">
+                        <div>
                             <h1>Trống</h1>
                         </div>
                 `);
@@ -488,6 +506,12 @@ function ajaxPaginate(ele) {
         fd.append('to', url.searchParams.get('to'));
         fd.append('action', 'filter');
     }
+    if (params.includes('tinhtrang')) {
+        const url_string = window.location.href,
+            url = new URL(url_string);
+        fd.append('tinhTrang', url.searchParams.get('tinhtrang'));
+        fd.append('action', 'get');
+    }
 
     $.ajax({
         url: '/Web2/admin/app/index.php' + params,
@@ -496,7 +520,7 @@ function ajaxPaginate(ele) {
         contentType: false,
         processData: false,
         success: function (data) {
-            if (isJson(data)) {
+            if (isJson(data) && data != null) {
                 const json = JSON.parse(data);
                 const parent = ele.parentNode;
                 parent.querySelector('.current-page').classList.remove('current-page');
@@ -546,7 +570,7 @@ function ajaxCapNhatHoaDon(ele) {
             tinhTrang,
         },
         success: function (data) {
-            if (isJson(data)) {
+            if (isJson(data) && data != null) {
                 const json = JSON.parse(data);
                 console.log(json);
             } else {
@@ -689,7 +713,7 @@ function ajaxDeleteOne(ele) {
             contentType: false,
             processData: false,
             success: function (data) {
-                if (isJson(data)) {
+                if (isJson(data) && data != null) {
                     const json = JSON.parse(data);
                     if (json.data != null) {
                         $(`.${str}--show`).html(getHTML(str, json.data));
@@ -704,7 +728,7 @@ function ajaxDeleteOne(ele) {
                                     action: 'get',
                                 },
                                 success: function (data) {
-                                    if (isJson(data)) {
+                                    if (isJson(data) && data != null) {
                                         const json = JSON.parse(data);
                                         if (json.data != null) {
                                             $(`.phieunhaphang--show`).html(
@@ -781,7 +805,7 @@ function ajaxMultiDel(ele) {
                 contentType: false,
                 processData: false,
                 success: function (data) {
-                    if (isJson(data)) {
+                    if (isJson(data) && data != null) {
                         const json = JSON.parse(data);
                         if (json.data != null) {
                             $(`.${str}--show`).html(getHTML(str, json.data));
@@ -796,7 +820,7 @@ function ajaxMultiDel(ele) {
                                         action: 'get',
                                     },
                                     success: function (data) {
-                                        if (isJson(data)) {
+                                        if (isJson(data) && data != null) {
                                             const json = JSON.parse(data);
                                             if (json.data != null) {
                                                 $(`.phieunhaphang--show`).html(

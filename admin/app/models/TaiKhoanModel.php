@@ -54,7 +54,11 @@ class TaiKhoanModel extends BaseModel
 
     public function post($data = [], $maxID)
     {
-        return $this->postMethod(self::TABLE_NAME, $data, $maxID);
+        $check = [
+            'col' => 'tenTaiKhoan',
+            'value' => $data['tenTaiKhoan'],
+        ];
+        return $this->postMethod(self::TABLE_NAME, $data, $check, $maxID);
     }
 
     public function update($data = [], $id)

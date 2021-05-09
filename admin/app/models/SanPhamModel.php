@@ -65,7 +65,11 @@ class SanPhamModel extends BaseModel
 
     public function post($data = [], $maxID)
     {
-        return $this->postMethod(self::TABLE_NAME, $data, $maxID);
+        $check = [
+            'col' => 'tenSP',
+            'value' => $data['tenSP'],
+        ];
+        return $this->postMethod(self::TABLE_NAME, $data, $check, $maxID);
     }
 
     public function update($data = [], $id)

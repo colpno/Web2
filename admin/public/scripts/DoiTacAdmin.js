@@ -1,6 +1,5 @@
 $(document).ready(function () {
-    const kiemKhoangTrangArr = ['tenNCC', 'tenNSX'],
-        kiemSoDienThoaiArr = ['soDienThoai'],
+    const kiemSoDienThoaiArr = ['soDienThoai'],
         kiemDiaChiArr = ['diaChi'];
 
     $('.add-content').submit(function (e) {
@@ -39,12 +38,6 @@ $(document).ready(function () {
                         count++;
                     }
                 }
-
-                if (kiemKhoangTrangArr.includes(name)) {
-                    if (kiemKhongKhoangTrang(value, name) === false) {
-                        count++;
-                    }
-                }
             });
 
             if (count === 0) {
@@ -76,7 +69,7 @@ $(document).ready(function () {
                     contentType: false,
                     processData: false,
                     success: function (data) {
-                        if (isJson(data)) {
+                        if (isJson(data) && data != null) {
                             const json = JSON.parse(data);
                             if (json.data != null) {
                                 $(`.${table}--show`).html(getHTML(table, json.data));
@@ -118,12 +111,6 @@ $(document).ready(function () {
                         count++;
                     }
                 }
-
-                if (kiemKhoangTrangArr.includes(name)) {
-                    if (kiemKhongKhoangTrang(value, name) === false) {
-                        count++;
-                    }
-                }
             });
 
             if (count == 0) {
@@ -150,7 +137,7 @@ $(document).ready(function () {
                     contentType: false,
                     processData: false,
                     success: function (data) {
-                        if (isJson(data)) {
+                        if (isJson(data) && data != null && data != null) {
                             const json = JSON.parse(data);
                             if (json.data != null) {
                                 $(`.${table}--show`).html(getHTML(table, json.data));
@@ -211,7 +198,7 @@ function ajaxPaginate(ele) {
         contentType: false,
         processData: false,
         success: function (data) {
-            if (isJson(data)) {
+            if (isJson(data) && data != null) {
                 const json = JSON.parse(data);
                 const parent = ele.parentNode;
                 parent.querySelector('.current-page').classList.remove('current-page');
@@ -311,7 +298,7 @@ function ajaxDeleteOne(ele) {
             contentType: false,
             processData: false,
             success: function (data) {
-                if (isJson(data)) {
+                if (isJson(data) && data != null) {
                     const json = JSON.parse(data);
                     if (json.data != null) {
                         $(`.${str}--show`).html(getHTML(str, json.data));
@@ -366,7 +353,7 @@ function ajaxMultiDel(ele) {
                 contentType: false,
                 processData: false,
                 success: function (data) {
-                    if (isJson(data)) {
+                    if (isJson(data) && data != null) {
                         const json = JSON.parse(data);
                         if (json.data != null) {
                             $(`.${str}--show`).html(getHTML(str, json.data));

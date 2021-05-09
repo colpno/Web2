@@ -58,6 +58,7 @@ class ChiTietPhieuNhapHangController extends BaseController
         ) {
             $values = $this->getValues($data);
             $this->chiTietPhieuNhapHangModel->post($values);
+
             return $this->get($data);
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để thêm");

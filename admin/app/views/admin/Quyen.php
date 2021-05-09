@@ -9,7 +9,7 @@
                     <button class="quyen--add "><i class="fas fa-plus"></i></button>
                 </div>
                 <form class="hidden add-content quyen__add-content">
-                    <input type="text" name="tenQuyen" placeholder="Tên quyenền">
+                    <input type="text" name="tenQuyen" placeholder="Tên quyền">
                     <input type="submit" value="Thêm">
                 </form>
                 <div class="title--border">

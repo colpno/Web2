@@ -188,8 +188,8 @@
                         <h6 class="center chitietphieunhaphang-item-title col-2">Thao tác</h6>
                     </div>
                 </div>
-                <div class="chitietphieunhaphang--show row">
-                    <div style="display:flex;align-items: center;justify-content: center;height: 200px;">
+                <div class="chitietphieunhaphang--show row" style="display:flex;align-items: center;justify-content: center;height: 200px;">
+                    <div>
                         <h3>Mở phiếu nhập để xem</h3>
                     </div>
                 </div>
@@ -240,19 +240,14 @@
                 </form>
                 <div class="title--border">
                     <div class="chitiethoadon__title row">
-                        <div class="center checkbox chitietphieunhaphang-item-title col-2">
-                            <i class="chitiethoadon--delete far fa-trash-alt " onclick="multiDel(this)"></i>
-                            <input type="checkbox" class="chitiethoadon__master-checkbox" onclick=" checkAll(this)">
-                        </div>
-                        <h6 class="center chitietphieunhaphang-item-title col-3">Tên sản phẩm</h6>
-                        <h6 class="center chitiethoadon-item-title col-1">Số lượng</h6>
+                        <h6 class="center chitietphieunhaphang-item-title col-5">Tên sản phẩm</h6>
+                        <h6 class="center chitiethoadon-item-title col-2">Số lượng</h6>
                         <h6 class="center chitiethoadon-item-title col-2">Giá</h6>
-                        <h6 class="center chitiethoadon-item-title col-2">Thành tiền</h6>
-                        <h6 class="center chitiethoadon-item-title col-2">Thao tác</h6>
+                        <h6 class="center chitiethoadon-item-title col-3">Thành tiền</h6>
                     </div>
                 </div>
-                <div class="chitiethoadon--show row">
-                    <div style="display:flex;align-items: center;justify-content: center;height: 200px;">
+                <div class="chitiethoadon--show row" style="display:flex;align-items: center;justify-content: center;height: 200px;">
+                    <div>
                         <h3>Mở hóa đơn để xem</h3>
                     </div>
                 </div>
