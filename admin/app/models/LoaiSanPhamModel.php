@@ -59,7 +59,11 @@ class LoaiSanPhamModel extends BaseModel
 
     public function post($data = [])
     {
-        return $this->postMethod(self::TABLE_NAME, $data);
+        $check = [
+            'col' => 'tenLoai',
+            'value' => $data['tenLoai'],
+        ];
+        return $this->postMethod(self::TABLE_NAME, $data,  $check);
     }
 
     public function update($data = [], $id)

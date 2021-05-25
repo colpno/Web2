@@ -24,11 +24,11 @@ if (isset($_SESSION['user'])) {
                         <div class='detail-price'>" . $spArr[0]['donGia'] . " VNĐ</div>
                         <div class='detail-input cart-list-input'>
                             <div class='cart-list-input__prev' onclick='prevNumber()'>-</div>
-                            <input type='text' id='slNumber' onkeypress='return event.charCode >= 48 && event.charCode <= 57' onchange='inputnumber(" . $spArr[0]['soLuong'] . ")' name='soLuong' class='cart-list-input__text' value='1'>
+                            <input autocomplete='off' type='text' id='slNumber' onkeypress='return event.charCode >= 48 && event.charCode <= 57' onchange='inputnumber(" . $spArr[0]['soLuong'] . ")' name='soLuong' class='cart-list-input__text' value='1'>
                             <div class='cart-list-input__next' onclick='nextNumber(" . $spArr[0]['soLuong'] . ")'>+</div>
                         </div>
                         <div class='detail-description'>" . $spArr[0]['moTa'] . "</div>
-                        <input type='submit' name='muahang' value='Mua hàng' class='detail-submit'>
+                        <input autocomplete='off' type='submit' name='muahang' value='Mua hàng' class='detail-submit'>
                     </form>
                 </div>
             </div>

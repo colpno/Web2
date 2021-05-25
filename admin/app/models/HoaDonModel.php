@@ -75,7 +75,7 @@ class HoaDonModel extends BaseModel
 
     public function delete($id = [])
     {
-        return $this->deleteMethod(self::TABLE_NAME, $this->primaryCol, $id);
+        return $this->deleteWithFKMethod(self::TABLE_NAME, 'chitiethoadon', $this->primaryCol, $id);
     }
 
     public function find($searchingText, $page)

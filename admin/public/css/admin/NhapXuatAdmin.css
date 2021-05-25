@@ -1,3 +1,7 @@
+.chitietphieunhaphang__row .content-item__header button {
+    min-width: 80px;
+}
+
 .phieunhaphang__add-content select {
     width: 340px;
 }

@@ -19,6 +19,12 @@ if (!isset($_POST['action'])) {
             </script>
         ";
         }
+    } else {
+        echo "
+            <script>
+                window.location='http://localhost:8080/Web2';
+            </script>
+        ";
     }
     $uri = isset($_GET['uri']) ? $_GET['uri'] : "";
     $splitUri = explode("/", $uri);

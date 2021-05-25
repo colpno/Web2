@@ -1,11 +1,15 @@
-var regex_address = /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂẾưăạảấầẩẫậắằẳẵặẹẻẽềềểếỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵỷỹ\s\d\/]+$/;
+var regex_address =
+    /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂẾưăạảấầẩẫậắằẳẵặẹẻẽềềểếỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵỷỹ\s\d\/\,]+$/;
 var regex_id = /^[a-zA-Z\d]+$/i;
-var regex_name = /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂẾưăạảấầẩẫậắằẳẵặẹẻẽềềểếỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵỷỹ\s]+$/;
+var regex_name =
+    /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂẾưăạảấầẩẫậắằẳẵặẹẻẽềềểếỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵỷỹ\s]+$/;
 var regex_phone = /^[0]\d{9}$/;
 var regex_mail = /^([a-zA-Z\d\.]{6,30})\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
 var regex_cmnd = /^\d{9}$|^\d{12}$/;
-var regex_pass = /^([a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂẾưăạảấầẩẫậắằẳẵặẹẻẽềềểếỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵỷỹ\d\s\W]{4,8})+$/;
-var regex_search = /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂẾưăạảấầẩẫậắằẳẵặẹẻẽềềểếỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵỷỹ\s\d]+$/;
+var regex_pass =
+    /^([a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂẾưăạảấầẩẫậắằẳẵặẹẻẽềềểếỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵỷỹ\d\s\W]{4,8})+$/;
+var regex_search =
+    /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂẾưăạảấầẩẫậắằẳẵặẹẻẽềềểếỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵỷỹ\s\d]+$/;
 
 function validate() {
     var bool = true;
@@ -49,13 +53,21 @@ function validate() {
 
 function closetab(name) {
     document.getElementById(name).style.display = 'none';
-    $('input[name=userregister]').val('');
-    $('input[name=passregister]').val('');
-    $('input[name=horegister]').val('');
-    $('input[name=tenregister]').val('');
-    $('input[name=phoneregister]').val('');
-    $('input[name=userlogin]').val('');
-    $('input[name=passlogin]').val('');
+    $('input[name=userregister]').html('');
+    $('input[name=passregister]').html('');
+    $('input[name=horegister]').html('');
+    $('input[name=tenregister]').html('');
+    $('input[name=phoneregister]').html('');
+    $('input[name=userlogin]').html('');
+    $('input[name=passlogin]').html('');
+    $('#form-register-tk').html('');
+    $('#form-register-matkhau').html('');
+    $('#form-register-hoten').html('');
+    $('#form-register-sodienthoai').html('');
+    $('#form-register-success').html('');
+    $('#form-login-tk').html('');
+    $('#form-login-matkhau').html('');
+    $('#form-login-success').html('');
 }
 
 function opentab(name) {
@@ -91,7 +103,7 @@ function inputnumber(x) {
     var sl = Number(document.getElementsByClassName('cart-list-input__text')[0].value);
     if (sl > x) {
         sl = x;
-        alert("Số lượng còn "+x);
+        alert('Số lượng còn ' + x);
     }
     if (sl < 1) {
         sl = 1;
@@ -106,93 +118,128 @@ function nextNumber(x) {
     document.getElementsByClassName('cart-list-input__text')[0].value = sl;
 }
 
-function prevNumberCart(vt,x,masp) {
-    var namesl="slNumberCart"+vt;
+function prevNumberCart(vt, x, masp) {
+    var namesl = 'slNumberCart' + vt;
     var sl = Number(document.getElementById(namesl).value);
     if (sl > 1) {
-        var namedg="dongiasp"+vt;
-        var nametsp="tiensp"+vt;
-        var dongiasp=Number(document.getElementById(namedg).innerHTML);
-        var tiensp=Number(document.getElementById(nametsp).innerHTML);
-        var tongtiensp=Number(document.getElementById('tongtiensp').innerHTML);
-        var thanhtiensp=Number(document.getElementById('thanhtiensp').innerHTML);
-        document.getElementById(namesl).value=sl-1;
-        document.getElementById(nametsp).innerHTML=tiensp-dongiasp;
-        document.getElementById('tongtiensp').innerHTML=tongtiensp-dongiasp;
-        document.getElementById('thanhtiensp').innerHTML=thanhtiensp-dongiasp;
-        $.post("./php/soluongsp.php",{prevsp:masp},function(data) {
-            document.getElementsByClassName('cart-list-input__prev')[vt]
-                .setAttribute("onclick","prevNumberCart("+vt+","+(x+1)+","+masp+")");
+        var namedg = 'dongiasp' + vt;
+        var nametsp = 'tiensp' + vt;
+        var dongiasp = Number(document.getElementById(namedg).innerHTML);
+        var tiensp = Number(document.getElementById(nametsp).innerHTML);
+        var tongtiensp = Number(document.getElementById('tongtiensp').innerHTML);
+        var thanhtiensp = Number(document.getElementById('thanhtiensp').innerHTML);
+        document.getElementById(namesl).value = sl - 1;
+        document.getElementById(nametsp).innerHTML = tiensp - dongiasp;
+        document.getElementById('tongtiensp').innerHTML = tongtiensp - dongiasp;
+        document.getElementById('thanhtiensp').innerHTML = thanhtiensp - dongiasp;
+        $.post('./php/soluongsp.php', { prevsp: masp }, function (data) {
+            document
+                .getElementsByClassName('cart-list-input__prev')
+                [vt].setAttribute(
+                    'onclick',
+                    'prevNumberCart(' + vt + ',' + (x + 1) + ',' + masp + ')',
+                );
 
-            document.getElementById(namesl).setAttribute("onchange","inputnumbercart("+vt+","+(x+1)+","+masp+")");
+            document
+                .getElementById(namesl)
+                .setAttribute(
+                    'onchange',
+                    'inputnumbercart(' + vt + ',' + (x + 1) + ',' + masp + ')',
+                );
 
-            document.getElementsByClassName('cart-list-input__next')[vt]
-                .setAttribute("onclick","nextNumberCart("+vt+","+(x+1)+","+masp+")");
+            document
+                .getElementsByClassName('cart-list-input__next')
+                [vt].setAttribute(
+                    'onclick',
+                    'nextNumberCart(' + vt + ',' + (x + 1) + ',' + masp + ')',
+                );
         });
     }
-    
 }
-function inputnumbercart(vt,x,masp) {
-    var namesl="slNumberCart"+vt;
-    var namedg="dongiasp"+vt;
-    var nametsp="tiensp"+vt;
-    var dongiasp=Number(document.getElementById(namedg).innerHTML);
-    var tiensp=Number(document.getElementById(nametsp).innerHTML);
-    var slbd=tiensp/dongiasp;
+function inputnumbercart(vt, x, masp) {
+    var namesl = 'slNumberCart' + vt;
+    var namedg = 'dongiasp' + vt;
+    var nametsp = 'tiensp' + vt;
+    var dongiasp = Number(document.getElementById(namedg).innerHTML);
+    var tiensp = Number(document.getElementById(nametsp).innerHTML);
+    var slbd = tiensp / dongiasp;
     var sl = Number(document.getElementById(namesl).value);
-    var tongsl=x+slbd;
+    var tongsl = x + slbd;
 
     if (sl > tongsl) {
         sl = tongsl;
-        alert("Số lượng sản phẩm còn lại bạn có thể mua là "+tongsl);
+        alert('Số lượng sản phẩm còn lại bạn có thể mua là ' + tongsl);
     }
     if (sl < 1) {
         sl = 1;
     }
-    var tongtiensp=Number(document.getElementById('tongtiensp').innerHTML);
-    var thanhtiensp=Number(document.getElementById('thanhtiensp').innerHTML);
-    document.getElementById(namesl).value=sl;
-    document.getElementById('tongtiensp').innerHTML=tongtiensp-tiensp+sl*dongiasp;
-    document.getElementById('thanhtiensp').innerHTML=thanhtiensp-tiensp+sl*dongiasp;
-    document.getElementById(nametsp).innerHTML=sl*dongiasp;
-    $.post("./php/soluongsp.php",{inputsp:masp,slbd:slbd,sl:sl},function(data) {
-        document.getElementsByClassName('cart-list-input__prev')[vt]
-                .setAttribute("onclick","prevNumberCart("+vt+","+(x+slbd-sl)+","+masp+")");
+    var tongtiensp = Number(document.getElementById('tongtiensp').innerHTML);
+    var thanhtiensp = Number(document.getElementById('thanhtiensp').innerHTML);
+    document.getElementById(namesl).value = sl;
+    document.getElementById('tongtiensp').innerHTML = tongtiensp - tiensp + sl * dongiasp;
+    document.getElementById('thanhtiensp').innerHTML = thanhtiensp - tiensp + sl * dongiasp;
+    document.getElementById(nametsp).innerHTML = sl * dongiasp;
+    $.post('./php/soluongsp.php', { inputsp: masp, slbd: slbd, sl: sl }, function (data) {
+        document
+            .getElementsByClassName('cart-list-input__prev')
+            [vt].setAttribute(
+                'onclick',
+                'prevNumberCart(' + vt + ',' + (x + slbd - sl) + ',' + masp + ')',
+            );
 
-        document.getElementById(namesl).setAttribute("onchange","inputnumbercart("+vt+","+(x+slbd-sl)+","+masp+")");
+        document
+            .getElementById(namesl)
+            .setAttribute(
+                'onchange',
+                'inputnumbercart(' + vt + ',' + (x + slbd - sl) + ',' + masp + ')',
+            );
 
-        document.getElementsByClassName('cart-list-input__next')[vt]
-                .setAttribute("onclick","nextNumberCart("+vt+","+(x+slbd-sl)+","+masp+")");
+        document
+            .getElementsByClassName('cart-list-input__next')
+            [vt].setAttribute(
+                'onclick',
+                'nextNumberCart(' + vt + ',' + (x + slbd - sl) + ',' + masp + ')',
+            );
     });
-
-
 }
-function nextNumberCart(vt,x,masp) {
-    var namesl="slNumberCart"+vt;
+function nextNumberCart(vt, x, masp) {
+    var namesl = 'slNumberCart' + vt;
     var sl = Number(document.getElementById(namesl).value);
-    if (x>0) {
-        var namedg="dongiasp"+vt;
-        var nametsp="tiensp"+vt;
-        var dongiasp=Number(document.getElementById(namedg).innerHTML);
-        var tiensp=Number(document.getElementById(nametsp).innerHTML);
-        var tongtiensp=Number(document.getElementById('tongtiensp').innerHTML);
-        var thanhtiensp=Number(document.getElementById('thanhtiensp').innerHTML);
-        document.getElementById(namesl).value=sl+1;
-        document.getElementById(nametsp).innerHTML=tiensp+dongiasp;
-        document.getElementById('tongtiensp').innerHTML=tongtiensp+dongiasp;
-        document.getElementById('thanhtiensp').innerHTML=thanhtiensp+dongiasp;
-        $.post("./php/soluongsp.php",{nextsp:masp},function(data) {
-            document.getElementsByClassName('cart-list-input__prev')[vt]
-                .setAttribute("onclick","prevNumberCart("+vt+","+(x-1)+","+masp+")");
+    if (x > 0) {
+        var namedg = 'dongiasp' + vt;
+        var nametsp = 'tiensp' + vt;
+        var dongiasp = Number(document.getElementById(namedg).innerHTML);
+        var tiensp = Number(document.getElementById(nametsp).innerHTML);
+        var tongtiensp = Number(document.getElementById('tongtiensp').innerHTML);
+        var thanhtiensp = Number(document.getElementById('thanhtiensp').innerHTML);
+        document.getElementById(namesl).value = sl + 1;
+        document.getElementById(nametsp).innerHTML = tiensp + dongiasp;
+        document.getElementById('tongtiensp').innerHTML = tongtiensp + dongiasp;
+        document.getElementById('thanhtiensp').innerHTML = thanhtiensp + dongiasp;
+        $.post('./php/soluongsp.php', { nextsp: masp }, function (data) {
+            document
+                .getElementsByClassName('cart-list-input__prev')
+                [vt].setAttribute(
+                    'onclick',
+                    'prevNumberCart(' + vt + ',' + (x - 1) + ',' + masp + ')',
+                );
 
-            document.getElementById(namesl).setAttribute("onchange","inputnumbercart("+vt+","+(x-1)+","+masp+")");
+            document
+                .getElementById(namesl)
+                .setAttribute(
+                    'onchange',
+                    'inputnumbercart(' + vt + ',' + (x - 1) + ',' + masp + ')',
+                );
 
-            document.getElementsByClassName('cart-list-input__next')[vt]
-                .setAttribute("onclick","nextNumberCart("+vt+","+(x-1)+","+masp+")");
+            document
+                .getElementsByClassName('cart-list-input__next')
+                [vt].setAttribute(
+                    'onclick',
+                    'nextNumberCart(' + vt + ',' + (x - 1) + ',' + masp + ')',
+                );
         });
-    }
-    else {
-        alert("Số lượng sản phẩm này còn lại đã hết!")
+    } else {
+        alert('Số lượng sản phẩm này còn lại đã hết!');
     }
 }
 
@@ -202,7 +249,7 @@ function deletecart(masp) {
 }
 
 $(document).ready(function () {
-    $('#register-text').on("change",function () {
+    $('#register-text').on('change', function () {
         var name = $(this).val();
         if (name != '') {
             $.post('./php/dungchung/dangky.php', { tenTK: name }, function (data) {
@@ -345,7 +392,7 @@ $(document).ready(function () {
         var sodienthoai = $('#cart-info-phone').val();
         if (!regex_address.test(diachi)) {
             check = 1;
-            $('#cart-info-address-error').html("Vui lòng chỉ nhập số, chữ, và dấu '/' ");
+            $('#cart-info-address-error').html("Vui lòng chỉ nhập số, chữ, và dấu '/' ',' ");
         }
         if (!regex_phone.test(sodienthoai)) {
             check = 1;

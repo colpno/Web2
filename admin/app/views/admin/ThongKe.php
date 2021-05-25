@@ -9,7 +9,7 @@
                     <select name="" id="" onchange="changeReport(this)">
                         <option value="tongthu">Tổng thu</option>
                         <option value="doanhthu">Doanh thu</option>
-                        <option value="taikhoan">Số lượng khách mới</option>
+                        <option value="taikhoan-report">Số lượng khách mới</option>
                     </select>
                 </div>
             </div>
@@ -254,7 +254,7 @@
                     </div>
                     <div class="chart-info">
                         <p>Năm:
-                            <select name="" id="taikhoan-chart" onchange="changeYear(this)">
+                            <select name="" id="taikhoan-report-chart" onchange="changeYear(this)">
                                 <?php
                                 $year = date('Y');
                                 for ($i = $year; $i >= 2015; $i--) {
@@ -268,7 +268,7 @@
                             </select>
                         </p>
                         <p>Đơn vị tính: <span>khách</span></p>
-                        <p>Tổng: <span class="summary-taikhoan"><?php echo $_SESSION['tongTaiKhoan'] ?></span></p>
+                        <p>Tổng: <span class="summary-taikhoan-report"><?php echo $_SESSION['tongTaiKhoan'] ?></span></p>
                     </div>
                 </div>
             </div>

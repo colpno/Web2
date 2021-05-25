@@ -121,13 +121,30 @@ class BaseModel extends Database
         return null;
     }
 
-    protected function postMethod($tableName, $data = [], $maxID = null)
+    protected function postMethod($tableName, $data = [], $check = [], $maxID = null)
     {
+        if ($tableName == 'chitietphieunhaphang') {
+            if (
+                !empty($check) &&
+                $this->checkExistingChiTiet($tableName, $check['value'], $check['value2'])
+            ) {
+                $this->congDonPNH($data);
+                $this->updateSoLuong($data);
+                return;
+            }
+        } else
+        if (
+            !empty($check) &&
+            $this->checkExisting($tableName, $check['col'], $check['value'])
+        ) {
+            die($check['value'] . ' đã tồn tại');
+        }
+
         /* 
             Thêm file ảnh vào thư mục
          */
         $func = null;
-        if (isset($data['anhDaiDien']) && $data['anhDaiDien'] != null && $maxID != null) {
+        if (isset($data['anhDaiDien']) && $data['anhDaiDien'] != 'undefined' && $maxID != null) {
             $func = $this->createImgFile($tableName, $maxID + 1, $data['anhDaiDien']);
             $data['anhDaiDien'] = $func['path'];
         }
@@ -154,21 +171,8 @@ class BaseModel extends Database
             Chi tiết phiếu nhập
             */
             if ($tableName == 'chitietphieunhaphang') {
-                $sql = 'SELECT tongTien FROM phieunhaphang' .
-                    ' WHERE maPhieu = ' . $data['maPhieu'];
-
-                $query = $this->conn->query($sql);
-                $needed = null;
-                while ($row = mysqli_fetch_assoc($query)) {
-                    $needed = $row;
-                }
-
-                $total = $needed['tongTien'] + $data['thanhTien'];
-                $sql = 'UPDATE phieunhaphang SET tongTien = ' . $total . ' WHERE maPhieu = ' . $data['maPhieu'];
-                $this->conn->query($sql);
-
-                $sql = 'UPDATE chitietphieunhaphang SET thanhTien = ' . $data['thanhTien'] . ' WHERE maPhieu = ' . $data['maPhieu'] . ' AND maSP = ' . $data['maSP'];
-                $this->conn->query($sql);
+                $this->sumChiTietPhieuNhap($data);
+                $this->updateSoLuong($data);
             }
 
             return;
@@ -177,8 +181,15 @@ class BaseModel extends Database
         }
     }
 
-    protected function postQuyenMethod($tableName, $data, $need)
+    protected function postQuyenMethod($tableName, $data, $need, $check = [])
     {
+        if (
+            !empty($check) &&
+            $this->checkExisting($tableName, $check['col'], $check['value'])
+        ) {
+            die($check['value'] . ' đã tồn tại');
+        }
+
         // Reset AI
         $resetAI = 'ALTER TABLE ' . $tableName . ' AUTO_INCREMENT = 1';
         if (!$this->conn->query($resetAI)) {
@@ -235,7 +246,7 @@ class BaseModel extends Database
     protected function updateMethod($tableName, $data, $colID, $id)
     {
         $func = null;
-        if (isset($data['anhDaiDien']) && !empty($data['anhDaiDien'])) {
+        if (isset($data['anhDaiDien']) && $data['anhDaiDien'] != "undefined") {
             $func = $this->createImgFile($tableName, $id, $data['anhDaiDien']);
             $data['anhDaiDien'] = $func['path'];
         }
@@ -249,25 +260,14 @@ class BaseModel extends Database
         $sql = 'UPDATE ' . $tableName . ' SET ' . $result . ' WHERE ' . $colID . ' = ' . $id;
 
         if ($this->conn->query($sql) or die($this->conn->error)) {
-            if (isset($func['path']) && $func['path'] != "") {
-                $func['instance']->upload($func['fileName']);
+            if (isset($data['anhDaiDien']) && $data['anhDaiDien'] != "undefined") {
+                if (isset($func['path']) && $func['path'] != "") {
+                    $func['instance']->upload($func['fileName']);
+                }
             }
 
             if ($tableName == 'chitietphieunhaphang') {
-                $sql = 'SELECT SUM(thanhTien) as thanhTien FROM chitietphieunhaphang' .
-                    ' WHERE maPhieu = ' . $data['maPhieu'];
-
-                $query = $this->conn->query($sql);
-                while ($row = mysqli_fetch_assoc($query)) {
-                    $tongTien = $row;
-                    if (!empty($tongTien)) {
-                        $sql = 'UPDATE phieunhaphang SET tongTien = ' . $tongTien['thanhTien'] . ' WHERE maPhieu = ' . $data['maPhieu'];
-                        $this->conn->query($sql);
-                    } else {
-                        $sql = 'UPDATE phieunhaphang SET tongTien = 0 WHERE maPhieu = ' . $data['maPhieu'];
-                        $this->conn->query($sql);
-                    }
-                }
+                $this->sumChiTietPhieuNhap($data);
             }
             return;
         } else {
@@ -323,7 +323,9 @@ class BaseModel extends Database
         }
         $sql = 'DELETE FROM ' . $tableName . ' WHERE ' . $column . ' IN (' . $id . ')';
         if ($this->conn->query($sql) or die($this->conn->error)) {
-            if (isset($data['imgPath']) && $data['imgPath'] != null) {
+            if (strpos("no-img", $data['imgPath']) >= 0) {
+            } else
+            if (isset($data['imgPath'])) {
                 $status = 0;
 
                 $filePath = substr($data['imgPath'], 0, strpos($data['imgPath'], "-")  + 1);
@@ -331,7 +333,7 @@ class BaseModel extends Database
                 if (strpos($data['id'], ',')) {
                     $idArr = explode(',', $data['id']);
                     foreach ($idArr as $key => $value) {
-                        if (unlink(__DIR__ . '/../../' . $filePath . $value .  $ext)) $status = 1;
+                        if (unlink($filePath . $value .  $ext)) $status = 1;
                         else $status = 0;
                     }
                 } else {
@@ -343,6 +345,7 @@ class BaseModel extends Database
                     return $this->alert->alert('No such file or directory');
                 }
             }
+            return;
         } else {
             return $this->conn->error;
         }
@@ -363,12 +366,23 @@ class BaseModel extends Database
         if (isset($data['id']) && !is_array($data['id'])) {
             $id = $id . $data['id'];
         }
+        if (strpos($data['id'], ',')) {
+            $idArr = explode(',', $data['id']);
+            for ($i = 0; $i < sizeof($idArr); $i++) {
+                $sql = 'DELETE FROM ' . $FKTableName . ' WHERE ' . $col . ' = ' . $idArr[$i];
+                $this->conn->query($sql) or die($this->conn->error);
 
-        $sql = 'DELETE FROM ' . $FKTableName . ' WHERE ' . $col . ' = ' . $id;
-        $this->conn->query($sql) or die($this->conn->error);
+                $sql = 'DELETE FROM ' . $tableName . ' WHERE ' . $col . ' = ' . $idArr[$i];
+                $this->conn->query($sql) or die($this->conn->error);
+            }
+        } else {
+            $sql = 'DELETE FROM ' . $FKTableName . ' WHERE ' . $col . ' = ' . $id;
+            $this->conn->query($sql) or die($this->conn->error);
 
-        $sql = 'DELETE FROM ' . $tableName . ' WHERE ' . $col . ' = ' . $id;
-        $this->conn->query($sql) or die($this->conn->error);
+            $sql = 'DELETE FROM ' . $tableName . ' WHERE ' . $col . ' = ' . $id;
+            $this->conn->query($sql) or die($this->conn->error);
+        }
+
         return;
     }
 
@@ -378,20 +392,8 @@ class BaseModel extends Database
             ') AND ' . $data['col'] . ' = ' . $data['value'];
         $this->conn->query($sql) or die($this->conn->error);
 
-        $sql = 'SELECT SUM(thanhTien) as thanhTien FROM chitietphieunhaphang' .
-            ' WHERE maPhieu = ' . $data['value'];
-        $query = $this->conn->query($sql);
-
-        while ($row = mysqli_fetch_assoc($query)) {
-            $tongTien = $row['thanhTien'];
-            if ($tongTien != 0) {
-                $sql = 'UPDATE phieunhaphang SET tongTien = ' . $tongTien . ' WHERE maPhieu = ' . $data['value'];
-                $this->conn->query($sql);
-            } else {
-                $sql = 'UPDATE phieunhaphang SET tongTien = 0 WHERE maPhieu = ' . $data['value'];
-                $this->conn->query($sql);
-            }
-        }
+        $data['maPhieu'] = $data['value'];
+        $this->sumChiTietPhieuNhap($data);
         return;
     }
 
@@ -475,28 +477,58 @@ class BaseModel extends Database
         ];
     }
 
+    protected function sortChiTietMethod($tableName, $sortValues, $page)
+    {
+        $sql = 'SELECT * FROM ' . $tableName .
+            ' WHERE ' . $sortValues['col'] . ' = ' . $sortValues['value'] .
+            ' ORDER BY ' . $sortValues['sortCol'] . ' ' . $sortValues['order'] .
+            ' LIMIT ' . $page['limit'] . ' OFFSET ' . ($page['current'] - 1) * $page['limit'];
+
+        $query = $this->conn->query($sql);
+        $data = [];
+        while ($row = mysqli_fetch_assoc($query)) {
+            array_push($data, $row);
+        }
+
+        $sql = 'SELECT * FROM ' . $tableName .
+            ' WHERE ' . $sortValues['col'] . ' = ' . $sortValues['value'] .
+            ' ORDER BY ' . $sortValues['sortCol'] . ' ' . $sortValues['order'];
+        $query = $this->conn->query($sql);
+        $pages = 0;
+        while ($row = mysqli_fetch_assoc($query)) {
+            $pages = array_values($row)[0];
+        }
+
+        return [
+            'data' => $data,
+            'pages' => $pages
+        ];
+    }
+
     private function createImgFile($tableName, $id, $imgInfo)
     {
-        $uploadInstance = null;
-        $fileName = "";
-        switch ($tableName) {
-            case 'sanpham': {
-                    $uploadInstance = new UploadImage("SanPham");
-                    $fileName = "SP-" .  $id;
-                    break;
-                }
-            case 'taikhoan': {
-                    $uploadInstance = new UploadImage("TaiKhoan");
-                    $fileName = "TK-" .  $id;
-                    break;
-                }
+        if (!empty($imgInfo)) {
+            $uploadInstance = null;
+            $fileName = "";
+            switch ($tableName) {
+                case 'sanpham': {
+                        $uploadInstance = new UploadImage("SanPham");
+                        $fileName = "SP-" .  $id;
+                        break;
+                    }
+                case 'taikhoan': {
+                        $uploadInstance = new UploadImage("TaiKhoan");
+                        $fileName = "TK-" .  $id;
+                        break;
+                    }
+            }
+            $loaiFile = strtolower(pathinfo($imgInfo['name'], PATHINFO_EXTENSION));
+            return [
+                'path' =>  $uploadInstance->noiChuaFile . $fileName . '.' . $loaiFile,
+                'fileName' => $fileName,
+                'instance' => $uploadInstance,
+            ];
         }
-        $loaiFile = strtolower(pathinfo($imgInfo['name'], PATHINFO_EXTENSION));
-        return [
-            'path' => '/Web2/admin/' . $uploadInstance->noiChuaFile . $fileName . '.' . $loaiFile,
-            'fileName' => $fileName,
-            'instance' => $uploadInstance,
-        ];
     }
     public function thongkeMethod($tableName, $year, $yearCol, ...$cols)
     {
@@ -580,5 +612,77 @@ class BaseModel extends Database
             'data' => $result,
             'pages' => $pages
         ];
+    }
+
+    private function checkExisting($tableName, $col, $value)
+    {
+        $sql = 'SELECT EXISTS(SELECT * FROM ' . $tableName . ' WHERE ' . $col . ' = "' . $value . '") as tonTai ';
+        $query = $this->conn->query($sql);
+        $isExisted = 0;
+        while ($row = mysqli_fetch_assoc($query)) {
+            $isExisted = $row['tonTai'];
+        }
+        return $isExisted;
+    }
+
+    private function checkExistingChiTiet($tableName, $col, $value)
+    {
+        $sql = 'SELECT EXISTS(SELECT * FROM ' . $tableName . ' WHERE maPhieu = ' . $value . ' AND maSP =  ' . $col . ') as tonTai ';
+        $query = $this->conn->query($sql);
+        $isExisted = 0;
+        while ($row = mysqli_fetch_assoc($query)) {
+            $isExisted = $row['tonTai'];
+        }
+        return $isExisted;
+    }
+
+    private function congDonPNH($data)
+    {
+        $sql = 'SELECT soLuong,donGiaGoc,thanhTien FROM chitietphieunhaphang WHERE maPhieu = ' . $data['maPhieu'] . ' AND maSP = ' . $data['maSP'];
+        $query = $this->conn->query($sql);
+        $duLieu = [];
+        while ($row = mysqli_fetch_assoc($query)) {
+            $duLieu = $row;
+        }
+
+        $sql = 'UPDATE chitietphieunhaphang SET soLuong = ' . ($data['soLuong'] + $duLieu['soLuong']) .
+            ', donGiaGoc = ' . ($data['donGiaGoc'] + $duLieu['donGiaGoc']) .
+            ', thanhTien = ' . ($data['thanhTien'] + $duLieu['thanhTien']) .
+            ' WHERE maPhieu = ' . $data['maPhieu'] . ' AND maSP = ' . $data['maSP'];
+        $this->conn->query($sql);
+        $this->sumChiTietPhieuNhap($data);
+    }
+    private function sumChiTietPhieuNhap($data)
+    {
+        $sql = 'SELECT SUM(thanhTien) as thanhTien FROM chitietphieunhaphang' .
+            ' WHERE maPhieu = ' . $data['maPhieu'];
+
+        $query = $this->conn->query($sql);
+        while ($row = mysqli_fetch_assoc($query)) {
+            $tongTien = $row['thanhTien'];
+            if (!empty($tongTien)) {
+                $sql = 'UPDATE phieunhaphang SET tongTien = ' . $tongTien . ' WHERE maPhieu = ' . $data['maPhieu'];
+                $this->conn->query($sql);
+            } else {
+                $sql = 'UPDATE phieunhaphang SET tongTien = 0 WHERE maPhieu = ' . $data['maPhieu'];
+                $this->conn->query($sql);
+            }
+        }
+    }
+
+    private function updateSoLuong($data)
+    {
+        $sql = 'SELECT soLuong as so FROM sanpham' .
+            ' WHERE maSP = ' . $data['maSP'];
+
+        $query = $this->conn->query($sql);
+        $tong = 0;
+        while ($row = mysqli_fetch_assoc($query)) {
+            $tong = $row['so'];
+        }
+        $tong += $data['soLuong'];
+
+        $sql = 'UPDATE sanpham  SET soLuong = ' . $tong . ' WHERE maSP = ' . $data['maSP'];
+        $this->conn->query($sql);
     }
 }

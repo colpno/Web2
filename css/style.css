@@ -548,6 +548,15 @@ a:hover {
 .cart-list-subtotal__number__icon,
 .cart-list-total__number__icon {
 }
+.cart-list-input-number {
+    display: flex;
+   align-items: center;
+   justify-content: center;
+   width: 100px;
+   height: 30px;
+   border: 1px solid #333;
+}
+
 .info-cart-list {
     padding: 50px 0;
     margin: 50px 0;

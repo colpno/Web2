@@ -32,7 +32,7 @@ function find(search, table) {
                 action: 'find',
             },
             success: function (data) {
-                if (isJson(data)) {
+                if (isJson(data) && data != null) {
                     const json = JSON.parse(data);
                     $(`.${table}--show`).html(getHTML(table, json.data));
 
@@ -104,9 +104,12 @@ function phieuNhapHangHTML(list) {
             <div class="checkbox col-1">
                 <input type="checkbox" class="phieunhaphang__checkbox" value="${list[i].maPhieu}"></input>
             </div>
+            <span class="hidden row-${list[i].maPhieu} ten">${list[i].nhanVien.ten}</span>
+            <span class="hidden row-${list[i].maPhieu} maPhieu">${list[i].maPhieu}</span>
+            <span class="hidden row-${list[i].maPhieu} maNCC">${list[i].nhaCungCap.maNCC}</span>
+            <span class="hidden row-${list[i].maPhieu} maNV">${list[i].nhanVien.maNV}</span>
             <span class="center-left col-3 row-${list[i].maPhieu} tenNCC">${list[i].nhaCungCap.tenNCC}</span>
             <span class="center-left col-2 row-${list[i].maPhieu} ho">${list[i].nhanVien.ho} ${list[i].nhanVien.ten}</span>
-            <span class="hidden row-${list[i].maPhieu} ten">${list[i].nhanVien.ten}</span>
             <span class="center col-2 row-${list[i].maPhieu} ngayNhap">${list[i].ngayNhap}</span>
             <span class="center col-2 row-${list[i].maPhieu} tongTien">${list[i].tongTien}</span>
             <div class="center col-2">
@@ -128,7 +131,7 @@ function chiTietPhieuNhapHangHTML(list) {
             </div>
             <span class="hidden row-${list[i].sanPham.maSP} maPhieu">${list[i].maPhieu}</span>
             <span class="hidden row-${list[i].sanPham.maSP} maSP">${list[i].sanPham.maSP}</span>
-            <span class="center-left col-3">${list[i].sanPham.tenSP}</span>
+            <span class="center-left col-3 tenSP">${list[i].sanPham.tenSP}</span>
             <span class="center col-1 row-${list[i].sanPham.maSP} soLuong">${list[i].soLuong}</span>
             <span class="center col-2 row-${list[i].sanPham.maSP} donGiaGoc">${list[i].donGiaGoc}</span>
             <span class="center col-2 row-${list[i].sanPham.maSP} thanhTien">${list[i].thanhTien}</span>
@@ -168,6 +171,7 @@ function hoaDonHTML(list) {
         htmls += `
             </span>
             <div class="center ine-break col-1">
+                <button class="hoadon-${list[i].maHD} btn" onclick="deleteOne(this)"><i class="far fa-trash-alt"></i></button>
                 <button class="hoadon-${list[i].maHD} btn" onclick="openDetail(this)"><i class="fas fa-arrow-circle-right"></i></button>
             </div>
         `;
@@ -179,19 +183,12 @@ function chiTietHoaDonHTML(list) {
     let htmls = '';
     for (let i = 0; i < list.length; i++) {
         htmls += `
-            <div class="checkbox col-2">
-                <input type="checkbox" class="chitiethoadon__checkbox" value="${list[i].sanPham.maSP}"></input>
-            </div>
             <span class="hidden row-${list[i].sanPham.maSP} maHD">${list[i].maHD}</span>
             <span class="hidden row-${list[i].sanPham.maSP} maSP">${list[i].sanPham.maSP}</span>
-            <span class="center-left col-3">${list[i].sanPham.tenSP}</span>
-            <span class="center col-1 row-${list[i].sanPham.maSP} soLuong">${list[i].soLuong}</span>
+            <span class="center-left col-5">${list[i].sanPham.tenSP}</span>
+            <span class="center col-2 row-${list[i].sanPham.maSP} soLuong">${list[i].soLuong}</span>
             <span class="center col-2 row-${list[i].sanPham.maSP} donGia">${list[i].donGia}</span>
-            <span class="center col-2 row-${list[i].sanPham.maSP} thanhTien">${list[i].thanhTien}</span>
-            <div class="center ine-break col-2">
-                <a href="#sua-chitiethoadon" class="chitiethoadon-${list[i].sanPham.maSP} btn" onclick="updateOne(this)"><i class="far fa-edit"></i></a>
-                <button class="chitiethoadon-${list[i].sanPham.maSP} btn" onclick="deleteOne(this)"><i class="far fa-trash-alt"></i></button>
-            </div>
+            <span class="center col-3 row-${list[i].sanPham.maSP} thanhTien">${list[i].thanhTien}</span>
         `;
     }
     return htmls;
@@ -206,21 +203,19 @@ function taiKhoanHTML(list) {
             <div class="checkbox col-1">
                 <input type="checkbox" class="taikhoan__checkbox" value="${list[i].maTK}"></input>
             </div>
-            <span class="center-left col-1">${list[i].quyen.tenQuyen}</span>
             <span class="hidden row-${list[i].maTK} maQuyen">${list[i].quyen.maQuyen}</span>
+            <span class="center-left col-1">${list[i].quyen.tenQuyen}</span>
             <span class="center-left col-2 row-${list[i].maTK} tenTaiKhoan">${list[i].tenTaiKhoan}</span>
             <span class="center-left line-break col-2 row-${list[i].maTK} matKhau">${list[i].matKhau}</span>
             <div class="center col-2">
-            <img class="row-${list[i].maTK} anhDaiDien" src="${list[i].anhDaiDien}" onerror="this.removeAttribute('onError');this.setAttribute('src','/Web2/admin/public/images/no-img.png')"></img>
+                <img class="taikhoan-${list[i].maTK} row-${list[i].maTK} anhDaiDien" src="${list[i].anhDaiDien}" onerror="this.removeAttribute('onError');this.setAttribute('src','/Web2/admin/public/images/no-img.png')"></img>
             </div>
-            <span class="center col-1 row-${list[i].maTK} trangThai">${list[i].trangThai}</span>`;
-
-        if (list[i].tinhTrang == 0) {
-            htmls += `<input type="checkbox" class="check-tinhTrang hoadon-${list[i].maHD}" onclick="capNhatTrangThai(this)" checked>`;
+            <span class="center col-1 row-${list[i].maTK} trangThai">`;
+        if (list[i].trangThai == 0) {
+            htmls += `<input type="checkbox" class="check-trangThai row-${list[i].maHD}" onclick="capNhatTrangThai(this)" checked>`;
         } else {
-            htmls += `<input type="checkbox" class="check-tinhTrang hoadon-${list[i].maHD}" onclick="capNhatTrangThai(this)">`;
+            htmls += `<input type="checkbox" class="check-trangThai row-${list[i].maHD}" onclick="capNhatTrangThai(this)">`;
         }
-
         htmls += `
             </span>
             <span class="center col-1 row-${list[i].maTK} dangNhap">${list[i].dangNhap}</span>
@@ -243,8 +238,8 @@ function nhanVienHTML(list) {
             <div class="checkbox col-1">
                 <input type="checkbox" class="nhanvien__checkbox" value="${list[i].maNV}"></input>
             </div>
+            <span class="hidden row-${list[i].maNV} maTK">${list[i].taikhoan.maTK}</span>
             <span class="center-left col-1">${list[i].taikhoan.tenTaiKhoan}</span>
-            <span class="hidden row-${list[i].taikhoan.maTK} maTK">${list[i].taikhoan.maTK}</span>
             <span class="center-left col-1 row-${list[i].maNV} ho">${list[i].ho}</span>
             <span class="center-left col-1 row-${list[i].maNV} ten">${list[i].ten}</span>
             <span class="center col-2 row-${list[i].maNV} ngaySinh">${list[i].ngaySinh}</span>
@@ -253,7 +248,6 @@ function nhanVienHTML(list) {
             <span class="center col-1 row-${list[i].maNV} luong">${list[i].luong}</span>
             <div class="center col-1">
                 <a href="#sua-nhanvien" class="nhanvien-${list[i].maNV} btn" onclick="updateOne(this)"><i class="far fa-edit"></i></a>
-                <button class="nhanvien-${list[i].maNV} btn" onclick="deleteOne(this)"><i class="far fa-trash-alt"></i></button>
             </div>
         `;
     }
@@ -269,8 +263,8 @@ function khachHangHTML(list) {
             <div class="checkbox col-1">
                 <input type="checkbox" class="khachhang__checkbox" value="${list[i].maKH}"></input>
             </div>
+            <span class="hidden row-${list[i].maKH} maTK">${list[i].taikhoan.maTK}</span>
             <span class="center-left col-1">${list[i].taikhoan.tenTaiKhoan}</span>
-            <span class="hidden row-${list[i].taikhoan.maTK} maTK">${list[i].taikhoan.maTK}</span>
             <span class="center-left col-1 row-${list[i].maKH} ho">${list[i].ho}</span>
             <span class="center-left col-1 row-${list[i].maKH} ten">${list[i].ten}</span>
             <span class="center col-2 row-${list[i].maKH} ngaySinh">${list[i].ngaySinh}</span>
@@ -278,7 +272,6 @@ function khachHangHTML(list) {
             <span class="center col-1 row-${list[i].maKH} soDienThoai">${list[i].soDienThoai}</span>
             <div class="center col-2">
                 <a href="#sua-khachhang" class="khachhang-${list[i].maKH} btn" onclick="updateOne(this)"><i class="far fa-edit"></i></a>
-                <button class="khachhang-${list[i].maKH} btn" onclick="deleteOne(this)"><i class="far fa-trash-alt"></i></button>
             </div>
         `;
     }

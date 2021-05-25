@@ -148,14 +148,13 @@ class PhieuNhapHangController extends BaseController
         }
     }
 
-    public function sort()
+    public function sort($data)
     {
         if (
-            $_GET['sortCol']
-            && $_GET['order']
+            $data['sortCol']
+            && $data['order']
         ) {
-            $sortValues = $this->getSortValues();
-            $sorted = $this->phieuNhapHangModel->sort($sortValues, $this->getPage());
+            $sorted = $this->phieuNhapHangModel->sort($data, $this->getPage());
             $numOfPages = $this->getNumOfPages($sorted['pages']);
 
             $sorted['pages'] = $numOfPages;
@@ -175,14 +174,6 @@ class PhieuNhapHangController extends BaseController
             'maNCC' => $data['maNCC'],
             'maNV' => $data['maNV'],
             'ngayNhap' => $data['ngayNhap'],
-        ];
-    }
-
-    private function getSortValues()
-    {
-        return [
-            'sortCol' => $_GET['sortCol'],
-            'order' => $_GET['order']
         ];
     }
 

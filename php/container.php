@@ -12,7 +12,7 @@
             for ($i = 0; $i < 4; $i++) {
                 echo "<div class='col-lg-3 col-md-6 col-sm-12 my-3'>
                             <div class='card text-center shadow-lg'>
-                                <div style='background-image:url(" .  $spArr[$i]['anhDaiDien'] . ")' class='product-item__img'></div>
+                                <div style='background-image:url("  .  $spArr[$i]['anhDaiDien'] . ")' class='product-item__img'></div>
                                 <legend>" . $spArr[$i]['tenSP'] . "</legend>
                                 <p>" . $spArr[$i]['donGia'] . " VNĐ</p>";
                 if ($spArr[$i]['soLuong'] > 0) {

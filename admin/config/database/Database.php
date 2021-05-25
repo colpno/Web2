@@ -2,8 +2,8 @@
 class Database
 {
     private const SERVER_NAME = 'localhost';
-    private const USERNAME = 'root';
-    private const PASSWORD = '';
+    private const USERNAME = 'admin';
+    private const PASSWORD = 'admin';
     private const DB_NAME = 'banhang';
 
     public function connect()

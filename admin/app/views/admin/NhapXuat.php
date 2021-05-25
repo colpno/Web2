@@ -36,8 +36,9 @@
             <div class="phieunhaphang__row content-row">
                 <div class="content-item__header">
                     <span>Phiếu nhập hàng mới nhất</span>
-                    <div>
+                    <div class="content-item__header__tools">
                         <button class="phieunhaphang--add "><i class="fas fa-plus"></i></button>
+                        <button class="phieunhaphang--sort "><i class="fas fa-sort"></i></button>
                         <button class="phieunhaphang--filter"><i class="fas fa-filter"></i></button>
                     </div>
                 </div>
@@ -64,6 +65,17 @@
                     </select>
                     <input type="text" name="ngayNhap" placeholder="Ngày nhập">
                     <input type="submit" value="Thêm">
+                </form>
+                <form class="hidden sort-content phieunhaphang__sort-content">
+                    <select class="sort-col" name="sortCol">
+                        <option value="ngayNhap">Ngày nhập</option>
+                        <option value="tongTien">Tổng tiền</option>
+                    </select>
+                    <select class="sort-order" name="order">
+                        <option value="asc">Tăng dần</option>
+                        <option value="desc">Giảm dần</option>
+                    </select>
+                    <input type="submit" value="Sắp xếp">
                 </form>
                 <form class="hidden filter-content phieunhaphang__filter-content">
                     <select name="filterCol" style="margin-right: 0;">
@@ -142,8 +154,9 @@
             <div class="chitietphieunhaphang__row content-row">
                 <div class="content-item__header">
                     <span>Chi Tiết Phiếu nhập hàng</span>
-                    <div>
+                    <div class="content-item__header__tools">
                         <button class="chitietphieunhaphang--add "><i class="fas fa-plus"></i></button>
+                        <button class="chitietphieunhaphang--sort "><i class="fas fa-sort"></i></button>
                         <button class="chitietphieunhaphang--filter"><i class="fas fa-filter"></i></button>
                     </div>
                 </div>
@@ -159,8 +172,19 @@
                         ?>
                     </select>
                     <input type="text" name="soLuong" placeholder="Số lượng">
-                    <input type="text" name="donGiaGoc" placeholder="Đơn giá gốc">
                     <input type="submit" value="Thêm">
+                </form>
+                <form class="hidden sort-content chitietphieunhaphang__sort-content">
+                    <select class="sort-col" name="sortCol">
+                        <option value="soLuong">Số lượng</option>
+                        <option value="donGiaGoc">Giá gốc</option>
+                        <option value="thanhTien">Thành tiền</option>
+                    </select>
+                    <select class="sort-order" name="order">
+                        <option value="asc">Tăng dần</option>
+                        <option value="desc">Giảm dần</option>
+                    </select>
+                    <input type="submit" value="Sắp xếp">
                 </form>
                 <form class="hidden filter-content chitietphieunhaphang__filter-content">
                     <select name="filterCol" style="margin-right: 0;">
@@ -183,13 +207,13 @@
                         </div>
                         <h6 class="center chitietphieunhaphang-item-title col-3">Tên sản phẩm</h6>
                         <h6 class="center chitietphieunhaphang-item-title col-1">Số lượng</h6>
-                        <h6 class="center chitietphieunhaphang-item-title col-2">Dơn giá gốc</h6>
+                        <h6 class="center chitietphieunhaphang-item-title col-2">Đơn giá gốc</h6>
                         <h6 class="center chitietphieunhaphang-item-title col-2">Thành tiền</h6>
                         <h6 class="center chitietphieunhaphang-item-title col-2">Thao tác</h6>
                     </div>
                 </div>
-                <div class="chitietphieunhaphang--show row">
-                    <div style="display:flex;align-items: center;justify-content: center;height: 200px;">
+                <div class="chitietphieunhaphang--show row" style="display:flex;align-items: center;justify-content: center;min-height: 200px;">
+                    <div>
                         <h3>Mở phiếu nhập để xem</h3>
                     </div>
                 </div>
@@ -204,8 +228,9 @@
             <div class="chitiethoadon__row content-row">
                 <div class="content-item__header">
                     <span>Chi Tiết Hóa Đơn</span>
-                    <div>
+                    <div class="content-item__header__tools">
                         <button class="chitiethoadon--add hidden"><i class="fas fa-plus"></i></button>
+                        <button class="chitiethoadon--sort "><i class="fas fa-sort"></i></button>
                         <button class="chitiethoadon--filter"><i class="fas fa-filter"></i></button>
                     </div>
                 </div>
@@ -225,6 +250,18 @@
                     <input type="text" name="thanhTien" placeholder="Thành tiền">
                     <input type="submit" value="Sửa">
                 </form>
+                <form class="hidden sort-content chitiethoadon__sort-content">
+                    <select class="sort-col" name="sortCol">
+                        <option value="soLuong">Số lượng</option>
+                        <option value="donGia">Đơn giá</option>
+                        <option value="thanhTien">Thành tiền</option>
+                    </select>
+                    <select class="sort-order" name="order">
+                        <option value="asc">Tăng dần</option>
+                        <option value="desc">Giảm dần</option>
+                    </select>
+                    <input type="submit" value="Sắp xếp">
+                </form>
                 <form class="hidden filter-content chitiethoadon__filter-content">
                     <select name="filterCol" style="margin-right: 0;">
                         <option value="soLuong">Số lượng</option>
@@ -240,19 +277,14 @@
                 </form>
                 <div class="title--border">
                     <div class="chitiethoadon__title row">
-                        <div class="center checkbox chitietphieunhaphang-item-title col-2">
-                            <i class="chitiethoadon--delete far fa-trash-alt " onclick="multiDel(this)"></i>
-                            <input type="checkbox" class="chitiethoadon__master-checkbox" onclick=" checkAll(this)">
-                        </div>
-                        <h6 class="center chitietphieunhaphang-item-title col-3">Tên sản phẩm</h6>
-                        <h6 class="center chitiethoadon-item-title col-1">Số lượng</h6>
+                        <h6 class="center chitietphieunhaphang-item-title col-5">Tên sản phẩm</h6>
+                        <h6 class="center chitiethoadon-item-title col-2">Số lượng</h6>
                         <h6 class="center chitiethoadon-item-title col-2">Giá</h6>
                         <h6 class="center chitiethoadon-item-title col-2">Thành tiền</h6>
-                        <h6 class="center chitiethoadon-item-title col-2">Thao tác</h6>
                     </div>
                 </div>
-                <div class="chitiethoadon--show row">
-                    <div style="display:flex;align-items: center;justify-content: center;height: 200px;">
+                <div class="chitiethoadon--show row" style="display:flex;align-items: center;justify-content: center;min-height: 200px;">
+                    <div>
                         <h3>Mở hóa đơn để xem</h3>
                     </div>
                 </div>
@@ -267,8 +299,9 @@
             <div class="hoadon__row content-row">
                 <div class="content-item__header">
                     <span>Hóa đơn mới nhất</span>
-                    <div>
+                    <div class="content-item__header__tools">
                         <button class="hoadon--add hidden"><i class="fas fa-plus"></i></button>
+                        <button class="hoadon--sort "><i class="fas fa-sort"></i></button>
                         <button class="hoadon--filter"><i class="fas fa-filter"></i></button>
                     </div>
                 </div>
@@ -297,6 +330,17 @@
                     <input type="text" name="tongTien" placeholder="Tổng tiền">
                     <input type="submit" value="Sửa">
                 </form>
+                <form class="hidden sort-content hoadon__sort-content">
+                    <select class="sort-col" name="sortCol">
+                        <option value="ngayLapHoaDon">Ngày lập hóa đơn</option>
+                        <option value="tongTien">Tổng tiền</option>
+                    </select>
+                    <select class="sort-order" name="order">
+                        <option value="asc">Tăng dần</option>
+                        <option value="desc">Giảm dần</option>
+                    </select>
+                    <input type="submit" value="Sắp xếp">
+                </form>
                 <form class="hidden filter-content hoadon__filter-content">
                     <select name="filterCol" style="margin-right: 0;">
                         <option value="ngayLapHoaDon">Ngày lập hóa đơn</option>
@@ -311,14 +355,14 @@
                 </form>
                 <div class="title--border">
                     <div class="hoadon__title row">
-                        <div class="center hoadon-item-title checkbox col-1">
-                            <i class="hoadon--delete far fa-trash-alt " onclick="multiDel(this)"></i>
-                            <input type="checkbox" class="hoadon__master-checkbox" onclick="checkAll(this)"></input>
-                        </div>
                         <!--<h6 class="center hoadon-item-title col-1">Họ tên nhân viên</h6>-->
+                        <div class="center checkbox hoadon-item-title col-1">
+                            <i class="hoadon--delete far fa-trash-alt " onclick="multiDel(this)"></i>
+                            <input type="checkbox" class="hoadon__master-checkbox" onclick=" checkAll(this)">
+                        </div>
                         <h6 class="center-left hoadon-item-title col-2">Họ tên khách hàng</h6>
                         <h6 class="center hoadon-item-title col-1">Số điện thoại</h6>
-                        <h6 class="center hoadon-item-title col-3">Địa chỉ</h6>
+                        <h6 class="center hoadon-item-title col-1">Địa chỉ</h6>
                         <h6 class="center hoadon-item-title col-2">Ngày lập hóa đơn</h6>
                         <h6 class="center hoadon-item-title col-1">Tổng tiền</h6>
                         <h6 class="center hoadon-item-title col-1 tinhTrang-header">Tình trạng
@@ -338,10 +382,9 @@
                         $length = count($HoaDon);
                         for ($i = 0; $i < $length; $i++) {
                             echo '
-                                <div class="checkbox col-1 ">
-                                    <input type="checkbox" class="hoadon__checkbox" value="' . $HoaDon[$i]['maHD'] . '"></input>
+                                <div class="checkbox col-1">
+                                    <input name="maHD" type="checkbox" class="hoadon__checkbox" value="' . $PhieuNhapHang[$i]['maPhieu'] . '"></input>
                                 </div>
-                                
                                 <span class="hidden row-' . $HoaDon[$i]['maHD'] . ' maKH">' . $HoaDon[$i]['khachHang']['maKH'] . '</span>
 
                                 <span class="center-left col-2">' . $HoaDon[$i]['khachHang']['ho'] . ' ' . $HoaDon[$i]['khachHang']['ten'] . '</span>
@@ -360,6 +403,7 @@
                             echo '
                                 </span>
                                 <div class="center col-1">
+                                    <button class="hoadon-' . $HoaDon[$i]['maHD'] . ' btn" onclick="deleteOne(this)"><i class="far fa-trash-alt"></i></button>
                                     <button class="hoadon-' . $HoaDon[$i]['maHD'] . ' btn" onclick="openDetail(this)"><i class="fas fa-arrow-circle-right"></i></button>
                                 </div>
                             ';

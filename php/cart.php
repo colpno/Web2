@@ -50,7 +50,7 @@ if (isset($_SESSION['user'])) {
                                                     </div>
                                                     <div class="cart-list-input-number">
                                                         <div class="cart-list-input__prev" onclick="prevNumberCart(' . $key . "," . $sp[0]['soLuong'] . "," . $value['maSP'] . ')">-</div>
-                                                        <input type="text" id="slNumberCart' . $key . '" onkeypress="return event.charCode >= 48 && event.charCode <= 57" 
+                                                        <input autocomplete="off" type="text" id="slNumberCart' . $key . '" onkeypress="return event.charCode >= 48 && event.charCode <= 57" 
                                                             onchange="inputnumbercart(' . $key . "," . $sp[0]['soLuong'] . "," . $value['maSP'] . ')" name="soLuongcart" class="cart-list-input__text" value="' . $value['soLuong'] . '">
                                                         <div class="cart-list-input__next" onclick="nextNumberCart(' . $key . "," . $sp[0]['soLuong'] . "," . $value['maSP'] . ')">+</div>
                                                     </div>
@@ -114,9 +114,9 @@ if (isset($_SESSION['user'])) {
                                 </div>
                                 <h4>Thông tin khách hàng</h4>
                                 <div class="cart-list-info-customer my-3">
-                                    <input type="text" id="cart-info-phone" class="cart-list-info-customer__item form-control my-3" placeholder="Số điện thoại liên lạc">
+                                    <input autocomplete="off" type="text" id="cart-info-phone" class="cart-list-info-customer__item form-control my-3" placeholder="Số điện thoại liên lạc">
                                     <div id="cart-info-phone-error"></div>
-                                    <input type="text" id="cart-info-address" class="cart-list-info-customer__item form-control mb-3" placeholder="Địa chỉ nhận hàng">
+                                    <input autocomplete="off" type="text" id="cart-info-address" class="cart-list-info-customer__item form-control mb-3" placeholder="Địa chỉ nhận hàng">
                                     <div id="cart-info-address-error"></div>
                                 </div>
                                 <div class="text-center mt-3">

@@ -50,10 +50,6 @@ class LoaiSanPhamController extends BaseController
         if (
             $data['tenLoai']
         ) {
-            $maxID = array_values($this->loaiSanPhamModel->getMaxCol())[0];
-
-
-
             $values = $this->getValues($data);
             $this->loaiSanPhamModel->post($values);
             return $this->get();
@@ -148,14 +144,13 @@ class LoaiSanPhamController extends BaseController
         }
     }
 
-    public function sort()
+    public function sort($data)
     {
         if (
-            $_GET['sortCol']
-            && $_GET['order']
+            $data['sortCol']
+            && $data['order']
         ) {
-            $sortValues = $this->getSortValues();
-            $sorted = $this->loaiSanPhamModel->sort($sortValues, $this->getPage());
+            $sorted = $this->loaiSanPhamModel->sort($data, $this->getPage());
             $numOfPages = $this->getNumOfPages($sorted['pages']);
 
             $sorted['pages'] = $numOfPages;
@@ -172,14 +167,6 @@ class LoaiSanPhamController extends BaseController
     {
         return [
             'tenLoai' => $data['tenLoai'],
-        ];
-    }
-
-    private function getSortValues()
-    {
-        return [
-            'sortCol' => $_GET['sortCol'],
-            'order' => $_GET['order']
         ];
     }
 

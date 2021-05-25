@@ -63,7 +63,13 @@ class ChiTietPhieuNhapHangModel extends BaseModel
     public function post($data = [])
     {
         $data['thanhTien'] = $data['soLuong'] * $data['donGiaGoc'];
-        return $this->postMethod(self::TABLE_NAME, $data);
+        $check = [
+            'col' => 'maSP',
+            'value' => $data['maSP'],
+            'col2' => 'maPhieu',
+            'value2' => $data['maPhieu'],
+        ];
+        return $this->postMethod(self::TABLE_NAME, $data, $check);
     }
 
     public function update($data = [], $id)
@@ -90,6 +96,8 @@ class ChiTietPhieuNhapHangModel extends BaseModel
 
     public function sort($sortValues, $page)
     {
-        return $this->sortMethod(self::TABLE_NAME,  $sortValues, $page);
+        $sortValues['col'] = 'maPhieu';
+        $sortValues['value'] = $sortValues['maPhieu'];
+        return $this->sortChiTietMethod(self::TABLE_NAME,  $sortValues, $page);
     }
 }

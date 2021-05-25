@@ -29,7 +29,13 @@
         </a>
         <ul class="sidebar-menu__list">
             <?php
-
+            if (isset($_COOKIE['user']) && $_COOKIE['user'] == 'null') {
+                echo "
+            <script>
+                window.location='http://localhost:8080/Web2';
+            </script>
+        ";
+            }
             if (isset($_SESSION['user'])) {
                 if (isset($_COOKIE['user'])) {
                     setcookie("user", '', time() - 60 * 60);

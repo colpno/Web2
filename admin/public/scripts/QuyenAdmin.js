@@ -35,7 +35,7 @@ $(document).ready(function () {
                 contentType: false,
                 processData: false,
                 success: function (data) {
-                    if (isJson(data)) {
+                    if (isJson(data) && data != null) {
                         location.reload();
                     } else {
                         alert(data);
@@ -83,7 +83,7 @@ $(document).ready(function () {
                 contentType: false,
                 processData: false,
                 success: function (data) {
-                    if (isJson(data)) {
+                    if (isJson(data) && data != null) {
                     } else {
                         alert(data);
                     }
@@ -144,7 +144,7 @@ function ajaxDeleteOne(ele) {
             contentType: false,
             processData: false,
             success: function (data) {
-                if (isJson(data)) {
+                if (isJson(data) && data != null) {
                     location.reload();
                 } else {
                     alert(data);

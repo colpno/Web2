@@ -169,14 +169,13 @@ class SanPhamController extends BaseController
         }
     }
 
-    public function sort()
+    public function sort($data)
     {
         if (
-            $_GET['sortCol']
-            && $_GET['order']
+            $data['sortCol']
+            && $data['order']
         ) {
-            $sortValues = $this->getSortValues();
-            $sorted = $this->sanPhamModel->sort($sortValues, $this->getPage());
+            $sorted = $this->sanPhamModel->sort($data, $this->getPage());
             $numOfPages = $this->getNumOfPages($sorted['pages']);
 
             $sorted['pages'] = $numOfPages;
@@ -201,14 +200,6 @@ class SanPhamController extends BaseController
             'donViTinh' => $data['donViTinh'],
             'soLuong' => $data['soLuong'],
             'anhDaiDien' => $data['anhDaiDien'],
-        ];
-    }
-
-    private function getSortValues()
-    {
-        return [
-            'sortCol' => $_GET['sortCol'],
-            'order' => $_GET['order']
         ];
     }
 

@@ -54,7 +54,11 @@ class ChucNangModel extends BaseModel
 
     public function post($data = [], $need)
     {
-        return $this->postQuyenMethod(self::TABLE_NAME, $data, $need);
+        $check = [
+            'col' => 'tenCN',
+            'value' => $data['tenCN'],
+        ];
+        return $this->postQuyenMethod(self::TABLE_NAME, $data, $need, $check);
     }
 
     public function update($data = [], $id)

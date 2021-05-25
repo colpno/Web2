@@ -50,8 +50,9 @@
             <div class="taikhoan__row content-row">
                 <div class="content-item__header">
                     <span>Tài khoản</span>
-                    <div>
+                    <div class="content-item__header__tools">
                         <button class="taikhoan--add "><i class="fas fa-plus"></i></button>
+                        <button class="taikhoan--sort "><i class="fas fa-sort"></i></button>
                         <button class="taikhoan--filter"><i class="fas fa-filter"></i></button>
                     </div>
                 </div>
@@ -118,6 +119,16 @@
                     </div>
                     <input type="submit" value="Thêm">
                 </form>
+                <form class="hidden sort-content taikhoan__sort-content">
+                    <select class="sort-col" name="sortCol">
+                        <option value="thoiGianTao">Thời gian tạo</option>
+                    </select>
+                    <select class="sort-order" name="order">
+                        <option value="asc">Tăng dần</option>
+                        <option value="desc">Giảm dần</option>
+                    </select>
+                    <input type="submit" value="Sắp xếp">
+                </form>
                 <form class="hidden filter-content taikhoan__filter-content">
                     <select name="filterCol" style="margin-right: 0;">
                         <option value="thoiGianTao">Thời gian tạo</option>
@@ -173,9 +184,9 @@
                                 <span class="center col-1  row-' . $TaiKhoan[$i]['maTK'] . ' trangThai">';
 
                             if ($TaiKhoan[$i]['trangThai'] == 0) {
-                                echo '<input type="checkbox" checked class="center col-1 check-trangThai  row-' . $TaiKhoan[$i]['maTK'] . ' trangThai" onclick="capNhatTrangThai(this)">' . $TaiKhoan[$i]['trangThai'] . '</input>';
+                                echo '<input type="checkbox" checked class="center check-trangThai  row-' . $TaiKhoan[$i]['maTK'] . ' trangThai" onclick="capNhatTrangThai(this)">' . $TaiKhoan[$i]['trangThai'] . '</input>';
                             } else {
-                                echo '<input type="checkbox" class="center col-1 check-trangThai  row-' . $TaiKhoan[$i]['maTK'] . ' trangThai" onclick="capNhatTrangThai(this)">' . $TaiKhoan[$i]['trangThai'] . '</input>';
+                                echo '<input type="checkbox" class="center check-trangThai  row-' . $TaiKhoan[$i]['maTK'] . ' trangThai" onclick="capNhatTrangThai(this)">' . $TaiKhoan[$i]['trangThai'] . '</input>';
                             }
 
                             echo '
@@ -212,7 +223,10 @@
             <div class="nhanvien__row content-row">
                 <div class="content-item__header">
                     <span>Nhân viên</span>
-                    <button class="nhanvien--filter"><i class="fas fa-filter"></i></button>
+                    <div class="content-item__header__tools">
+                        <button class="nhanvien--sort "><i class="fas fa-sort"></i></button>
+                        <button class="nhanvien--filter"><i class="fas fa-filter"></i></button>
+                    </div>
                 </div>
                 <form class="hidden add-content nhanvien__add-content" id="sua-nhanvien">
                     <div class="add-content__input">
@@ -237,6 +251,17 @@
                         <input type="submit" value="Thêm">
                         <button class="nhanvien--add button-huy">Hủy</button>
                     </div>
+                </form>
+                <form class="hidden sort-content nhanvien__sort-content">
+                    <select class="sort-col" name="sortCol">
+                        <option value="ngaySinh">Ngày sinh</option>
+                        <option value="luong">Lương</option>
+                    </select>
+                    <select class="sort-order" name="order">
+                        <option value="asc">Tăng dần</option>
+                        <option value="desc">Giảm dần</option>
+                    </select>
+                    <input type="submit" value="Sắp xếp">
                 </form>
                 <form class="hidden filter-content nhanvien__filter-content">
                     <select name="filterCol" style="margin-right: 0;">
@@ -287,7 +312,6 @@
                                 <span class="center col-1  row-' . $NhanVien[$i]['maNV'] . ' luong">' . $NhanVien[$i]['luong'] . '</span>
                                 <div class="center col-1 ">
                                     <a href="#sua-nhanvien" class="nhanvien-' . $NhanVien[$i]['maNV'] . ' btn" onclick="updateOne(this)"><i class="far fa-edit"></i></a>
-                                    <button class="nhanvien-' . $NhanVien[$i]['maNV'] . ' btn" onclick="deleteOne(this)"><i class="far fa-trash-alt"></i></button>
                                 </div>
                             ';
                         }
@@ -317,7 +341,10 @@
             <div class="khachhang__row content-row">
                 <div class="content-item__header">
                     <span>Khách hàng</span>
-                    <button class="khachhang--filter"><i class="fas fa-filter"></i></button>
+                    <div class="content-item__header__tools">
+                        <button class="khachhang--sort "><i class="fas fa-sort"></i></button>
+                        <button class="khachhang--filter"><i class="fas fa-filter"></i></button>
+                    </div>
                 </div>
                 <form class="hidden add-content khachhang__add-content" id="sua-khachhang">
                     <div class="add-content__input">
@@ -342,6 +369,16 @@
                         <input type="submit" value="Thêm">
                         <button class="khachhang--add button-huy">Hủy</button>
                     </div>
+                </form>
+                <form class="hidden sort-content khachhang__sort-content">
+                    <select class="sort-col" name="sortCol">
+                        <option value="ngaySinh">Ngày sinh</option>
+                    </select>
+                    <select class="sort-order" name="order">
+                        <option value="asc">Tăng dần</option>
+                        <option value="desc">Giảm dần</option>
+                    </select>
+                    <input type="submit" value="Sắp xếp">
                 </form>
                 <form class="hidden filter-content khachhang__filter-content">
                     <select name="filterCol" style="margin-right: 0;">
@@ -380,8 +417,8 @@
                                 <div class="checkbox col-1  ">
                                     <input type="checkbox" class="khachhang__checkbox" value="' . $KhachHang[$i]['maKH'] . '"></input>
                                 </div>
-                                <span class="center-left col-1 ">' . $KhachHang[$i]['taikhoan']['tenTaiKhoan'] . '</span>
                                 <span class="hidden row-' . $KhachHang[$i]['maKH'] . ' maTK">' . $KhachHang[$i]['taikhoan']['maTK'] . '</span>
+                                <span class="center-left col-1 ">' . $KhachHang[$i]['taikhoan']['tenTaiKhoan'] . '</span>
                                 <span class="center-left col-1  row-' . $KhachHang[$i]['maKH'] . ' ho">' . $KhachHang[$i]['ho'] . '</span>
                                 <span class="center-left col-1  row-' . $KhachHang[$i]['maKH'] . ' ten">' . $KhachHang[$i]['ten'] . '</span>
                                 <span class="center col-2  row-' . $KhachHang[$i]['maKH'] . ' ngaySinh">' . $KhachHang[$i]['ngaySinh'] . '</span>
@@ -389,7 +426,6 @@
                                 <span class="center col-1  row-' . $KhachHang[$i]['maKH'] . ' soDienThoai">' . $KhachHang[$i]['soDienThoai'] . '</span>
                                 <div class="center col-2 ">
                                     <a href="#sua-khachhang" class="khachhang-' . $KhachHang[$i]['maKH'] . ' btn" onclick="updateOne(this)"><i class="far fa-edit"></i></a>
-                                    <button class="khachhang-' . $KhachHang[$i]['maKH'] . ' btn" onclick="deleteOne(this)"><i class="far fa-trash-alt"></i></button>
                                 </div>
                             ';
                         }

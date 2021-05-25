@@ -84,6 +84,8 @@ class ChiTietHoaDonModel extends BaseModel
 
     public function sort($sortValues, $page)
     {
-        return $this->sortMethod(self::TABLE_NAME,  $sortValues, $page);
+        $sortValues['col'] = 'maHD';
+        $sortValues['value'] = $sortValues['maHD'];
+        return $this->sortChiTietMethod(self::TABLE_NAME,  $sortValues, $page);
     }
 }

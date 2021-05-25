@@ -50,8 +50,9 @@
                 <div class="sanpham__row content-row">
                     <div class="content-item__header">
                         <span>Sản phẩm mới</span>
-                        <div>
+                        <div class="content-item__header__tools">
                             <button class="sanpham--add "><i class="fas fa-plus"></i></button>
+                            <button class="sanpham--sort "><i class="fas fa-sort"></i></button>
                             <button class="sanpham--filter"><i class="fas fa-filter"></i></button>
                         </div>
                     </div>
@@ -110,6 +111,17 @@
                         </div>
                         <input type="submit" value="Thêm">
                     </form>
+                    <form class="hidden sort-content sanpham__sort-content">
+                        <select class="sort-col" name="sortCol">
+                            <option value="donGia">Số tiền</option>
+                            <option value="soLuong">Số lượng</option>
+                        </select>
+                        <select class="sort-order" name="order">
+                            <option value="asc">Tăng dần</option>
+                            <option value="desc">Giảm dần</option>
+                        </select>
+                        <input type="submit" value="Sắp xếp">
+                    </form>
                     <form class="hidden filter-content sanpham__filter-content">
                         <div>
                             <select name="filterCol">
@@ -128,8 +140,9 @@
                                 <i class="sanpham--delete far fa-trash-alt " onclick="multiDel(this)"></i>
                                 <input type="checkbox" class="sanpham__master-checkbox" onclick=" checkAll(this)">
                             </div>
-                            <h6 class="center sanpham-item-title col-2">Hình ảnh</h6>
-                            <h6 class="center sanpham-item-title col-3">Tên bánh</h6>
+                            <h6 class="center sanpham-item-title col-1">Hình ảnh</h6>
+                            <h6 class="center sanpham-item-title col-2">Tên loại</h6>
+                            <h6 class="center sanpham-item-title col-2">Tên bánh</h6>
                             <h6 class="center sanpham-item-title col-2">Số tiền</h6>
                             <h6 class="center sanpham-item-title col-2">Số lượng</h6>
                             <h6 class="center sanpham-item-title col-2">Thao tác</h6>
@@ -147,13 +160,14 @@
                                 <div class="checkbox col-1 ">
                                     <input type="checkbox" class="sanpham__checkbox row-' . $SanPham[$i]['maSP'] . '" value="' . $SanPham[$i]['maSP'] . '"></input>
                                 </div>
-                                <div class="center col-2 ">
+                                <div class="center col-1 ">
                                     <img class="sanpham-' . $SanPham[$i]['maSP'] . ' row-' . $SanPham[$i]['maSP'] . ' anhDaiDien" src="' . $SanPham[$i]['anhDaiDien'] . '" onError="' . $onerror . ';"  />
                                 </div>
                                 <span class="hidden row-' . $SanPham[$i]['maSP'] . ' maLoai">' . $SanPham[$i]['loaiSanPham']['maLoai'] . '</span>
                                 <span class="hidden row-' . $SanPham[$i]['maSP'] . ' maNSX">' . $SanPham[$i]['nhaSanXuat']['maNSX'] . '</span>
                                 <span class="hidden row-' . $SanPham[$i]['maSP'] . ' moTa">' . $SanPham[$i]['moTa'] . '</span>
-                                <span class="center-left col-3  row-' . $SanPham[$i]['maSP'] . ' tenSP">' . $SanPham[$i]['tenSP'] . '</span>
+                                <span class="center-left col-2  row-' . $SanPham[$i]['maSP'] . ' tenSP">' . $SanPham[$i]['loaiSanPham']['tenLoai'] . '</span>
+                                <span class="center-left col-2  row-' . $SanPham[$i]['maSP'] . ' tenSP">' . $SanPham[$i]['tenSP'] . '</span>
                                 <span class="center-right col-2  row-' . $SanPham[$i]['maSP'] . ' donGia">' . $SanPham[$i]['donGia'] . ' ' . $SanPham[$i]['donViTinh'] . '</span>
                                 <span class="center col-2  row-' . $SanPham[$i]['maSP'] . ' soLuong">' . $SanPham[$i]['soLuong'] . '</span>
                                 <div class="center col-2 ">

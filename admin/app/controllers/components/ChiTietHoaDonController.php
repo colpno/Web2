@@ -152,17 +152,17 @@ class ChiTietHoaDonController extends BaseController
         }
     }
 
-    public function sort()
+    public function sort($data)
     {
         if (
-            $_GET['sortCol']
-            && $_GET['order']
+            $data['sortCol']
+            && $data['order']
         ) {
-            $sortValues = $this->getSortValues();
-            $sorted = $this->chiTietHoaDonModel->sort($sortValues, $this->getPage());
+            $sorted = $this->chiTietHoaDonModel->sort($data, $this->getPage());
             $numOfPages = $this->getNumOfPages($sorted['pages']);
 
             $sorted['pages'] = $numOfPages;
+            $this->changeProp($sorted['data']);
 
 
 
@@ -180,14 +180,6 @@ class ChiTietHoaDonController extends BaseController
             'soLuong' => $data['soLuong'],
             'donGia' => $data['donGia'],
             'thanhTien' => $data['thanhTien'],
-        ];
-    }
-
-    private function getSortValues()
-    {
-        return [
-            'sortCol' => $_GET['sortCol'],
-            'order' => $_GET['order']
         ];
     }
 
