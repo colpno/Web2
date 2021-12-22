@@ -30,6 +30,12 @@ class TaiKhoanController extends BaseController
         }
         $taiKhoan  = [];
         if (!empty($page)) {
+            if (isset($page['trangThai']) && $page['trangThai'] != null) {
+                $page['id'] = $page['trangThai'];
+                $page['col'] = 'trangThai';
+                $page['limit'] = $this->getPage()['limit'];
+                $page['current'] = $this->getPage()['current'];
+            }
             $taiKhoan   = $this->taiKhoanModel->get($page);
         } else {
             $taiKhoan = $this->taiKhoanModel->get($this->getPage());
@@ -52,24 +58,50 @@ class TaiKhoanController extends BaseController
             && $data['matKhau']
             && $data['anhDaiDien']
         ) {
-            if (array_key_exists('ho', $data)) {
-                if (array_key_exists('luong', $data)) {
-                    require_once(__DIR__ . '/NhanVienController.php');
-                    $nhanVien = new NhanVienController();
-                    $data['maTK'] = $this->taiKhoanModel->countRow('maTK')['soLuong'] + 1;
-                    $nhanVien->add($data);
-                }
-                if (!array_key_exists('luong', $data)) {
-                    require_once(__DIR__ . '/KhachHangController.php');
-                    $khachHang = new KhachHangController();
-                    $data['maTK'] = $this->taiKhoanModel->countRow('maTK')['soLuong'] + 1;
-                    $khachHang->add($data);
-                }
+            if ($data['maQuyen'] == 1) {
+                $data['matKhau'] = password_hash($data['matKhau'], PASSWORD_DEFAULT);
+                $values = $this->getValues($data);
+                $maxID = array_values($this->taiKhoanModel->getMaxCol())[0];
+                $this->taiKhoanModel->post($values, $maxID);
+            } else if (
+                $data['maQuyen'] == 2
+                && isset($data['luong'])
+                && isset($data['ho'])
+                && isset($data['ten'])
+                && isset($data['ngaySinh'])
+                && isset($data['diaChi'])
+                && isset($data['soDienThoai'])
+
+            ) {
+                $data['matKhau'] = password_hash($data['matKhau'], PASSWORD_DEFAULT);
+                $values = $this->getValues($data);
+                $maxID = array_values($this->taiKhoanModel->getMaxCol())[0];
+                $this->taiKhoanModel->post($values, $maxID);
+
+                require_once(__DIR__ . '/NhanVienController.php');
+                $nhanVien = new NhanVienController();
+                $data['maTK'] = $this->taiKhoanModel->countRow('maTK')['soLuong'];
+                $nhanVien->add($data);
+            } else if (
+                $data['maQuyen'] == 3
+                && isset($data['ho'])
+                && isset($data['ten'])
+                && isset($data['soDienThoai'])
+                && isset($data['ngaySinh'])
+                && isset($data['diaChi'])
+            ) {
+                $data['matKhau'] = password_hash($data['matKhau'], PASSWORD_DEFAULT);
+                $values = $this->getValues($data);
+                $maxID = array_values($this->taiKhoanModel->getMaxCol())[0];
+                $this->taiKhoanModel->post($values, $maxID);
+
+                require_once(__DIR__ . '/KhachHangController.php');
+                $khachHang = new KhachHangController();
+                $data['maTK'] = $this->taiKhoanModel->countRow('maTK')['soLuong'];
+                $khachHang->add($data);
+            } else {
+                $this->alert->alert("Thiếu thông tin cần thiết để thêm");
             }
-            $data['matKhau'] = password_hash($data['matKhau'], PASSWORD_DEFAULT);
-            $values = $this->getValues($data);
-            $maxID = array_values($this->taiKhoanModel->getMaxCol())[0];
-            $this->taiKhoanModel->post($values, $maxID);
             return $this->get();
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để thêm");
@@ -86,6 +118,7 @@ class TaiKhoanController extends BaseController
             && $data['anhDaiDien']
         ) {
             $id = $data['maTK'];
+            $data['matKhau'] = password_hash($data['matKhau'], PASSWORD_DEFAULT);
             $values = $this->getValues($data);
             $this->taiKhoanModel->update($values, $id);
             return $this->get();
@@ -117,7 +150,45 @@ class TaiKhoanController extends BaseController
                 'id' => $data['maTK'],
                 'imgPath' => $data['anhDaiDien']
             ];
-            $this->taiKhoanModel->delete($remove);
+            if (strpos($data['maQuyen'], ',')) {
+                $idArr = explode(',', $data['maQuyen']);
+                $maTKArr = explode(',', $data['maTK']);
+                for ($i = 0; $i < sizeof($idArr); $i++) {
+                    if ($idArr[$i] == 2) {
+                        require_once(__DIR__ . '/NhanVienController.php');
+                        $nhanVien = new NhanVienController();
+                        // $nhanVien->delete($maTKArr[$i]);
+                        $this->taiKhoanModel->delete($remove, 'nhanvien');
+                    }
+                    if ($idArr[$i] == 3) {
+                        require_once(__DIR__ . '/KhachHangController.php');
+                        $khachHang = new KhachHangController();
+                        // $khachHang->delete($maTKArr[$i]);
+                        $this->taiKhoanModel->delete($remove, 'khachhang');
+                    }
+                    if ($idArr[$i] == 1) {
+                        $this->taiKhoanModel->delete($remove);
+                    }
+                    sleep(0.5);
+                }
+            } else {
+                if ($data['maQuyen'] == 2) {
+                    require_once(__DIR__ . '/NhanVienController.php');
+                    $nhanVien = new NhanVienController();
+                    // $nhanVien->delete($data);
+                    $this->taiKhoanModel->delete($remove, 'nhanvien');
+                }
+                if ($data['maQuyen'] == 3) {
+                    require_once(__DIR__ . '/KhachHangController.php');
+                    $khachHang = new KhachHangController();
+                    // $khachHang->delete($data);
+                    $this->taiKhoanModel->delete($remove, 'khachhang');
+                }
+                if ($data['maQuyen'] == 1) {
+                    $this->taiKhoanModel->delete($remove);
+                }
+                // sleep(0.5);
+            }
             return $this->get();
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để xóa");
@@ -183,14 +254,13 @@ class TaiKhoanController extends BaseController
         }
     }
 
-    public function sort()
+    public function sort($data)
     {
         if (
-            $_GET['sortCol']
-            && $_GET['order']
+            $data['sortCol']
+            && $data['order']
         ) {
-            $sortValues = $this->getSortValues();
-            $sorted = $this->taiKhoanModel->sort($sortValues, $this->getPage());
+            $sorted = $this->taiKhoanModel->sort($data, $this->getPage());
             $numOfPages = $this->getNumOfPages($sorted['pages']);
 
             $sorted['pages'] = $numOfPages;
@@ -213,14 +283,6 @@ class TaiKhoanController extends BaseController
             'trangThai' => 0,
             'anhDaiDien' => $data['anhDaiDien'],
             'dangNhap' => 0,
-        ];
-    }
-
-    private function getSortValues()
-    {
-        return [
-            'sortCol' => $_GET['sortCol'],
-            'order' => $_GET['order']
         ];
     }
 

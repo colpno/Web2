@@ -50,8 +50,9 @@
             <div class="taikhoan__row content-row">
                 <div class="content-item__header">
                     <span>Tài khoản</span>
-                    <div>
+                    <div class="content-item__header__tools">
                         <button class="taikhoan--add "><i class="fas fa-plus"></i></button>
+                        <button class="taikhoan--sort "><i class="fas fa-sort"></i></button>
                         <button class="taikhoan--filter"><i class="fas fa-filter"></i></button>
                     </div>
                 </div>
@@ -63,7 +64,7 @@
                         </div>
                         <div class="add-content__input-right">
                             <select name="maQuyen" onchange="changeQuyen(this)">
-                                <option value="">Quyền</option>
+                                <option value="" disabled>Quyền</option>
                                 <?php
                                 if (isset($_SESSION['get']['TaiKhoan'])) {
                                     $data = $_SESSION['get']['TaiKhoan']['HienThiSelect'];
@@ -118,6 +119,16 @@
                     </div>
                     <input type="submit" value="Thêm">
                 </form>
+                <form class="hidden sort-content taikhoan__sort-content">
+                    <select class="sort-col" name="sortCol">
+                        <option value="thoiGianTao">Thời gian tạo</option>
+                    </select>
+                    <select class="sort-order" name="order">
+                        <option value="asc">Tăng dần</option>
+                        <option value="desc">Giảm dần</option>
+                    </select>
+                    <input type="submit" value="Sắp xếp">
+                </form>
                 <form class="hidden filter-content taikhoan__filter-content">
                     <select name="filterCol" style="margin-right: 0;">
                         <option value="thoiGianTao">Thời gian tạo</option>
@@ -135,10 +146,11 @@
                             <i class="taikhoan--delete far fa-trash-alt " onclick="multiDel(this)"></i>
                             <input type="checkbox" class="taikhoan__master-checkbox" onclick=" checkAll(this)">
                         </div>
+                        <h6 class="center taikhoan-item-title col-1">Mã TK</h6>
                         <h6 class="center taikhoan-item-title col-1">Quyền</h6>
                         <h6 class="center taikhoan-item-title col-2">Tài khoản</h6>
                         <h6 class="center taikhoan-item-title col-2">Mật khẩu</h6>
-                        <h6 class="center taikhoan-item-title col-2">Ảnh đại diện</h6>
+                        <h6 class="center taikhoan-item-title col-1">Ảnh đại diện</h6>
                         <h6 class="center taikhoan-item-title col-1 trangThai-header">Trạng thái bị cấm
                             <select id="trangThaiTaiKhoan">
                                 <option value="">Tất cả</option>
@@ -146,8 +158,8 @@
                                 <option value="1">Không bị cấm</option>
                             </select>
                         </h6>
-                        <h6 class="center taikhoan-item-title col-1">Đăng nhập</h6>
-                        <h6 class="center taikhoan-item-title col-1">Thời gian tạo</h6>
+                        <h6 class="hidden center taikhoan-item-title col-1">Đăng nhập</h6>
+                        <h6 class="center taikhoan-item-title col-2">Thời gian tạo</h6>
                         <h6 class="center taikhoan-item-title col-1">Thao tác</h6>
                     </div>
                 </div>
@@ -164,24 +176,25 @@
                                     <input type="checkbox" class="taikhoan__checkbox" value="' . $TaiKhoan[$i]['maTK'] . '"></input>
                                 </div>
                                 <span class="hidden row-' . $TaiKhoan[$i]['maTK'] . ' maQuyen">' . $TaiKhoan[$i]['quyen']['maQuyen'] . '</span>
+                                <span class="center col-1 ">' . $TaiKhoan[$i]['maTK'] . '</span>
                                 <span class="center-left col-1 ">' . $TaiKhoan[$i]['quyen']['tenQuyen'] . '</span>
                                 <span class="center-left col-2  row-' . $TaiKhoan[$i]['maTK'] . ' tenTaiKhoan">' . $TaiKhoan[$i]['tenTaiKhoan'] . '</span>
                                 <span class="center-left line-break col-2  row-' . $TaiKhoan[$i]['maTK'] . ' matKhau">' . $TaiKhoan[$i]['matKhau'] . '</span>
-                                <div class="center col-2 ">
-                                    <img class="taikhoan-' . $TaiKhoan[$i]['maTK'] . ' row-' . $TaiKhoan[$i]['maTK'] . ' anhDaiDien" src="' . $TaiKhoan[$i]['anhDaiDien'] . '" onError="' . $onerror . ';"></img>
+                                <div class="center col-1 ">
+                                    <img class="taikhoan-' . $TaiKhoan[$i]['maTK'] . ' row-' . $TaiKhoan[$i]['maTK'] . ' anhDaiDien" src="' . $TaiKhoan[$i]['anhDaiDien'] . '" onError="' . $onerror . ';" style="border-radius: 50%"></img>
                                 </div>
                                 <span class="center col-1  row-' . $TaiKhoan[$i]['maTK'] . ' trangThai">';
 
                             if ($TaiKhoan[$i]['trangThai'] == 0) {
-                                echo '<input type="checkbox" checked class="center col-1 check-trangThai  row-' . $TaiKhoan[$i]['maTK'] . ' trangThai" onclick="capNhatTrangThai(this)">' . $TaiKhoan[$i]['trangThai'] . '</input>';
+                                echo '<input type="checkbox" checked class="center check-trangThai  row-' . $TaiKhoan[$i]['maTK'] . ' trangThai" onclick="capNhatTrangThai(this)">' . $TaiKhoan[$i]['trangThai'] . '</input>';
                             } else {
-                                echo '<input type="checkbox" class="center col-1 check-trangThai  row-' . $TaiKhoan[$i]['maTK'] . ' trangThai" onclick="capNhatTrangThai(this)">' . $TaiKhoan[$i]['trangThai'] . '</input>';
+                                echo '<input type="checkbox" class="center check-trangThai  row-' . $TaiKhoan[$i]['maTK'] . ' trangThai" onclick="capNhatTrangThai(this)">' . $TaiKhoan[$i]['trangThai'] . '</input>';
                             }
 
                             echo '
                                 </span>
-                                <span class="center col-1  row-' . $TaiKhoan[$i]['maTK'] . ' dangNhap">' . $TaiKhoan[$i]['dangNhap'] . '</span>
-                                <span class="center-left col-1  row-' . $TaiKhoan[$i]['maTK'] . ' thoiGianTao">' . $TaiKhoan[$i]['thoiGianTao'] . '</span>
+                                <span class="hidden center col-1  row-' . $TaiKhoan[$i]['maTK'] . ' dangNhap">' . $TaiKhoan[$i]['dangNhap'] . '</span>
+                                <span class="center col-2  row-' . $TaiKhoan[$i]['maTK'] . ' thoiGianTao">' . $TaiKhoan[$i]['thoiGianTao'] . '</span>
                                 <div class="center col-1  row-' . $TaiKhoan[$i]['maTK'] . ' ">
                                     <a href="#sua-taikhoan" class="taikhoan-' . $TaiKhoan[$i]['maTK'] . ' btn" onclick="updateOne(this)"><i class="far fa-edit"></i></a>
                                     <button class="taikhoan-' . $TaiKhoan[$i]['maTK'] . ' btn" onclick="deleteOne(this)"><i class="far fa-trash-alt"></i></button>
@@ -212,7 +225,10 @@
             <div class="nhanvien__row content-row">
                 <div class="content-item__header">
                     <span>Nhân viên</span>
-                    <button class="nhanvien--filter"><i class="fas fa-filter"></i></button>
+                    <div class="content-item__header__tools">
+                        <button class="nhanvien--sort "><i class="fas fa-sort"></i></button>
+                        <button class="nhanvien--filter"><i class="fas fa-filter"></i></button>
+                    </div>
                 </div>
                 <form class="hidden add-content nhanvien__add-content" id="sua-nhanvien">
                     <div class="add-content__input">
@@ -238,6 +254,17 @@
                         <button class="nhanvien--add button-huy">Hủy</button>
                     </div>
                 </form>
+                <form class="hidden sort-content nhanvien__sort-content">
+                    <select class="sort-col" name="sortCol">
+                        <option value="ngaySinh">Ngày sinh</option>
+                        <option value="luong">Lương</option>
+                    </select>
+                    <select class="sort-order" name="order">
+                        <option value="asc">Tăng dần</option>
+                        <option value="desc">Giảm dần</option>
+                    </select>
+                    <input type="submit" value="Sắp xếp">
+                </form>
                 <form class="hidden filter-content nhanvien__filter-content">
                     <select name="filterCol" style="margin-right: 0;">
                         <option value="ngaySinh">Ngày sinh</option>
@@ -256,11 +283,12 @@
                             <i class="nhanvien--delete far fa-trash-alt " onclick="multiDel(this)"></i>
                             <input type="checkbox" class="nhanvien__master-checkbox" onclick="checkAll(this)"></input>
                         </div>
+                        <h6 class="center nhanvien-item-title col-1">Mã NV</h6>
                         <h6 class="center nhanvien-item-title col-1">Tài khoản</h6>
                         <h6 class="center nhanvien-item-title col-1">Họ</h6>
                         <h6 class="center nhanvien-item-title col-1">Tên</h6>
                         <h6 class="center nhanvien-item-title col-2">Ngày sinh</h6>
-                        <h6 class="center nhanvien-item-title col-3">Địa chỉ</h6>
+                        <h6 class="center nhanvien-item-title col-2">Địa chỉ</h6>
                         <h6 class="center nhanvien-item-title col-1">Số điện thoai</h6>
                         <h6 class="center nhanvien-item-title col-1">Lương</h6>
                         <h6 class="center nhanvien-item-title col-1">Thao tác</h6>
@@ -278,16 +306,16 @@
                                     <input type="checkbox" class="nhanvien__checkbox" value="' . $NhanVien[$i]['maNV'] . '"></input>
                                 </div>
                                 <span class="hidden row-' . $NhanVien[$i]['maNV'] . ' maTK">' . $NhanVien[$i]['taikhoan']['maTK'] . '</span>
+                                <span class="center col-1  row-' . $NhanVien[$i]['maNV'] . '">' . $NhanVien[$i]['maNV'] . '</span>
                                 <span class="center-left col-1 ">' . $NhanVien[$i]['taikhoan']['tenTaiKhoan'] . '</span>
                                 <span class="center-left col-1  row-' . $NhanVien[$i]['maNV'] . ' ho">' . $NhanVien[$i]['ho'] . '</span>
                                 <span class="center-left col-1  row-' . $NhanVien[$i]['maNV'] . ' ten">' . $NhanVien[$i]['ten'] . '</span>
                                 <span class="center col-2  row-' . $NhanVien[$i]['maNV'] . ' ngaySinh">' . $NhanVien[$i]['ngaySinh'] . '</span>
-                                <span class="center-left col-3  row-' . $NhanVien[$i]['maNV'] . ' diaChi">' . $NhanVien[$i]['diaChi'] . '</span>
+                                <span class="center-left col-2  row-' . $NhanVien[$i]['maNV'] . ' diaChi">' . $NhanVien[$i]['diaChi'] . '</span>
                                 <span class="center col-1  row-' . $NhanVien[$i]['maNV'] . ' soDienThoai">' . $NhanVien[$i]['soDienThoai'] . '</span>
                                 <span class="center col-1  row-' . $NhanVien[$i]['maNV'] . ' luong">' . $NhanVien[$i]['luong'] . '</span>
                                 <div class="center col-1 ">
                                     <a href="#sua-nhanvien" class="nhanvien-' . $NhanVien[$i]['maNV'] . ' btn" onclick="updateOne(this)"><i class="far fa-edit"></i></a>
-                                    <button class="nhanvien-' . $NhanVien[$i]['maNV'] . ' btn" onclick="deleteOne(this)"><i class="far fa-trash-alt"></i></button>
                                 </div>
                             ';
                         }
@@ -317,7 +345,10 @@
             <div class="khachhang__row content-row">
                 <div class="content-item__header">
                     <span>Khách hàng</span>
-                    <button class="khachhang--filter"><i class="fas fa-filter"></i></button>
+                    <div class="content-item__header__tools">
+                        <button class="khachhang--sort "><i class="fas fa-sort"></i></button>
+                        <button class="khachhang--filter"><i class="fas fa-filter"></i></button>
+                    </div>
                 </div>
                 <form class="hidden add-content khachhang__add-content" id="sua-khachhang">
                     <div class="add-content__input">
@@ -343,6 +374,16 @@
                         <button class="khachhang--add button-huy">Hủy</button>
                     </div>
                 </form>
+                <form class="hidden sort-content khachhang__sort-content">
+                    <select class="sort-col" name="sortCol">
+                        <option value="ngaySinh">Ngày sinh</option>
+                    </select>
+                    <select class="sort-order" name="order">
+                        <option value="asc">Tăng dần</option>
+                        <option value="desc">Giảm dần</option>
+                    </select>
+                    <input type="submit" value="Sắp xếp">
+                </form>
                 <form class="hidden filter-content khachhang__filter-content">
                     <select name="filterCol" style="margin-right: 0;">
                         <option value="ngaySinh">Ngày sinh</option>
@@ -360,11 +401,12 @@
                             <i class="khachhang--delete far fa-trash-alt " onclick="multiDel(this)"></i>
                             <input type="checkbox" class="khachhang__master-checkbox" onclick="checkAll(this)"></input>
                         </div>
+                        <h6 class="center khachhang-item-title col-1">Mã KH</h6>
                         <h6 class="center khachhang-item-title col-1">Tài khoản</h6>
                         <h6 class="center khachhang-item-title col-1">Họ</h6>
                         <h6 class="center khachhang-item-title col-1">Tên</h6>
                         <h6 class="center khachhang-item-title col-2">Ngày sinh</h6>
-                        <h6 class="center khachhang-item-title col-3">Địa chỉ</h6>
+                        <h6 class="center khachhang-item-title col-2">Địa chỉ</h6>
                         <h6 class="center khachhang-item-title col-1">Số điện thoai</h6>
                         <h6 class="center khachhang-item-title col-2">Thao tác</h6>
                     </div>
@@ -380,16 +422,17 @@
                                 <div class="checkbox col-1  ">
                                     <input type="checkbox" class="khachhang__checkbox" value="' . $KhachHang[$i]['maKH'] . '"></input>
                                 </div>
-                                <span class="center-left col-1 ">' . $KhachHang[$i]['taikhoan']['tenTaiKhoan'] . '</span>
+                                <span class="hidden row-' . $KhachHang[$i]['maKH'] . '">' . $KhachHang[$i]['maKH'] . '</span>
                                 <span class="hidden row-' . $KhachHang[$i]['maKH'] . ' maTK">' . $KhachHang[$i]['taikhoan']['maTK'] . '</span>
+                                <span class="center col-1 ">' . $KhachHang[$i]['maKH'] . '</span>
+                                <span class="center-left col-1 ">' . $KhachHang[$i]['taikhoan']['tenTaiKhoan'] . '</span>
                                 <span class="center-left col-1  row-' . $KhachHang[$i]['maKH'] . ' ho">' . $KhachHang[$i]['ho'] . '</span>
                                 <span class="center-left col-1  row-' . $KhachHang[$i]['maKH'] . ' ten">' . $KhachHang[$i]['ten'] . '</span>
                                 <span class="center col-2  row-' . $KhachHang[$i]['maKH'] . ' ngaySinh">' . $KhachHang[$i]['ngaySinh'] . '</span>
-                                <span class="center-left col-3  row-' . $KhachHang[$i]['maKH'] . ' diaChi">' . $KhachHang[$i]['diaChi'] . '</span>
+                                <span class="center-left col-2  row-' . $KhachHang[$i]['maKH'] . ' diaChi">' . $KhachHang[$i]['diaChi'] . '</span>
                                 <span class="center col-1  row-' . $KhachHang[$i]['maKH'] . ' soDienThoai">' . $KhachHang[$i]['soDienThoai'] . '</span>
                                 <div class="center col-2 ">
                                     <a href="#sua-khachhang" class="khachhang-' . $KhachHang[$i]['maKH'] . ' btn" onclick="updateOne(this)"><i class="far fa-edit"></i></a>
-                                    <button class="khachhang-' . $KhachHang[$i]['maKH'] . ' btn" onclick="deleteOne(this)"><i class="far fa-trash-alt"></i></button>
                                 </div>
                             ';
                         }

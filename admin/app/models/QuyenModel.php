@@ -54,7 +54,11 @@ class QuyenModel extends BaseModel
 
     public function post($data = [], $need)
     {
-        return $this->postQuyenMethod(self::TABLE_NAME, $data, $need);
+        $check = [
+            'col' => 'tenQuyen',
+            'value' => $data['tenQuyen'],
+        ];
+        return $this->postQuyenMethod(self::TABLE_NAME, $data, $need, $check);
     }
 
     public function update($data = [], $id)

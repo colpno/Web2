@@ -29,7 +29,13 @@
         </a>
         <ul class="sidebar-menu__list">
             <?php
-
+            if (isset($_COOKIE['user']) && $_COOKIE['user'] == 'null') {
+                echo "
+            <script>
+                window.location='http://localhost:8080/Web2';
+            </script>
+        ";
+            }
             if (isset($_SESSION['user'])) {
                 if (isset($_COOKIE['user'])) {
                     setcookie("user", '', time() - 60 * 60);
@@ -81,6 +87,8 @@
             }
             ?>
 
+            <p style="color: #fff;position: absolute; bottom: 50px; left: 20px;">Terms & Services</p>
+            <p style="color: #fff;position: absolute;bottom: 25px; left: 20px;">Privacy Policy</p>
 
 
             <!--  
@@ -121,45 +129,45 @@
                     $SanPham = [
                         [
                             'value' => 'sanpham',
-                            'display' => 'Sản phẩm ( tên bánh )'
+                            'display' => 'Sản phẩm (tên bánh)'
                         ],
                         [
                             'value' => 'loai',
-                            'display' => 'Loại ( tên loại )'
+                            'display' => 'Loại (tên loại)'
                         ],
                     ];
                     $NhapXuat = [
                         [
                             'value' => 'phieunhaphang',
-                            'display' => 'Phiếu nhập hàng ( tên nhân viên )'
+                            'display' => 'Phiếu nhập hàng (mã phiếu)'
                         ],
                         [
-                            'value' => 'phieunhaphang',
-                            'display' => 'Hóa đơn ( tên nhân viên )'
+                            'value' => 'hoadon',
+                            'display' => 'Hóa đơn (mã hóa đơn)'
                         ],
                     ];
                     $TaiKhoan = [
                         [
                             'value' => 'taikhoan',
-                            'display' => 'Tài khoản ( tài khoản )'
+                            'display' => 'Tài khoản (tài khoản)'
                         ],
                         [
                             'value' => 'nhanvien',
-                            'display' => 'Nhân viên ( tên nhân viên )'
+                            'display' => 'Nhân viên (tên nhân viên)'
                         ],
                         [
                             'value' => 'khachhang',
-                            'display' => 'Khách hàng ( tên khách hàng )'
+                            'display' => 'Khách hàng (tên khách hàng)'
                         ]
                     ];
                     $DoiTac = [
                         [
                             'value' => 'nhacungcap',
-                            'display' => 'Nhà cung cấp ( tên nhà cung cấp )'
+                            'display' => 'Nhà cung cấp (tên nhà cung cấp)'
                         ],
                         [
                             'value' => 'nhasanxuat',
-                            'display' => 'Nhà sản xuất ( tên nhà sản xuất )'
+                            'display' => 'Nhà sản xuất (tên nhà sản xuất)'
                         ],
                     ];
                     $uri = isset($_GET['uri']) ? $_GET['uri'] : '';
@@ -215,7 +223,14 @@
                 </div>
                 <img src="<?php echo $userC['anh'] ?>" alt="user-image" onclick="openUserConsole()">
                 <div class="user-info">
-                    <span class="username"><?php echo $userC['ho'] . " " . $userC['ten']; ?></span>
+
+                    <span class="username">
+                        <?php
+                        if ($userC['quyen'] != 1) {
+                            echo $userC['ho'] . " " . $userC['ten'];
+                        }
+                        ?>
+                    </span>
                     <span class="user-rank">
                         <?php
                         echo $userC['tenQuyen'];

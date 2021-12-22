@@ -54,10 +54,16 @@ class ChiTietPhieuNhapHangController extends BaseController
             $data['maSP']
             && $data['maPhieu']
             && $data['soLuong']
-            && $data['donGiaGoc']
         ) {
+            require_once(__DIR__ . '/../../models/SanPhamModel.php');
+
+            $this->sanPhamModel = new SanPhamModel();
+            $sanpham = $this->sanPhamModel->getRow('maSP', $data['maSP']);
+            $data['donGiaGoc'] = $sanpham['donGia'];
+
             $values = $this->getValues($data);
             $this->chiTietPhieuNhapHangModel->post($values);
+
             return $this->get($data);
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để thêm");
@@ -157,18 +163,18 @@ class ChiTietPhieuNhapHangController extends BaseController
         }
     }
 
-    public function sort()
+    public function sort($data)
     {
         if (
-            $_GET['sortCol']
-            && $_GET['order']
+            $data['sortCol']
+            && $data['order']
         ) {
-            $sortValues = $this->getSortValues();
-            $sorted = $this->chiTietPhieuNhapHangModel->sort($sortValues, $this->getPage());
+            $sorted = $this->chiTietPhieuNhapHangModel->sort($data, $this->getPage());
             $numOfPages = $this->getNumOfPages($sorted['pages']);
 
             $sorted['pages'] = $numOfPages;
 
+            $this->changeProp($sorted['data']);
 
 
             return $sorted;
@@ -184,14 +190,6 @@ class ChiTietPhieuNhapHangController extends BaseController
             'maPhieu' => $data['maPhieu'],
             'soLuong' => $data['soLuong'],
             'donGiaGoc' => $data['donGiaGoc'],
-        ];
-    }
-
-    private function getSortValues()
-    {
-        return [
-            'sortCol' => $_GET['sortCol'],
-            'order' => $_GET['order']
         ];
     }
 

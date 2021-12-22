@@ -5,6 +5,7 @@ $(document).ready(function () {
             { name: 'soLuong', length: 10 },
         ],
         kiemNgayArr = ['ngayBatDau', 'ngayKetThuc'];
+    const a = 'asdas';
 
     $('.add-content').submit(function (e) {
         e.preventDefault();
@@ -90,7 +91,7 @@ $(document).ready(function () {
                     contentType: false,
                     processData: false,
                     success: function (data) {
-                        if (isJson(data)) {
+                        if (isJson(data) && data != null) {
                             const json = JSON.parse(data);
                             if (json.data != null) {
                                 $(`.${table}--show`).html(getHTML(table, json.data));
@@ -163,28 +164,30 @@ $(document).ready(function () {
 
             const params = `?controller=admin&action=sanpham`;
 
-            $.ajax({
-                url: '/Web2/admin/app/index.php' + params,
-                type: 'post',
-                data: fd,
-                contentType: false,
-                processData: false,
-                success: function (data) {
-                    if (isJson(data)) {
-                        $(`.${table}__add-content`).addClass('hidden');
-                        const json = JSON.parse(data);
-                        if (json.data != null) {
-                            $(`.${table}--show`).html(getHTML(table, json.data));
+            if (count == 0) {
+                $.ajax({
+                    url: '/Web2/admin/app/index.php' + params,
+                    type: 'post',
+                    data: fd,
+                    contentType: false,
+                    processData: false,
+                    success: function (data) {
+                        if (isJson(data) && data != null) {
+                            $(`.${table}__add-content`).addClass('hidden');
+                            const json = JSON.parse(data);
+                            if (json.data != null) {
+                                $(`.${table}--show`).html(getHTML(table, json.data));
+                            }
+                            alert('Updated');
+                            if (table == 'sanpham') {
+                                location.reload();
+                            }
+                        } else {
+                            alert(data);
                         }
-                        alert('Updated');
-                        if (table == 'sanpham') {
-                            location.reload();
-                        }
-                    } else {
-                        alert(data);
-                    }
-                },
-            });
+                    },
+                });
+            }
         }
     });
 
@@ -277,7 +280,7 @@ $(document).ready(function () {
                 contentType: false,
                 processData: false,
                 success: function (data) {
-                    if (isJson(data)) {
+                    if (isJson(data) && data != null) {
                         const json = JSON.parse(data);
                         if (json.data != null) {
                             $(`.${table}--show`).html(getHTML(table, json.data));
@@ -289,6 +292,63 @@ $(document).ready(function () {
                 },
             });
         }
+    });
+
+    $('.sort-content').on('submit', function (e) {
+        e.preventDefault();
+
+        const that = $(this),
+            fd = new FormData(),
+            clas = e.target.getAttribute('class'),
+            table = clas.substring(clas.lastIndexOf(' ') + 1, clas.lastIndexOf('__'));
+
+        fd.append('action', 'sort');
+        fd.append('table', table);
+
+        let sortCol, order;
+        that.find('[name]').each(function () {
+            const that = $(this),
+                name = that.attr('name'),
+                val = that.val();
+
+            fd.append(name, val);
+
+            if (name == 'sortCol') {
+                sortCol = val;
+            }
+            if (name == 'order') {
+                order = val;
+            }
+        });
+
+        let params = `?sortCol=${sortCol}&order=${order}&page=1`;
+        const newurl =
+            window.location.protocol +
+            '//' +
+            window.location.host +
+            window.location.pathname +
+            params;
+        window.history.pushState({ path: newurl }, '', newurl);
+        params = `?controller=admin&action=sanpham&` + params.substring(1);
+
+        $.ajax({
+            url: '/Web2/admin/app/index.php' + params,
+            type: 'post',
+            data: fd,
+            contentType: false,
+            processData: false,
+            success: function (data) {
+                if (isJson(data) && data != null) {
+                    const json = JSON.parse(data);
+                    if (json.data != null) {
+                        $(`.${table}--show`).html(getHTML(table, json.data));
+                        $(`.${table}__row .paginate`).html(renderPaginate(table, json.pages));
+                    }
+                } else {
+                    alert(data);
+                }
+            },
+        });
     });
 
     const toggleAddContents = ['sanpham', 'loai'];
@@ -310,6 +370,13 @@ $(document).ready(function () {
     toggleFilterContents.forEach((element) => {
         $(`.${element}--filter`).on('click', function () {
             $(`.${element}__filter-content`).toggleClass('hidden');
+        });
+    });
+
+    const toggleSortContents = ['sanpham'];
+    toggleSortContents.forEach((element) => {
+        $(`.${element}--sort`).on('click', function () {
+            $(`.${element}__sort-content`).toggleClass('hidden');
         });
     });
 });
@@ -336,6 +403,13 @@ function ajaxPaginate(ele) {
         fd.append('to', url.searchParams.get('to'));
         fd.append('action', 'filter');
     }
+    if (params.includes('sortCol')) {
+        const url_string = window.location.href,
+            url = new URL(url_string);
+        fd.append('sortCol', url.searchParams.get('sortCol'));
+        fd.append('order', url.searchParams.get('order'));
+        fd.append('action', 'sort');
+    }
 
     $.ajax({
         url: '/Web2/admin/app/index.php' + params,
@@ -344,7 +418,7 @@ function ajaxPaginate(ele) {
         contentType: false,
         processData: false,
         success: function (data) {
-            if (isJson(data)) {
+            if (isJson(data) && data != null) {
                 parent.querySelector('.current-page').classList.remove('current-page');
                 parent.querySelector(`.${table}-${page}`).classList.add('current-page');
                 const json = JSON.parse(data);
@@ -457,11 +531,13 @@ function ajaxDeleteOne(ele) {
             contentType: false,
             processData: false,
             success: function (data) {
-                if (isJson(data)) {
+                console.log(data);
+                if (isJson(data) && data != 'null') {
                     const json = JSON.parse(data);
                     if (json.data != null) {
-                        $(`.${table}--show`).html(getHTML(table, json.data));
-                        $(`.${table}__row .paginate`).html(renderPaginate(table, json.pages));
+                        // $(`.${table}--show`).html(getHTML(table, json.data));
+                        // $(`.${table}__row .paginate`).html(renderPaginate(table, json.pages));
+                        location.reload();
                     }
                 } else {
                     alert(data);
@@ -516,11 +592,12 @@ function ajaxMultiDel(ele) {
                 contentType: false,
                 processData: false,
                 success: function (data) {
-                    if (isJson(data)) {
+                    if (isJson(data) && data != null) {
                         const json = JSON.parse(data);
                         if (json.data != null) {
-                            $(`.${table}--show`).html(getHTML(table, json.data));
-                            $(`.${table}__row .paginate`).html(renderPaginate(table, json.pages));
+                            // $(`.${table}--show`).html(getHTML(table, json.data));
+                            // $(`.${table}__row .paginate`).html(renderPaginate(table, json.pages));
+                            location.reload();
                         }
                     } else {
                         alert(data);

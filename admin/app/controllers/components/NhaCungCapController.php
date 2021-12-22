@@ -142,14 +142,13 @@ class NhaCungCapController extends BaseController
         }
     }
 
-    public function sort()
+    public function sort($data)
     {
         if (
-            $_GET['sortCol']
-            && $_GET['order']
+            $data['sortCol']
+            && $data['order']
         ) {
-            $sortValues = $this->getSortValues();
-            $sorted = $this->nhaCungCapModel->sort($sortValues, $this->getPage());
+            $sorted = $this->nhaCungCapModel->sort($data, $this->getPage());
             $numOfPages = $this->getNumOfPages($sorted['pages']);
 
             $sorted['pages'] = $numOfPages;
@@ -168,14 +167,6 @@ class NhaCungCapController extends BaseController
             'tenNCC' => $data['tenNCC'],
             'diaChi' => $data['diaChi'],
             'soDienThoai' => $data['soDienThoai'],
-        ];
-    }
-
-    private function getSortValues()
-    {
-        return [
-            'sortCol' => $_GET['sortCol'],
-            'order' => $_GET['order']
         ];
     }
 

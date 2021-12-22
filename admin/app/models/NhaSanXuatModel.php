@@ -59,7 +59,11 @@ class NhaSanXuatModel extends BaseModel
 
     public function post($data = [])
     {
-        return $this->postMethod(self::TABLE_NAME, $data);
+        $check = [
+            'col' => 'tenNSX',
+            'value' => $data['tenNSX'],
+        ];
+        return $this->postMethod(self::TABLE_NAME, $data, $check);
     }
 
     public function update($data = [], $id)

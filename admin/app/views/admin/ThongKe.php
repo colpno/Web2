@@ -7,16 +7,17 @@
                 <div class="chart-header__item">
                     <span><i class="far fa-chart-bar"></i>Thống kê</span>
                     <select name="" id="" onchange="changeReport(this)">
-                        <option value="tongthu">Tổng thu</option>
-                        <option value="doanhthu">Doanh thu</option>
-                        <option value="taikhoan">Số lượng khách mới</option>
+                        <option value="tongthu">Lợi nhuận</option>
+                        <option value="doanhthu">Thu từ hóa đơn</option>
+                        <option value="taikhoan-report">Số lượng khách mới</option>
+                        <!-- <option value="sanphamban">Số lượng sản phẩm bán ra</option> -->
                     </select>
                 </div>
             </div>
         </div>
-        <div class="col-12 tongthu">
+        <div class="col-12 tongthu hidden">
             <div class="content-row">
-                <div class="chart-head">Tổng thu</div>
+                <div class="chart-head">Lợi nhuận</div>
                 <div class="chart">
                     <div class="chart-layout">
                         <?php
@@ -50,6 +51,8 @@
                             $tongThu[$i] = [];
                             for ($j = 1; $j <= 12; $j++) {
                                 $tongThu[$i][$j] = $doanhThu[$i][$j] - $tienNhap[$i][$j] - $tongLuong;
+                                // Random số
+                                // $tongThu[$i][$j] = rand(500000, 3000000);
                             }
                         }
 
@@ -57,10 +60,18 @@
                         $thangMax = array_keys($tongThu[$date], $max)[0];
                         foreach ($tongThu[$date] as $thang => $tien) {
                             $percent = 0;
+                            if ($thang == $thangMax) {
+                                $max = $max > 0 ? $max : 0;
+                                $formated = number_format($max);
+                                echo "
+                                    <div class='chart-column'>
+                                        <div class='chart-layout__item thang-$thangMax' style='--percent: 100%'><p>$formated</p></div>
+                                        <span>$thangMax</span>
+                                    </div>";
+                            }
                             if ($thang != 0 && $thang != $thangMax) {
                                 if ($tien < 0 || $max < 0) {
                                     $tien = 0;
-                                    $max = 0;
                                 }
                                 $formated = number_format($tien);
                                 if ($tien > 0 && $max > 0) {
@@ -71,18 +82,6 @@
                                         <div class='chart-layout__item thang-$thang' style='--percent: $percent%'><p>$formated</p></div>
                                         <span>$thang</span>
                                     </div>";
-                            }
-                            if ($thang == $thangMax) {
-                                $formated = 0;
-                                if ($max > 0) {
-                                    $formated = number_format($max);
-                                    $percent = 100;
-                                }
-                                echo "
-                            <div class='chart-column'>
-                                <div class='chart-layout__item thang-$thangMax' style='--percent: $percent%'><p>$formated</p></div>
-                                <span>$thangMax</span>
-                            </div>";
                             }
                         }
 
@@ -116,7 +115,7 @@
         </div>
         <div class="col-12 doanhthu hidden">
             <div class="content-row">
-                <div class="chart-head">Doanh thu</div>
+                <div class="chart-head">Tiền thu được từ hóa đơn</div>
                 <div class="chart">
                     <div class="chart-layout">
                         <?php
@@ -141,7 +140,6 @@
                             if ($thang != 0 && $thang != $thangMax) {
                                 if ($tien < 0 || $max < 0) {
                                     $tien = 0;
-                                    $max = 0;
                                 }
                                 $formated = number_format($tien);
                                 if ($tien > 0 && $max > 0) {
@@ -218,6 +216,11 @@
                             }
                         }
 
+                        // Random số
+                        // foreach ($taiKhoanTaoHangThang[$date] as $thang => $soLuong) {
+                        //     $taiKhoanTaoHangThang[$nam][$thang] = rand(1, 50);
+                        // }
+
                         $max = max($taiKhoanTaoHangThang[$date]);
                         $thangMax = array_keys($taiKhoanTaoHangThang[$date], $max)[0];
                         foreach ($taiKhoanTaoHangThang[$date] as $thang => $soLuong) {
@@ -250,11 +253,10 @@
                         }
                         $_SESSION['tongTaiKhoan'] = number_format($tong);
                         ?>
-                        ?>
                     </div>
                     <div class="chart-info">
                         <p>Năm:
-                            <select name="" id="taikhoan-chart" onchange="changeYear(this)">
+                            <select name="" id="taikhoan-report-chart" onchange="changeYear(this)">
                                 <?php
                                 $year = date('Y');
                                 for ($i = $year; $i >= 2015; $i--) {
@@ -268,11 +270,80 @@
                             </select>
                         </p>
                         <p>Đơn vị tính: <span>khách</span></p>
-                        <p>Tổng: <span class="summary-taikhoan"><?php echo $_SESSION['tongTaiKhoan'] ?></span></p>
+                        <p>Tổng: <span class="summary-taikhoan-report"><?php echo $_SESSION['tongTaiKhoan'] ?></span></p>
                     </div>
                 </div>
             </div>
         </div>
+        <!-- <div class="col-12 sanphamban">
+            <div class="content-row">
+                <div class="chart-head">Số lượng sản phẩm bán ra</div>
+                <div class="title--border">
+                    <div class="sanphamban__title row">
+                        <h6 class="center sanphamban-item-title col-1">Mã SP</h6>
+                        <h6 class="center sanphamban-item-title col-3">Tên sản phẩm</h6>
+                        <h6 class="center sanphamban-item-title col-2">5 ngày trước</h6>
+                        <h6 class="center sanphamban-item-title col-2">15 ngày trước</h6>
+                        <h6 class="center sanphamban-item-title col-2">30 ngày trước</h6>
+                        <h6 class="center sanphamban-item-title col-2">60 ngày trước</h6>
+                    </div>
+                </div>
+                <div class="sanphamban--show row"> -->
+        <?php
+        // echo '<pre>';
+        // print_r($_SESSION['get']['ChiTietHoaDon']);
+        // echo '</pre>';
+        // echo '<pre>';
+        // print_r($_SESSION['get']['HoaDon']);
+        // echo '</pre>';
+        // echo '<pre>';
+        // print_r($_SESSION['get']['SanPham']);
+        // echo '</pre>';
+        // if (isset($_SESSION['get']['ChiTietHoaDon']) && isset($_SESSION['get']['ChiTietHoaDon']) && isset($_SESSION['get']['ChiTietHoaDon'])) {
+        // }
+        //     $PhieuNhapHang = $_SESSION['get']['PhieuNhapHang']['Data']['data'];
+        //     $length = count($PhieuNhapHang);
+
+        //     for ($i = 0; $i < $length; $i++) {
+        //         echo '
+        //             <span class="hidden row-' . $PhieuNhapHang[$i]['maPhieu'] . ' maPhieu">' . $PhieuNhapHang[$i]['maPhieu'] . '</span>
+        //             <span class="hidden row-' . $PhieuNhapHang[$i]['maPhieu'] . ' maNCC">' . $PhieuNhapHang[$i]['nhaCungCap']['maNCC'] . '</span>
+        //             <span class="hidden row-' . $PhieuNhapHang[$i]['maPhieu'] . ' maNV">' . $PhieuNhapHang[$i]['nhanVien']['maNV'] . '</span>
+        //             <span class="center col-1 row-' . $PhieuNhapHang[$i]['maPhieu'] . '">' . $PhieuNhapHang[$i]['maPhieu'] . '</span>
+        //             <span class="center-left col-2">' . $PhieuNhapHang[$i]['nhaCungCap']['tenNCC'] . '</span>
+        //             <span class="center-left col-2">' . $PhieuNhapHang[$i]['nhanVien']['ho'] . ' ' . $PhieuNhapHang[$i]['nhanVien']['ten'] . '</span>
+        //             <span class="center col-2 row-' . $PhieuNhapHang[$i]['maPhieu'] . ' ngayNhap">' . $PhieuNhapHang[$i]['ngayNhap'] . '</span>
+        //             <span class="center col-2 row-' . $PhieuNhapHang[$i]['maPhieu'] . ' tongTien">' . $PhieuNhapHang[$i]['tongTien'] . '</span>
+        //             <div class="center col-2">
+        //                 <a href="#sua-phieunhaphang" class="phieunhaphang-' . $PhieuNhapHang[$i]['maPhieu'] . ' btn" onclick="updateOne(this)"><i class="far fa-edit"></i></a>
+        //                 <button class="phieunhaphang-' . $PhieuNhapHang[$i]['maPhieu'] . ' btn" onclick="deleteOne(this)"><i class="far fa-trash-alt"></i></button>
+        //                 <button class="phieunhaphang-' . $PhieuNhapHang[$i]['maPhieu'] . ' btn" onclick="openDetail(this)"><i class="fas fa-arrow-circle-right"></i></button>
+        //             </div>
+        //         ';
+        //     }
+        // }
+
+        ?>
+        <!-- </div>
+                <div class="content-item__pagination row">
+                    <div>
+                        <ul class="text-center center paginate">
+                            <?php
+                            // if (isset($_SESSION['get']['PhieuNhapHang'])) {
+                            //     $length = $_SESSION['get']['PhieuNhapHang']['Data']['pages'];
+                            //     for ($i = 1; $i <= $length; $i++) {
+                            //         if ($i == 1)
+                            //             echo '<li onclick="paginate(this)" class="sanphamban-' . $i . ' current-page">' . $i . '</li>';
+                            //         else
+                            //             echo '<li onclick="paginate(this)" class="sanphamban-' . $i . '">' . $i . '</li>';
+                            //     }
+                            // }
+                            ?>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div> -->
         <div style="margin: 40px;"></div>
     </div>
 </div>

@@ -19,6 +19,12 @@ if (!isset($_POST['action'])) {
             </script>
         ";
         }
+    } else {
+        echo "
+            <script>
+                window.location='http://localhost:8080/Web2';
+            </script>
+        ";
     }
     $uri = isset($_GET['uri']) ? $_GET['uri'] : "";
     $splitUri = explode("/", $uri);
@@ -124,6 +130,20 @@ if (isset($_POST['action'])) {
                     case 'quyen':
                     case 'Quyen': {
                             echo json_encode($controllerObject->quyen($_POST));
+                            break;
+                        }
+                    case 'dudoan':
+                    case 'Dudoan': {
+                            echo json_encode($controllerObject->dudoan($_POST));
+                            // $myfile = fopen("newfile.txt", "w") or die("Unable to open file!");
+                            // $txt = json_encode($controllerObject->dudoan($_POST));;
+                            // $txt = "ban 60 ngay truoc\tban 30 ngay truoc\tban 15 ngay truoc\tban 5 ngay truoc\tton kho\t\t|\tmaSP\ttenSP\n";
+                            // fwrite($myfile, $txt);
+                            // $txt = "131\t\t\t55\t\t\t24\t\t\t6\t\t\t36\t\t|\t1\tCupcake Vanilla\n";
+                            // fwrite($myfile, $txt);
+                            // $txt = "----------------------------------------------------------------------------------------------------------";
+                            // fwrite($myfile, $txt);
+                            // fclose($myfile);
                             break;
                         }
                 }

@@ -9,7 +9,7 @@
                     <button class="quyen--add "><i class="fas fa-plus"></i></button>
                 </div>
                 <form class="hidden add-content quyen__add-content">
-                    <input type="text" name="tenQuyen" placeholder="Tên quyenền">
+                    <input type="text" name="tenQuyen" placeholder="Tên quyền">
                     <input type="submit" value="Thêm">
                 </form>
                 <div class="title--border">
@@ -120,41 +120,43 @@
                     foreach ($_SESSION['get']['Quyen']['data'] as $key => $value) {
                         $maQuyen = $value['maQuyen'];
                         $tenQuyen = $value['tenQuyen'];
-                        echo '
-                        <div class="section">
-                        <div class="chonQuyen">
-                            <div>
-                                <input type="radio" value="' . $value['maQuyen'] . '" name="maQuyen" class="maQuyen-' . $k . '"" onclick=chonQuyen(this)>
-                                <label for="radioQuyen">' . $value['tenQuyen'] . '</label>
+                        if ($maQuyen != 3) {
+                            echo '
+                            <div class="section">
+                            <div class="chonQuyen">
+                                <div>
+                                    <input type="radio" value="' . $value['maQuyen'] . '" name="maQuyen" class="maQuyen-' . $k . '"" onclick=chonQuyen(this)>
+                                    <label for="radioQuyen">' . $value['tenQuyen'] . '</label>
+                                </div>
+                                <div class="checkAll hidden">
+                                    <input type="checkbox" class="' . $value['maQuyen'] . '" onclick=chonHetChucNang(this)>
+                                    <label>Check All</label>
+                                </div>
                             </div>
-                            <div class="checkAll hidden">
-                                <input type="checkbox" class="' . $value['maQuyen'] . '" onclick=chonHetChucNang(this)>
-                                <label>Check All</label>
-                            </div>
-                        </div>
-                        <div class="hidden chonChucNang phanquyen-' . $k . ' ">
-                    ';
-                        foreach ($_SESSION['get']['ChucNang']['data'] as $key => $value) {
-                            $maCN = $value['maCN'];
-                            $tenCN = $value['tenCN'];
+                            <div class="hidden chonChucNang phanquyen-' . $k . ' ">
+                            ';
+                            foreach ($_SESSION['get']['ChucNang']['data'] as $key => $value) {
+                                $maCN = $value['maCN'];
+                                $tenCN = $value['tenCN'];
 
-                            echo '<div>';
+                                echo '<div>';
 
-                            foreach ($_SESSION['get']['QuyenChucNang']['data'] as $key => $value) {
+                                foreach ($_SESSION['get']['QuyenChucNang']['data'] as $key => $value) {
 
-                                if ($maQuyen == $value['quyen']['maQuyen'] && $maCN == $value['chucNang']['maCN'] && $value['hienThi'] == 1) {
-                                    echo '<input type="checkbox" checked value="' . $maCN . '" name="maCN"';
-                                    break;
+                                    if ($maQuyen == $value['quyen']['maQuyen'] && $maCN == $value['chucNang']['maCN'] && $value['hienThi'] == 1) {
+                                        echo '<input type="checkbox" checked value="' . $maCN . '" name="maCN"';
+                                        break;
+                                    }
+
+                                    echo '<input type="checkbox" value="' . $maCN . '" name="maCN"';
                                 }
 
-                                echo '<input type="checkbox" value="' . $maCN . '" name="maCN"';
+                                echo '<label for="maCN">' . $tenCN . '</label>
+                                    </div>';
                             }
-
-                            echo '<label for="maCN">' . $tenCN . '</label>
-                                </div>';
+                            echo '</div></div>';
+                            $k++;
                         }
-                        echo '</div></div>';
-                        $k++;
                     }
                     ?>
                     <input type="submit" value="Sửa">

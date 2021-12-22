@@ -54,7 +54,11 @@ class TaiKhoanModel extends BaseModel
 
     public function post($data = [], $maxID)
     {
-        return $this->postMethod(self::TABLE_NAME, $data, $maxID);
+        $check = [
+            'col' => 'tenTaiKhoan',
+            'value' => $data['tenTaiKhoan'],
+        ];
+        return $this->postMethod(self::TABLE_NAME, $data, $check, $maxID);
     }
 
     public function update($data = [], $id)
@@ -67,9 +71,13 @@ class TaiKhoanModel extends BaseModel
         return $this->capNhatTinhTrangMethod(self::TABLE_NAME, $data);
     }
 
-    public function delete($id = [])
+    public function delete($id = [], $FKTable = "")
     {
-        return $this->deleteMethod(self::TABLE_NAME, $this->primaryCol, $id);
+        if (!empty($FKTable)) {
+            return $this->deleteWithFKMethod(self::TABLE_NAME, $FKTable, $this->primaryCol, $id);
+        } else {
+            return $this->deleteMethod(self::TABLE_NAME, $this->primaryCol, $id);
+        }
     }
 
     public function find($searchingText, $page)

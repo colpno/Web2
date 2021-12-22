@@ -62,9 +62,9 @@ class KhachHangModel extends BaseModel
         return $this->updateMethod(self::TABLE_NAME, $data, $this->primaryCol, $id);
     }
 
-    public function delete($id = [])
+    public function delete($id = [], $col)
     {
-        return $this->deleteMethod(self::TABLE_NAME, $this->primaryCol, $id);
+        return $this->deleteMethod(self::TABLE_NAME, $col, $id);
     }
 
     public function find($searchingText, $page)

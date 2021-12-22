@@ -56,6 +56,11 @@ class ChiTietHoaDonModel extends BaseModel
         return $this->getDetailMethod(self::TABLE_NAME, $page, $id);
     }
 
+    public function getAll()
+    {
+        return $this->getAllMethod(self::TABLE_NAME);
+    }
+
     public function post($data = [])
     {
         return $this->postMethod(self::TABLE_NAME, $data);
@@ -84,6 +89,8 @@ class ChiTietHoaDonModel extends BaseModel
 
     public function sort($sortValues, $page)
     {
-        return $this->sortMethod(self::TABLE_NAME,  $sortValues, $page);
+        $sortValues['col'] = 'maHD';
+        $sortValues['value'] = $sortValues['maHD'];
+        return $this->sortChiTietMethod(self::TABLE_NAME,  $sortValues, $page);
     }
 }

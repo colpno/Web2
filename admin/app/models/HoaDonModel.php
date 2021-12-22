@@ -58,6 +58,11 @@ class HoaDonModel extends BaseModel
         return $this->getMethod(self::TABLE_NAME, $page, $order);
     }
 
+    public function getAll()
+    {
+        return $this->getAllMethod(self::TABLE_NAME);
+    }
+
     public function post($data = [])
     {
         return $this->postMethod(self::TABLE_NAME, $data);
@@ -75,7 +80,7 @@ class HoaDonModel extends BaseModel
 
     public function delete($id = [])
     {
-        return $this->deleteMethod(self::TABLE_NAME, $this->primaryCol, $id);
+        return $this->deleteWithFKMethod(self::TABLE_NAME, 'chitiethoadon', $this->primaryCol, $id);
     }
 
     public function find($searchingText, $page)
@@ -97,5 +102,10 @@ class HoaDonModel extends BaseModel
     public function thongke($year, $yearCol, ...$cols)
     {
         return $this->thongkeMethod(self::TABLE_NAME, $year, $yearCol, ...$cols);
+    }
+
+    public function updateSoLuong($data)
+    {
+        return $this->updateSoLuong($data);
     }
 }

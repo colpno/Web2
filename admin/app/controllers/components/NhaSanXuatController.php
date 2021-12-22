@@ -147,14 +147,13 @@ class NhaSanXuatController extends BaseController
         }
     }
 
-    public function sort()
+    public function sort($data)
     {
         if (
-            $_GET['sortCol']
-            && $_GET['order']
+            $data['sortCol']
+            && $data['order']
         ) {
-            $sortValues = $this->getSortValues();
-            $sorted = $this->nhaSanXuatModel->sort($sortValues, $this->getPage());
+            $sorted = $this->nhaSanXuatModel->sort($data, $this->getPage());
             $numOfPages = $this->getNumOfPages($sorted['pages']);
 
             $sorted['pages'] = $numOfPages;
@@ -173,14 +172,6 @@ class NhaSanXuatController extends BaseController
             'tenNSX' => $data['tenNSX'],
             'diaChi' => $data['diaChi'],
             'soDienThoai' => $data['soDienThoai'],
-        ];
-    }
-
-    private function getSortValues()
-    {
-        return [
-            'sortCol' => $_GET['sortCol'],
-            'order' => $_GET['order']
         ];
     }
 

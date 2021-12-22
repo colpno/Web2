@@ -49,6 +49,13 @@ class HoaDonController extends BaseController
         return $hoaDon;
     }
 
+    public function getAll()
+    {
+        $hoaDon  = [];
+        $hoaDon = $this->hoaDonModel->getAll();
+        return $hoaDon;
+    }
+
     public function getMax($col)
     {
         return array_values($this->hoaDonModel->getMaxCol($col))[0];
@@ -174,14 +181,13 @@ class HoaDonController extends BaseController
         }
     }
 
-    public function sort()
+    public function sort($data)
     {
         if (
-            $_GET['sortCol']
-            && $_GET['order']
+            $data['sortCol']
+            && $data['order']
         ) {
-            $sortValues = $this->getSortValues();
-            $sorted = $this->hoaDonModel->sort($sortValues, $this->getPage());
+            $sorted = $this->hoaDonModel->sort($data, $this->getPage());
             $numOfPages = $this->getNumOfPages($sorted['pages']);
 
             $sorted['pages'] = $numOfPages;
@@ -202,14 +208,6 @@ class HoaDonController extends BaseController
             'maNV' => $data['maNV'],
             'ngayLapHoaDon' => $data['ngayLapHoaDon'],
             'tongTien' => $data['tongTien'],
-        ];
-    }
-
-    private function getSortValues()
-    {
-        return [
-            'sortCol' => $_GET['sortCol'],
-            'order' => $_GET['order']
         ];
     }
 

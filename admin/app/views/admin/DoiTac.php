@@ -50,8 +50,9 @@
                             <i class="nhacungcap--delete far fa-trash-alt " onclick="multiDel(this)"></i>
                             <input type="checkbox" class="nhacungcap__master-checkbox" onclick=" checkAll(this)">
                         </div>
+                        <h6 class="center nhacungcap-item-title col-1">Mã NCC</h6>
                         <h6 class="center nhacungcap-item-title col-3">Tên nhà cung cấp</h6>
-                        <h6 class="center nhacungcap-item-title col-4">Địa chỉ</h6>
+                        <h6 class="center nhacungcap-item-title col-3">Địa chỉ</h6>
                         <h6 class="center nhacungcap-item-title col-2">Số điện thoại</h6>
                         <h6 class="center nhacungcap-item-title col-2">Thao tác</h6>
                     </div>
@@ -67,8 +68,9 @@
                                 <div class="checkbox col-1 ">
                                     <input type="checkbox" class="nhacungcap__checkbox" value="' . $NhaCungCap[$i]['maNCC'] . '"></input>
                                 </div>
+                                <span class="center-left col-1 row-' . $NhaCungCap[$i]['maNCC'] . ' tenNCC">' . $NhaCungCap[$i]['maNCC'] . '</span>
                                 <span class="center-left col-3 row-' . $NhaCungCap[$i]['maNCC'] . ' tenNCC">' . $NhaCungCap[$i]['tenNCC'] . '</span>
-                                <span class="center-left col-4 row-' . $NhaCungCap[$i]['maNCC'] . ' diaChi">' . $NhaCungCap[$i]['diaChi'] . '</span>
+                                <span class="center-left col-3 row-' . $NhaCungCap[$i]['maNCC'] . ' diaChi">' . $NhaCungCap[$i]['diaChi'] . '</span>
                                 <span class="center col-2 row-' . $NhaCungCap[$i]['maNCC'] . ' soDienThoai">' . $NhaCungCap[$i]['soDienThoai'] . '</span>
                                 <div class="center col-2">
                                     <a href="#sua-nhacungcap" class="nhacungcap-' . $NhaCungCap[$i]['maNCC'] . ' btn" onclick="updateOne(this)"><i class="far fa-edit"></i></a>
@@ -116,8 +118,9 @@
                             <i class="nhasanxuat--delete far fa-trash-alt " onclick="multiDel(this)"></i>
                             <input type="checkbox" class="nhasanxuat__master-checkbox" onclick="checkAll(this)"></input>
                         </div>
+                        <h6 class="center nhasanxuat-item-title col-1">Mã NSX</h6>
                         <h6 class="center nhasanxuat-item-title col-3">Tên nhà sản xuất</h6>
-                        <h6 class="center nhasanxuat-item-title col-4">Địa chỉ</h6>
+                        <h6 class="center nhasanxuat-item-title col-3">Địa chỉ</h6>
                         <h6 class="center nhasanxuat-item-title col-2">Số điện thoại</h6>
                         <h6 class="center nhasanxuat-item-title col-2">Thao tác</h6>
                     </div>
@@ -133,8 +136,9 @@
                                 <div class="checkbox col-1 ">
                                     <input type="checkbox" class="nhasanxuat__checkbox" value="' . $NhaSanXuat[$i]['maNSX'] . '"></input>
                                 </div>
+                                <span class="center-left col-1 row-' . $NhaSanXuat[$i]['maNSX'] . ' tenNSX">' . $NhaSanXuat[$i]['maNSX'] . '</span>
                                 <span class="center-left col-3 row-' . $NhaSanXuat[$i]['maNSX'] . ' tenNSX">' . $NhaSanXuat[$i]['tenNSX'] . '</span>
-                                <span class="center-left col-4 row-' . $NhaSanXuat[$i]['maNSX'] . ' diaChi">' . $NhaSanXuat[$i]['diaChi'] . '</span>
+                                <span class="center-left col-3 row-' . $NhaSanXuat[$i]['maNSX'] . ' diaChi">' . $NhaSanXuat[$i]['diaChi'] . '</span>
                                 <span class="center col-2 row-' . $NhaSanXuat[$i]['maNSX'] . ' soDienThoai">' . $NhaSanXuat[$i]['soDienThoai'] . '</span>
                                 <div class="center col-2">
                                     <a href="#sua-nhasanxuat" class="nhasanxuat-' . $NhaSanXuat[$i]['maNSX'] . ' btn" onclick="updateOne(this)"><i class="far fa-edit"></i></a>

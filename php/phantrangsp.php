@@ -28,8 +28,13 @@ if (count($spArr) < 1) {
         }
 
         echo "  <div class='product-item mb-4'>
-                    <div class='product-item__img' style='background-image:url(" .  $value['anhDaiDien'] . ");'></div>
-                    <div class='product-item__content'>
+                    <div class='product-item__img'";
+        if (strpos($value['anhDaiDien'], 'Web2') !== false) {
+            echo " style='background-image:url(" .  $value['anhDaiDien'] . ");'>";
+        } else {
+            echo " style='padding: 0'><img src='/Web2/admin/" .  $value['anhDaiDien'] . "'>";
+        }
+        echo "</div><div class='product-item__content'>
                         <div class='product-item__name'>" . $value['tenSP'] . "</div>
                         <div class='product-item__price'>
                             <div class='product-item__price__content'>

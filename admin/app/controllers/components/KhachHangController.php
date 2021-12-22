@@ -83,16 +83,33 @@ class KhachHangController extends BaseController
 
     public function delete($data)
     {
-        if (
-            $data['maKH']
-        ) {
-            $remove = [
-                'id' => $data['maKH'],
-            ];
-            $this->khachHangModel->delete($remove);
-            return $this->get();
+        if (is_array($data)) {
+            if (isset($data['maTK'])) {
+                $data['maKH'] = $data['maTK'];
+            }
+            if (
+                $data['maKH']
+            ) {
+                $remove = [
+                    'id' => $data['maKH'],
+                ];
+                if (isset($data['maTK'])) {
+                    return $this->khachHangModel->delete($remove, 'maTK');
+                }
+                $this->khachHangModel->delete($remove, 'maKH');
+                return $this->get();
+            } else {
+                $this->alert->alert("Thiếu thông tin cần thiết để xóa");
+            }
         } else {
-            $this->alert->alert("Thiếu thông tin cần thiết để xóa");
+            $remove = [
+                'id' => $data,
+            ];
+            if (isset($data['maTK'])) {
+                return $this->khachHangModel->delete($remove, 'maTK');
+            }
+            $this->khachHangModel->delete($remove, 'maTK');
+            return $this->get();
         }
     }
 
@@ -155,14 +172,13 @@ class KhachHangController extends BaseController
         }
     }
 
-    public function sort()
+    public function sort($data)
     {
         if (
-            $_GET['sortCol']
-            && $_GET['order']
+            $data['sortCol']
+            && $data['order']
         ) {
-            $sortValues = $this->getSortValues();
-            $sorted = $this->khachHangModel->sort($sortValues, $this->getPage());
+            $sorted = $this->khachHangModel->sort($data, $this->getPage());
             $numOfPages = $this->getNumOfPages($sorted['pages']);
 
             $sorted['pages'] = $numOfPages;
@@ -185,14 +201,6 @@ class KhachHangController extends BaseController
             'soDienThoai' => $data['soDienThoai'],
             'ngaySinh' => $data['ngaySinh'],
             'diaChi' => $data['diaChi'],
-        ];
-    }
-
-    private function getSortValues()
-    {
-        return [
-            'sortCol' => $_GET['sortCol'],
-            'order' => $_GET['order']
         ];
     }
 

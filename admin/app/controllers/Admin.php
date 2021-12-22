@@ -196,7 +196,7 @@ class admin
             'NhanVien' => $this->nhanVien->thongke(null, null, 'luong'),
             'HoaDon' => $this->hoaDon->thongke(null, null, 'ngayLapHoaDon', 'tongTien'),
             'PhieuNhapHang' => $this->phieuNhapHang->thongke(null, null, 'ngayNhap', 'tongTien'),
-            'SanPham' => $this->sanPham->thongke(null, null, 'donViTinh'),
+            'SanPham' => $this->sanPham->thongke(null, null, 'donViTinh')
         ];
         if (isset($data['action'], $data['table'])) {
             $returnBack = [
@@ -234,6 +234,30 @@ class admin
         if (isset($data['action'], $data['table'])) {
             $returnBack = $this->action($data['table'], $data['action'], $data);
         }
+
+        return $returnBack;
+    }
+
+    public function dudoan($data)
+    {
+        $components = ['HoaDon', 'ChiTietHoaDon', 'SanPham'];
+        foreach ($components as  $component) {
+            require_once(__DIR__ . '/components/' . $component . 'Controller.php');
+            require_once(__DIR__ . '/../models/' . $component . 'Model.php');
+        }
+        $components = array_map(function ($component) {
+            return $component . 'Controller';
+        }, $components);
+
+        $this->hoaDon = new $components[0];
+        $this->chiTietHoaDon = new $components[1];
+        $this->sanPham = new $components[2];
+
+        $returnBack = [
+            'HoaDon' => $this->hoaDon->getAll(),
+            'ChiTietHoaDon' => $this->chiTietHoaDon->getAll(),
+            'SanPham' => $this->sanPham->thongke(null, null, 'maSP', 'tenSP', 'soLuong'),
+        ];
 
         return $returnBack;
     }

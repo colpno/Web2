@@ -1,6 +1,5 @@
 $(document).ready(function () {
-    const kiemKhoangTrangArr = ['tenNCC', 'tenNSX'],
-        kiemSoDienThoaiArr = ['soDienThoai'],
+    const kiemSoDienThoaiArr = ['soDienThoai'],
         kiemDiaChiArr = ['diaChi'];
 
     $('.add-content').submit(function (e) {
@@ -39,12 +38,6 @@ $(document).ready(function () {
                         count++;
                     }
                 }
-
-                if (kiemKhoangTrangArr.includes(name)) {
-                    if (kiemKhongKhoangTrang(value, name) === false) {
-                        count++;
-                    }
-                }
             });
 
             if (count === 0) {
@@ -76,7 +69,7 @@ $(document).ready(function () {
                     contentType: false,
                     processData: false,
                     success: function (data) {
-                        if (isJson(data)) {
+                        if (isJson(data) && data != null) {
                             const json = JSON.parse(data);
                             if (json.data != null) {
                                 $(`.${table}--show`).html(getHTML(table, json.data));
@@ -118,12 +111,6 @@ $(document).ready(function () {
                         count++;
                     }
                 }
-
-                if (kiemKhoangTrangArr.includes(name)) {
-                    if (kiemKhongKhoangTrang(value, name) === false) {
-                        count++;
-                    }
-                }
             });
 
             if (count == 0) {
@@ -150,7 +137,7 @@ $(document).ready(function () {
                     contentType: false,
                     processData: false,
                     success: function (data) {
-                        if (isJson(data)) {
+                        if (isJson(data) && data != null && data != null) {
                             const json = JSON.parse(data);
                             if (json.data != null) {
                                 $(`.${table}--show`).html(getHTML(table, json.data));
@@ -164,6 +151,63 @@ $(document).ready(function () {
                 });
             }
         }
+    });
+
+    $('.sort-content').on('submit', function (e) {
+        e.preventDefault();
+
+        const that = $(this),
+            fd = new FormData(),
+            clas = e.target.getAttribute('class'),
+            table = clas.substring(clas.lastIndexOf(' ') + 1, clas.lastIndexOf('__'));
+
+        fd.append('action', 'sort');
+        fd.append('table', table);
+
+        let sortCol, order;
+        that.find('[name]').each(function () {
+            const that = $(this),
+                name = that.attr('name'),
+                val = that.val();
+
+            fd.append(name, val);
+
+            if (name == 'sortCol') {
+                sortCol = val;
+            }
+            if (name == 'order') {
+                order = val;
+            }
+        });
+
+        let params = `?sortCol=${sortCol}&order=${order}&page=1`;
+        const newurl =
+            window.location.protocol +
+            '//' +
+            window.location.host +
+            window.location.pathname +
+            params;
+        window.history.pushState({ path: newurl }, '', newurl);
+        params = `?controller=admin&action=doitac&` + params.substring(1);
+
+        $.ajax({
+            url: '/Web2/admin/app/index.php' + params,
+            type: 'post',
+            data: fd,
+            contentType: false,
+            processData: false,
+            success: function (data) {
+                if (isJson(data) && data != null) {
+                    const json = JSON.parse(data);
+                    if (json.data != null) {
+                        $(`.${table}--show`).html(getHTML(table, json.data));
+                        $(`.${table}__row .paginate`).html(renderPaginate(table, json.pages));
+                    }
+                } else {
+                    alert(data);
+                }
+            },
+        });
     });
 
     const toggleAddContents = ['nhacungcap', 'nhasanxuat'];
@@ -203,6 +247,13 @@ function ajaxPaginate(ele) {
         fd.append('to', url.searchParams.get('to'));
         fd.append('action', 'filter');
     }
+    if (params.includes('sortCol')) {
+        const url_string = window.location.href,
+            url = new URL(url_string);
+        fd.append('sortCol', url.searchParams.get('sortCol'));
+        fd.append('order', url.searchParams.get('order'));
+        fd.append('action', 'sort');
+    }
 
     $.ajax({
         url: '/Web2/admin/app/index.php' + params,
@@ -211,7 +262,7 @@ function ajaxPaginate(ele) {
         contentType: false,
         processData: false,
         success: function (data) {
-            if (isJson(data)) {
+            if (isJson(data) && data != null) {
                 const json = JSON.parse(data);
                 const parent = ele.parentNode;
                 parent.querySelector('.current-page').classList.remove('current-page');
@@ -311,7 +362,7 @@ function ajaxDeleteOne(ele) {
             contentType: false,
             processData: false,
             success: function (data) {
-                if (isJson(data)) {
+                if (isJson(data) && data != null) {
                     const json = JSON.parse(data);
                     if (json.data != null) {
                         $(`.${str}--show`).html(getHTML(str, json.data));
@@ -366,7 +417,7 @@ function ajaxMultiDel(ele) {
                 contentType: false,
                 processData: false,
                 success: function (data) {
-                    if (isJson(data)) {
+                    if (isJson(data) && data != null) {
                         const json = JSON.parse(data);
                         if (json.data != null) {
                             $(`.${str}--show`).html(getHTML(str, json.data));

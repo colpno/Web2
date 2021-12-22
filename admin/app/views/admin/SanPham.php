@@ -41,7 +41,14 @@
                         ?>
                         <img src="/Web2/admin/public/images/Icon/increase.png" />
                     </div>
-                    <p>Số lượng sản phẩm ít nhất</p>
+                    <?php
+                    if (isset($_SESSION['get']['SanPham'])) {
+                        $name = $_SESSION['get']['SanPham']['SPMin']['tenSP'];
+                        $id = $_SESSION['get']['SanPham']['SPMin']['maSP'];
+                        echo "<p>Sản phẩm có số lượng ít nhất: " . $name . " (id:" . $id . ")</p>";
+                    }
+                    ?>
+
                 </div>
             </div>
         </div>
@@ -49,15 +56,16 @@
             <div class="col-lg-8 col-sm-12">
                 <div class="sanpham__row content-row">
                     <div class="content-item__header">
-                        <span>Sản phẩm mới</span>
-                        <div>
+                        <span>Sản phẩm</span>
+                        <div class="content-item__header__tools">
                             <button class="sanpham--add "><i class="fas fa-plus"></i></button>
+                            <button class="sanpham--sort "><i class="fas fa-sort"></i></button>
                             <button class="sanpham--filter"><i class="fas fa-filter"></i></button>
                         </div>
                     </div>
                     <form class="hidden add-content sanpham__add-content" id="sua-sanpham">
                         <select name="maLoai">
-                            <option value="">Loại</option>
+                            <option value="" disabled>Loại</option>
                             <?php
                             if (isset($_SESSION['get']['Loai'])) {
                                 $data = $_SESSION['get']['Loai']['selectDisplay'];
@@ -68,7 +76,7 @@
                             ?>
                         </select>
                         <select name="maNSX">
-                            <option value="">Nhà sản xuất</option>
+                            <option value="" disabled>Nhà sản xuất</option>
                             <?php
                             if (isset($_SESSION['get']['NhaSanXuat'])) {
                                 $data = $_SESSION['get']['NhaSanXuat'];
@@ -88,7 +96,7 @@
                                 <div>
                                     <input type="text" name="donGia" placeholder="Giá">
                                     <select name="donViTinh">
-                                        <option value="">Đơn vị</option>
+                                        <option value="" disabled>Đơn vị</option>
                                         <?php
                                         if (isset($_SESSION['get']['SanPham'])) {
                                             $array = $_SESSION['get']['SanPham']['selectDisplay'];
@@ -110,6 +118,17 @@
                         </div>
                         <input type="submit" value="Thêm">
                     </form>
+                    <form class="hidden sort-content sanpham__sort-content">
+                        <select class="sort-col" name="sortCol">
+                            <option value="donGia">Số tiền</option>
+                            <option value="soLuong">Số lượng</option>
+                        </select>
+                        <select class="sort-order" name="order">
+                            <option value="asc">Tăng dần</option>
+                            <option value="desc">Giảm dần</option>
+                        </select>
+                        <input type="submit" value="Sắp xếp">
+                    </form>
                     <form class="hidden filter-content sanpham__filter-content">
                         <div>
                             <select name="filterCol">
@@ -130,8 +149,9 @@
                             </div>
                             <h6 class="center sanpham-item-title col-2">Hình ảnh</h6>
                             <h6 class="center sanpham-item-title col-3">Tên bánh</h6>
+                            <h6 class="center sanpham-item-title col-1">Tên loại</h6>
                             <h6 class="center sanpham-item-title col-2">Số tiền</h6>
-                            <h6 class="center sanpham-item-title col-2">Số lượng</h6>
+                            <h6 class="center sanpham-item-title col-1">Số lượng</h6>
                             <h6 class="center sanpham-item-title col-2">Thao tác</h6>
                         </div>
                     </div>
@@ -148,14 +168,15 @@
                                     <input type="checkbox" class="sanpham__checkbox row-' . $SanPham[$i]['maSP'] . '" value="' . $SanPham[$i]['maSP'] . '"></input>
                                 </div>
                                 <div class="center col-2 ">
-                                    <img class="sanpham-' . $SanPham[$i]['maSP'] . ' row-' . $SanPham[$i]['maSP'] . ' anhDaiDien" src="' . $SanPham[$i]['anhDaiDien'] . '" onError="' . $onerror . ';"  />
+                                    <img class="sanpham-' . $SanPham[$i]['maSP'] . ' row-' . $SanPham[$i]['maSP'] . ' anhDaiDien" src="' . $SanPham[$i]['anhDaiDien'] . '" onError="' . $onerror . ';" style="border-radius: 8px"/>
                                 </div>
                                 <span class="hidden row-' . $SanPham[$i]['maSP'] . ' maLoai">' . $SanPham[$i]['loaiSanPham']['maLoai'] . '</span>
                                 <span class="hidden row-' . $SanPham[$i]['maSP'] . ' maNSX">' . $SanPham[$i]['nhaSanXuat']['maNSX'] . '</span>
                                 <span class="hidden row-' . $SanPham[$i]['maSP'] . ' moTa">' . $SanPham[$i]['moTa'] . '</span>
                                 <span class="center-left col-3  row-' . $SanPham[$i]['maSP'] . ' tenSP">' . $SanPham[$i]['tenSP'] . '</span>
+                                <span class="center-left col-1  row-' . $SanPham[$i]['maSP'] . ' tenLoai">' . $SanPham[$i]['loaiSanPham']['tenLoai'] . '</span>
                                 <span class="center-right col-2  row-' . $SanPham[$i]['maSP'] . ' donGia">' . $SanPham[$i]['donGia'] . ' ' . $SanPham[$i]['donViTinh'] . '</span>
-                                <span class="center col-2  row-' . $SanPham[$i]['maSP'] . ' soLuong">' . $SanPham[$i]['soLuong'] . '</span>
+                                <span class="center col-1  row-' . $SanPham[$i]['maSP'] . ' soLuong">' . $SanPham[$i]['soLuong'] . '</span>
                                 <div class="center col-2 ">
                                     <a href="#sua-sanpham" class="sanpham-' . $SanPham[$i]['maSP'] . ' btn" onclick="updateOne(this)"><i class="far fa-edit"></i></a>
                                     <button class="sanpham-' . $SanPham[$i]['maSP'] . ' btn" onclick="deleteOne(this)"><i class="far fa-trash-alt"></i></button>

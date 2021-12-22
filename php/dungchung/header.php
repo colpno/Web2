@@ -89,23 +89,23 @@ $sp = new SanPhamDB();
       <button type="button" class="form-login__header__item" onclick="register()">Đăng ký</button>
     </div>
     <div id="login" class="form-login__content">
-      <input type="text" id="login-text" class="form-login__input form-control" name="userlogin" placeholder="Tên tài khoản">
-      <input type="password" class="form-login__input form-control" name="passlogin" placeholder="Mật khẩu">
+      <input type="text" id="login-text" autocomplete="off" class="form-login__input form-control" name="userlogin" placeholder="Tên tài khoản">
+      <input type="password" autocomplete="off" class="form-login__input form-control" name="passlogin" placeholder="Mật khẩu">
       <button type="button" id="button-login" class="form-button">Đăng nhập</button>
       <div id="form-login-tk"></div>
       <div id="form-login-matkhau"></div>
       <div id="form-login-success"></div>
     </div>
     <div id="register" class="form-login__content">
-      <input type="text" id="register-text" class="form-login__input form-control" name="userregister" placeholder="Tên tài khoản">
+      <input type="text" id="register-text" autocomplete="off" class="form-login__input form-control" name="userregister" placeholder="Tên tài khoản">
       <div id="form-error"></div>
-      <input type="password" class="form-login__input form-control" name="passregister" placeholder="Mật khẩu">
+      <input type="password" autocomplete="off" class="form-login__input form-control" name="passregister" placeholder="Mật khẩu">
       <div class="form-login__input form-hoten">
-        <input type="text" class="form-control form-ho" name="horegister" placeholder="Họ">
-        <input type="text" class="form-control form-ten" name="tenregister" placeholder="Tên">
+        <input type="text" autocomplete="off" class="form-control form-ho" name="horegister" placeholder="Họ">
+        <input type="text" autocomplete="off" class="form-control form-ten" name="tenregister" placeholder="Tên">
       </div>
       <!--<input type="text" class="form-login__input form-control" name="addressregister" placeholder="Địa chỉ">-->
-      <input type="text" class="form-login__input form-control" name="phoneregister" placeholder="Số điện thoại">
+      <input type="text" autocomplete="off" class="form-login__input form-control" name="phoneregister" placeholder="Số điện thoại">
       <button type="button" id="button-register" class="form-button">Đăng ký</button>
       <div id="form-register-tk"></div>
       <div id="form-register-matkhau"></div>

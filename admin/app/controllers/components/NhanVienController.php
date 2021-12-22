@@ -74,7 +74,6 @@ class NhanVienController extends BaseController
             && $data['luong']
         ) {
             $id = $data['maNV'];
-            //  
             $values = $this->getValues($data);
             $this->nhanVienModel->update($values, $id);
             return $this->get();
@@ -85,16 +84,33 @@ class NhanVienController extends BaseController
 
     public function delete($data)
     {
-        if (
-            $data['maNV']
-        ) {
-            $remove = [
-                'id' => $data['maNV'],
-            ];
-            $this->nhanVienModel->delete($remove);
-            return $this->get();
+        if (is_array($data)) {
+            if (isset($data['maTK'])) {
+                $data['maNV'] = $data['maTK'];
+            }
+            if (
+                $data['maNV']
+            ) {
+                $remove = [
+                    'id' => $data['maNV'],
+                ];
+                if (isset($data['maTK'])) {
+                    return $this->nhanVienModel->delete($remove, 'maTK');
+                }
+                $this->nhanVienModel->delete($remove, 'maNV');
+                return $this->get();
+            } else {
+                $this->alert->alert("Thiếu thông tin cần thiết để xóa");
+            }
         } else {
-            $this->alert->alert("Thiếu thông tin cần thiết để xóa");
+            $remove = [
+                'id' => $data,
+            ];
+            if (isset($data['maTK'])) {
+                return $this->nhanVienModel->delete($remove, 'maTK');
+            }
+            $this->nhanVienModel->delete($remove, 'maTK');
+            return $this->get();
         }
     }
 
@@ -157,14 +173,13 @@ class NhanVienController extends BaseController
         }
     }
 
-    public function sort()
+    public function sort($data)
     {
         if (
-            $_GET['sortCol']
-            && $_GET['order']
+            $data['sortCol']
+            && $data['order']
         ) {
-            $sortValues = $this->getSortValues();
-            $sorted = $this->nhanVienModel->sort($sortValues, $this->getPage());
+            $sorted = $this->nhanVienModel->sort($data, $this->getPage());
             $numOfPages = $this->getNumOfPages($sorted['pages']);
 
             $sorted['pages'] = $numOfPages;
@@ -188,14 +203,6 @@ class NhanVienController extends BaseController
             'diaChi' => $data['diaChi'],
             'soDienThoai' => $data['soDienThoai'],
             'luong' => $data['luong'],
-        ];
-    }
-
-    private function getSortValues()
-    {
-        return [
-            'sortCol' => $_GET['sortCol'],
-            'order' => $_GET['order']
         ];
     }
 

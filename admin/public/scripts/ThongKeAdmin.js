@@ -1,27 +1,31 @@
-$(document).ready(function () {
-    $(window).resize(function (e) {
-        e.preventDefault();
-    });
-});
-
 function ajaxChangeReport(ele) {
     switch (ele.value) {
         case 'tongthu': {
             $('.tongthu').removeClass('hidden');
             $('.doanhthu').addClass('hidden');
             $('.taikhoan-report').addClass('hidden');
+            $('.sanphamban').addClass('hidden');
             break;
         }
         case 'doanhthu': {
             $('.tongthu').addClass('hidden');
             $('.doanhthu').removeClass('hidden');
             $('.taikhoan-report').addClass('hidden');
+            $('.sanphamban').addClass('hidden');
             break;
         }
         case 'taikhoan-report': {
             $('.tongthu').addClass('hidden');
             $('.doanhthu').addClass('hidden');
             $('.taikhoan-report').removeClass('hidden');
+            $('.sanphamban').addClass('hidden');
+            break;
+        }
+        case 'sanphamban': {
+            $('.tongthu').addClass('hidden');
+            $('.doanhthu').addClass('hidden');
+            $('.taikhoan-report').addClass('hidden');
+            $('.sanphamban').removeClass('hidden');
             break;
         }
     }
@@ -37,28 +41,48 @@ function ajaxChangeYear(ele) {
             action: 'thongke',
         },
         success: function (data) {
-            if (isJson(data)) {
+            if (isJson(data) && data != null) {
                 const json = JSON.parse(data),
                     idString = ele.getAttribute('id'),
                     table = idString.substring(0, idString.indexOf('-'));
 
-                if (json.data != null) {
-                    let html = '';
-                    switch (table) {
-                        case 'tongthu': {
-                            html += renderTongThu(json);
-                            break;
-                        }
-                        case 'doanhthu': {
-                            html += renderDoanhThu(json);
-                            break;
-                        }
-                        case 'taikhoan': {
-                            html += renderTaiKhoan(json);
-                            break;
-                        }
+                let html = '';
+                switch (table) {
+                    case 'tongthu': {
+                        html += renderTongThu(json);
+                        break;
                     }
-                    $(`.${table} .chart-layout`).html(html);
+                    case 'doanhthu': {
+                        html += renderDoanhThu(json);
+                        break;
+                    }
+                    case 'taikhoan-report': {
+                        html += renderTaiKhoan(json);
+                        break;
+                    }
+                }
+                if (html == '') {
+                    html = '';
+                    for (let i = 0; i < 12; i++) {
+                        html += `
+                    <div>
+                        <div
+                            class="chart-layout__item thang-${i + 1}"
+                            style="--percent: 0%">
+                            <p>0</p>
+                        </div>
+                        <span>${i}</span>
+                    </div>
+                       `;
+                    }
+                    $(`.${table}-report .chart-layout`).html(html);
+                    $(`.summary-${table}-report`).text(numberWithCommas(0));
+                } else {
+                    if (table == 'taikhoan') {
+                        $(`.${table}-report .chart-layout`).html(html);
+                    } else {
+                        $(`.${table} .chart-layout`).html(html);
+                    }
                 }
             } else {
                 alert(data);
@@ -273,7 +297,7 @@ function renderTaiKhoan(list) {
     taiKhoanTaoHangThang.forEach((element) => {
         tong += parseInt(element.soLuong);
     });
-    $('.summary-taikhoan').text(numberWithCommas(tong));
+    $('.summary-taikhoan-report').text(numberWithCommas(tong));
 
     return html;
 }

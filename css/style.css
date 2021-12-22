@@ -548,6 +548,15 @@ a:hover {
 .cart-list-subtotal__number__icon,
 .cart-list-total__number__icon {
 }
+.cart-list-input-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100px;
+    height: 30px;
+    border: 1px solid #333;
+}
+
 .info-cart-list {
     padding: 50px 0;
     margin: 50px 0;
@@ -792,6 +801,10 @@ a.menu-info:hover {
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
+}
+.product-item__img img {
+    width: 255px;
+    height: 255px;
 }
 .product-item__content {
     padding: 10px 20px 10px 30px;
