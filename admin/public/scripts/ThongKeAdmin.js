@@ -4,28 +4,28 @@ function ajaxChangeReport(ele) {
             $('.tongthu').removeClass('hidden');
             $('.doanhthu').addClass('hidden');
             $('.taikhoan-report').addClass('hidden');
-            $('.sanphamban').addClass('hidden');
+            // $('.sanphamban').addClass('hidden');
             break;
         }
         case 'doanhthu': {
             $('.tongthu').addClass('hidden');
             $('.doanhthu').removeClass('hidden');
             $('.taikhoan-report').addClass('hidden');
-            $('.sanphamban').addClass('hidden');
+            // $('.sanphamban').addClass('hidden');
             break;
         }
         case 'taikhoan-report': {
             $('.tongthu').addClass('hidden');
             $('.doanhthu').addClass('hidden');
             $('.taikhoan-report').removeClass('hidden');
-            $('.sanphamban').addClass('hidden');
+            // $('.sanphamban').addClass('hidden');
             break;
         }
         case 'sanphamban': {
             $('.tongthu').addClass('hidden');
             $('.doanhthu').addClass('hidden');
             $('.taikhoan-report').addClass('hidden');
-            $('.sanphamban').removeClass('hidden');
+            // $('.sanphamban').removeClass('hidden');
             break;
         }
         default: {

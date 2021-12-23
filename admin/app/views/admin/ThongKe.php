@@ -10,7 +10,7 @@
                         <option value="tongthu">Lợi nhuận</option>
                         <option value="doanhthu">Thu từ hóa đơn</option>
                         <option value="taikhoan-report">Số lượng khách mới</option>
-                        <option value="sanphamban">Số lượng sản phẩm bán ra</option>
+                        <!-- <option value="sanphamban">Số lượng sản phẩm bán ra</option> -->
                     </select>
                 </div>
             </div>
@@ -278,28 +278,28 @@
         <div class="col-12 sanphamban ">
             <div class="content-row" style="overflow: hidden;">
                 <div class="chart-head">Số sản phẩm bán ra</div>
-                <div class="asd" style="display: flex;justify-content: space-between;align-items: flex-end;padding: 0 50px 20px 20px">
-                    <div class="search-wrapper">
+                <div class="asd" style="display: flex;justify-content: flex-end;align-items: flex-end;padding: 0 50px 20px 20px">
+                    <!-- <div class="search-wrapper">
                         <i class="fas fa-search"></i>
-                        <input type="text" id="sanphamban-search-input" name="search" placeholder="Search" oninput="thongKeSanPhamSearch()">
+                        <input type="text" id="sanphamban-search-input" name="search" placeholder="Search" oninput="thongKeSanPhamSearch(this)">
                         <select name="item-search" id="sanphamban-search-select">
                             <?php
-                            $SanPham = [
-                                [
-                                    'value' => 'tenSP',
-                                    'display' => 'Tên bánh'
-                                ],
-                                [
-                                    'value' => 'maSP',
-                                    'display' => 'Mã sản phẩm'
-                                ],
-                            ];
-                            foreach ($SanPham as $key => $value) {
-                                echo '<option value="' . $value['value'] . '">' . $value['display'] . '</option>';
-                            }
+                            // $SanPham = [
+                            //     [
+                            //         'value' => 'tenSP',
+                            //         'display' => 'Tên bánh'
+                            //     ],
+                            //     [
+                            //         'value' => 'maSP',
+                            //         'display' => 'Mã sản phẩm'
+                            //     ],
+                            // ];
+                            // foreach ($SanPham as $key => $value) {
+                            //     echo '<option value="' . $value['value'] . '">' . $value['display'] . '</option>';
+                            // }
                             ?>
                         </select>
-                    </div>
+                    </div> -->
                     <span>Năm:
                         <select name="" id="sanphamban-nam-select" onchange="changeYear(this)">
                             <?php
@@ -465,7 +465,14 @@
 
     }
 
-    function thongKeSanPhamSearch() {
+    let timer = 0;
 
+    function thongKeSanPhamSearch(ele) {
+        if (timer) {
+            clearTimeout(timer);
+        }
+        timer = setTimeout(() => {
+            find(ele.value, 'sanpham')
+        }, 300);
     }
 </script>
