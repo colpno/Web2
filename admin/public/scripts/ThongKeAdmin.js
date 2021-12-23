@@ -28,6 +28,9 @@ function ajaxChangeReport(ele) {
             $('.sanphamban').removeClass('hidden');
             break;
         }
+        default: {
+            break;
+        }
     }
 }
 
@@ -206,7 +209,6 @@ function renderTongThu(list) {
         if (thang != thangMax) {
             if (tongTien < 0 || max < 0) {
                 tongTien = 0;
-                max = 0;
             }
             const formated = numberWithCommas(tongTien);
             if (tongTien > 0 && max > 0) {
@@ -219,11 +221,11 @@ function renderTongThu(list) {
                 </div>`;
         }
         if (thang == thangMax) {
-            let formated = 0;
-            if (max > 0) {
-                formated = numberWithCommas(max);
+            max = max > 0 ? max : 0;
+            if (tongTien > 0 && max > 0) {
                 percent = 100;
             }
+            const formated = numberWithCommas(max);
             html += `
                 <div>
                     <div class='chart-layout__item thang-${thangMax}' style='--percent: ${percent}%'><p>${formated}</p></div>

@@ -89,6 +89,10 @@
     top: -23px;
 }
 
+.sanphamban--show span {
+    height: 40px;
+}
+
 @keyframes growUp {
     from {
         opacity: 0;

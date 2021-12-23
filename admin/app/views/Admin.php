@@ -87,8 +87,7 @@
             }
             ?>
 
-            <p style="color: #fff;position: absolute; bottom: 50px; left: 20px;">Terms & Services</p>
-            <p style="color: #fff;position: absolute;bottom: 25px; left: 20px;">Privacy Policy</p>
+            <p style="color: #fff;position: absolute;bottom: 50px;left: 20px;width: 150px">Terms & Services Privacy Policy</p>
 
 
             <!--  

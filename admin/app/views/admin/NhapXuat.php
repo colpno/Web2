@@ -55,11 +55,15 @@
                         }
                         ?>
                     </select>
-                    <select name="maNV" disabled>
-                        <?php
-                        echo '<option value="">' . $userC['maKH'] . ' - ' . $userC['ho'] . ' ' . $userC['ten'] . '</option>';
-                        ?>
-                    </select>
+                    <?php
+                    if ($userC['quyen'] != 1) {
+                        echo '<span class="hidden" name="maNV">' . $userC['maKH'] . '</span>';
+                    } else {
+                        echo '<span class="hidden" name="maNV">NULL</span>';
+                    }
+                    ?>
+                    <!-- <select name="maNV" title="ok">
+                    </select> -->
                     <?php
                     echo '<input type="text" id="ngayNhapHang" name="ngayNhap" disabled style="color: rgb(170, 170, 170);border-color: rgba(118, 118, 118, 0.3);">';
                     ?>
@@ -115,10 +119,25 @@
                                 </div>
                                 <span class="hidden row-' . $PhieuNhapHang[$i]['maPhieu'] . ' maPhieu">' . $PhieuNhapHang[$i]['maPhieu'] . '</span>
                                 <span class="hidden row-' . $PhieuNhapHang[$i]['maPhieu'] . ' maNCC">' . $PhieuNhapHang[$i]['nhaCungCap']['maNCC'] . '</span>
-                                <span class="hidden row-' . $PhieuNhapHang[$i]['maPhieu'] . ' maNV">' . $PhieuNhapHang[$i]['nhanVien']['maNV'] . '</span>
+                                <span class="hidden row-' . $PhieuNhapHang[$i]['maPhieu'] . ' maNV">';
+
+                            if (isset($PhieuNhapHang[$i]['nhanVien']['maTK']) && $PhieuNhapHang[$i]['nhanVien']['maTK'] != 2) {
+                                echo $PhieuNhapHang[$i]['nhanVien']['maNV'];
+                            } else {
+                                echo NULL;
+                            }
+                            echo '
+                                </span>
                                 <span class="center col-1 row-' . $PhieuNhapHang[$i]['maPhieu'] . '">' . $PhieuNhapHang[$i]['maPhieu'] . '</span>
                                 <span class="center-left col-2">' . $PhieuNhapHang[$i]['nhaCungCap']['tenNCC'] . '</span>
-                                <span class="center-left col-2">' . $PhieuNhapHang[$i]['nhanVien']['ho'] . ' ' . $PhieuNhapHang[$i]['nhanVien']['ten'] . '</span>
+                                <span class="center-left col-2">';
+                            if (isset($PhieuNhapHang[$i]['nhanVien']['maTK']) && $PhieuNhapHang[$i]['nhanVien']['maTK'] != 2) {
+                                echo $PhieuNhapHang[$i]['nhanVien']['ho'] . ' ' . $PhieuNhapHang[$i]['nhanVien']['ten'];
+                            } else {
+                                echo 'Admin';
+                            }
+                            echo '
+                                </span>
                                 <span class="center col-2 row-' . $PhieuNhapHang[$i]['maPhieu'] . ' ngayNhap">' . $PhieuNhapHang[$i]['ngayNhap'] . '</span>
                                 <span class="center col-2 row-' . $PhieuNhapHang[$i]['maPhieu'] . ' tongTien">' . $PhieuNhapHang[$i]['tongTien'] . '</span>
                                 <div class="center col-2">
@@ -177,6 +196,7 @@
                         <input type=" text" name="soLuong" placeholder="Số lượng" class="soLuongSanPhamNhap">
                         <button type="button" class="DuDoanOpen" onclick="duDoan()">Dự đoán</button>
                     </div>
+                    <input type=" text" style="width: 300px;margin-top: 17px" name="gia" class="chitietphieunhap-gia" placeholder="Thành tiền" disabled>
                     <input type="submit" value="Thêm">
                 </form>
                 <form class="hidden sort-content chitietphieunhaphang__sort-content">
@@ -367,15 +387,18 @@
                         </div>
                         <h6 class="center hoadon-item-title col-1">Mã hóa đơn</h6>
                         <h6 class="center-left hoadon-item-title col-1">Họ tên khách hàng</h6>
+                        <h6 class="center-left hoadon-item-title col-1">Họ tên nhân viên</h6>
                         <h6 class="center hoadon-item-title col-1">Số điện thoại</h6>
-                        <h6 class="center hoadon-item-title col-3">Địa chỉ</h6>
-                        <h6 class="center hoadon-item-title col-2">Ngày lập hóa đơn</h6>
+                        <h6 class="center hoadon-item-title col-2">Địa chỉ</h6>
+                        <h6 class="center hoadon-item-title col-1">Ngày lập hóa đơn</h6>
                         <h6 class="center hoadon-item-title col-1">Tổng tiền</h6>
-                        <h6 class="center hoadon-item-title col-1 tinhTrang-header">Tình trạng
+                        <h6 class="center hoadon-item-title col-2 tinhTrang-header">Tình trạng
                             <select id="tinhTrangDon">
                                 <option value="">Tất cả</option>
-                                <option value="0">Chưa xử lý</option>
-                                <option value="1">Đã xử lý</option>
+                                <option value="1">Chưa giải quyết</option>
+                                <option value="2">Đã xử lý</option>
+                                <option value="3">Vận chuyển</option>
+                                <option value="4">Hoàn thành</option>
                             </select>
                         </h6>
                         <h6 class="center hoadon-item-title col-1">Thao tác</h6>
@@ -395,20 +418,42 @@
 
                                 <span class="center col-1 row-' . $HoaDon[$i]['maHD'] . ' maHD">' . $HoaDon[$i]['maHD'] . '</span>
                                 <span class="center-left col-1">' . $HoaDon[$i]['khachHang']['ho'] . ' ' . $HoaDon[$i]['khachHang']['ten'] . '</span>
-                                <span class="center col-1 row-' . $HoaDon[$i]['maHD'] . ' soDienThoai">' . $HoaDon[$i]['soDienThoai'] . '</span>
-                                <span class="center-left col-3 row-' . $HoaDon[$i]['maHD'] . ' diaChi">' . $HoaDon[$i]['diaChi'] . '</span>
-                                <span class="center col-2 row-' . $HoaDon[$i]['maHD'] . ' ngayLapHoaDon">' . $HoaDon[$i]['ngayLapHoaDon'] . '</span>
-                                <span class="center col-1 row-' . $HoaDon[$i]['maHD'] . ' tongTien">' . $HoaDon[$i]['tongTien'] . '</span>
-                                <span class="center col-1 row-' . $HoaDon[$i]['maHD'] . ' tinhTrang">';
-
-                            if ($HoaDon[$i]['tinhTrang'] == 0) {
-                                echo '<input type="checkbox" class="check-tinhTrang hoadon-' . $HoaDon[$i]['maHD'] . '" onclick="capNhatHoaDon(this)">';
+                                <span class="center-left col-1">';
+                            if (isset($HoaDon[$i]['nhanVien']['maTK']) && $HoaDon[$i]['nhanVien']['maTK'] != 2) {
+                                echo $HoaDon[$i]['nhanVien']['ho'] . ' ' . $HoaDon[$i]['nhanVien']['ten'];
                             } else {
-                                echo '<input type="checkbox" class="check-tinhTrang hoadon-' . $HoaDon[$i]['maHD'] . '" checked onclick="capNhatHoaDon(this)">';
+                                echo 'Admin';
                             }
-
+                            echo '</span>
+                                <span class="center col-1 row-' . $HoaDon[$i]['maHD'] . ' soDienThoai">' . $HoaDon[$i]['soDienThoai'] . '</span>
+                                <span class="center-left col-2 row-' . $HoaDon[$i]['maHD'] . ' diaChi">' . $HoaDon[$i]['diaChi'] . '</span>
+                                <span class="center col-1 row-' . $HoaDon[$i]['maHD'] . ' ngayLapHoaDon">' . $HoaDon[$i]['ngayLapHoaDon'] . '</span>
+                                <span class="center col-1 row-' . $HoaDon[$i]['maHD'] . ' tongTien">' . $HoaDon[$i]['tongTien'] . '</span>
+                                <div class="center col-2">';
+                            switch ($HoaDon[$i]['tinhTrang']) {
+                                case 1: {
+                                        echo '<span class="center row-' . $HoaDon[$i]['maHD'] . ' bill-status-1 confirmed tinhTrang" onclick="openBillProgress(this)">Chưa giải quyết</span>';
+                                        break;
+                                    }
+                                case 2: {
+                                        echo '<span class="center row-' . $HoaDon[$i]['maHD'] . ' bill-status-2 confirmed tinhTrang" onclick="openBillProgress(this)">Đã xử lý</span>';
+                                        break;
+                                    }
+                                case 3: {
+                                        echo '<span class="center row-' . $HoaDon[$i]['maHD'] . ' bill-status-3 confirmed tinhTrang" onclick="openBillProgress(this)">Vận chuyển</span>';
+                                        break;
+                                    }
+                                case 4: {
+                                        echo '<span class="center row-' . $HoaDon[$i]['maHD'] . ' bill-status-4 confirmed tinhTrang" onclick="openBillProgress(this)">Hoàn thành</span>';
+                                        break;
+                                    }
+                                default: {
+                                        echo '<span class="center row-' . $HoaDon[$i]['maHD'] . ' tinhTrang" onclick="openBillProgress(this)"></span>';
+                                        break;
+                                    }
+                            }
                             echo '
-                                </span>
+                                </div>
                                 <div class="center col-1">
                                     <button class="hoadon-' . $HoaDon[$i]['maHD'] . ' btn" onclick="deleteOne(this)"><i class="far fa-trash-alt"></i></button>
                                     <button class="hoadon-' . $HoaDon[$i]['maHD'] . ' btn" onclick="openDetail(this)"><i class="fas fa-arrow-circle-right"></i></button>
@@ -469,7 +514,12 @@
     <button type="button" onclick="xacNhanDuDoan(this)">Xác nhận</button>
 </div>
 
-<div class="bill-progress">
+<div class="bill-progress hidden">
+    <span class="hidden maHoaDon"></span>
+    <span class="hidden tinhTrang"></span>
+    <span class="hidden user"><?php if ($userC['quyen'] != 1) echo $userC['maKH'];
+                                else echo 'NULL'; ?>
+    </span>
     <span class="bill-progress--close"><i class="fas fa-times" onclick="closeBillProgress()"></i></span>
     <h2>Tiến trình đặt hàng</h2>
     <div class="bill-progress__container">
@@ -481,7 +531,7 @@
                 <div class="bill-progress__status__horizontal-line bill-status bill-status-1 confirmed"></div>
                 <div class="bill-progress__status__vertical-line bill-status bill-status-1 confirmed"></div>
             </div>
-            <div class="bill-progress__status__confirm-date"><span>dd/mm/yyyy</span></div>
+            <div class="bill-progress__status__confirm-date"><span></span></div>
         </div>
         <div class="bill-progress__status">
             <div class="bill-progress__status__drawing">
@@ -491,17 +541,17 @@
                 <div class="bill-progress__status__horizontal-line bill-status bill-status-2"></div>
                 <div class="bill-progress__status__vertical-line bill-status bill-status-2"></div>
             </div>
-            <div class="bill-progress__status__confirm-date"><span>dd/mm/yyyy</span></div>
+            <div class="bill-progress__status__confirm-date"><span></span></div>
         </div>
         <div class="bill-progress__status">
             <div class="bill-progress__status__drawing">
                 <div class="bill-progress__status__circle bill-status bill-status-3" onclick="changeBillState(this)">
-                    <span class="bill-progress__status__text">Đang vận chuyển</span>
+                    <span class="bill-progress__status__text">Vận chuyển</span>
                 </div>
                 <div class="bill-progress__status__horizontal-line bill-status bill-status-3"></div>
                 <div class="bill-progress__status__vertical-line bill-status bill-status-3"></div>
             </div>
-            <div class="bill-progress__status__confirm-date"><span>dd/mm/yyyy</span></div>
+            <div class="bill-progress__status__confirm-date"><span></span></div>
         </div>
         <div class="bill-progress__status">
             <div class="bill-progress__status__drawing">
@@ -511,7 +561,7 @@
                 <div class="bill-progress__status__horizontal-line bill-status bill-status-4"></div>
                 <div class="bill-progress__status__vertical-line bill-status bill-status-4"></div>
             </div>
-            <div class="bill-progress__status__confirm-date"><span>dd/mm/yyyy</span></div>
+            <div class="bill-progress__status__confirm-date"><span></span></div>
         </div>
     </div>
 </div>
@@ -587,9 +637,84 @@
 
     function closeBillProgress() {
         $(".bill-progress").addClass("hidden")
+        const tongSoTinhTrang = $('.bill-progress__status__confirm-date');
+        for (let i = 0; i < tongSoTinhTrang.length; i++) {
+            tongSoTinhTrang[i].querySelector('span').textContent = ''
+        }
+    }
+
+    function openBillProgress(ele) {
+        const that = $(ele),
+            clas = that.attr('class').replace(' ', '.'),
+            maHoaDon = clas.substring(
+                clas.lastIndexOf('row-') + 'row-'.length,
+                clas.lastIndexOf('row-') + 'row-'.length + 1,
+            ),
+            tinhTrang = clas.substring(
+                clas.lastIndexOf('bill-status-') + 'bill-status-'.length,
+                clas.lastIndexOf('bill-status-') + 'bill-status-'.length + 1
+            ),
+            tongSoTinhTrang = $('.bill-progress__status__circle').length;
+        $('.bill-progress .maHoaDon').text(maHoaDon)
+        $('.bill-progress .tinhTrang').text(tinhTrang)
+
+        for (let i = 1; i <= tongSoTinhTrang; i++) {
+            $(`.bill-progress .bill-status-${i}`).removeClass('confirmed');
+        }
+        for (let i = 1; i <= tinhTrang; i++) {
+            $(`.bill-progress .bill-status-${i}`).addClass('confirmed');
+        }
+
+        const fd = new FormData();
+        fd.append('table', 'hoadon');
+        fd.append('action', 'get');
+        const params = '?controller=admin&action=nhapxuat';
+        $.ajax({
+            url: '/Web2/admin/app/index.php' + params,
+            type: 'post',
+            data: fd,
+            contentType: false,
+            processData: false,
+            success: function(data) {
+                if (isJson(data) && data != null) {
+                    const json = JSON.parse(data),
+                        hoaDons = json.data,
+                        hoaDon = hoaDons.find((hd) => hd.maHD == maHoaDon);
+                    let parent = '';
+                    for (let i = 1; i <= tongSoTinhTrang; i++) {
+                        parent = $(`.bill-status-${i}`).parent().parent();
+                        switch (i) {
+                            case 1: {
+                                parent[parent.length - 1].querySelector('.bill-progress__status__confirm-date span').textContent = hoaDon.ngayLapHoaDon;
+                                break;
+                            }
+                            case 2: {
+                                parent[parent.length - 1].querySelector('.bill-progress__status__confirm-date span').textContent = hoaDon.ngayXuLy;
+                                break;
+                            }
+                            case 3: {
+                                parent[parent.length - 1].querySelector('.bill-progress__status__confirm-date span').textContent = hoaDon.ngayVanChuyen;
+                                break;
+                            }
+                            case 4: {
+                                parent[parent.length - 1].querySelector('.bill-progress__status__confirm-date span').textContent = hoaDon.ngayHoanThanh;
+                                break;
+                            }
+                            default: {
+                                break;
+                            }
+                        }
+                    }
+                } else {
+                    alert(data);
+                }
+            },
+        });
+
+        $(".bill-progress").removeClass("hidden")
     }
 
     function changeBillState(ele) {
-        console.log('file: NhapXuat.php ~ line 588 ~ ele', ele);
+        ajaxChangeBillState(ele)
     }
 </script>

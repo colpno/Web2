@@ -5,7 +5,7 @@ class HoaDonDB extends connection
     {
         $sql1 = "ALTER TABLE hoadon AUTO_INCREMENT = 1 ;";
         $sql2 = "INSERT INTO hoadon(maKH,ngayLapHoaDon,tongTien,diaChi,soDienThoai,tinhTrang) VALUES ('$maKH','$ngay','$tongTien',
-        '$diachi','$sodienthoai','0')";
+        '$diachi','$sodienthoai','1')";
         $row1 = mysqli_query($this->conn, $sql1);
         $row2 = mysqli_query($this->conn, $sql2);
     }

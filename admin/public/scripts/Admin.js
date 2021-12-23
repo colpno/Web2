@@ -100,17 +100,40 @@ function loaiHTML(list) {
 
 function phieuNhapHangHTML(list) {
     let htmls = '';
+    console.log(list);
     for (let i = 0; i < list.length; i++) {
         htmls += `
             <div class="checkbox col-1">
                 <input type="checkbox" class="phieunhaphang__checkbox" value="${list[i].maPhieu}"></input>
             </div>
-            <span class="hidden row-${list[i].maPhieu} ten">${list[i].nhanVien.ten}</span>
+            <span class="hidden row-${list[i].maPhieu} ten">`;
+        if (list[i].nhanVien == null) {
+            htmls += 'Admin';
+        } else {
+            htmls += list[i].nhanVien.ten;
+        }
+        htmls += `
+            </span>
             <span class="center col-1 row-${list[i].maPhieu} maPhieu">${list[i].maPhieu}</span>
             <span class="hidden row-${list[i].maPhieu} maNCC">${list[i].nhaCungCap.maNCC}</span>
-            <span class="hidden row-${list[i].maPhieu} maNV">${list[i].nhanVien.maNV}</span>
+            <span class="hidden row-${list[i].maPhieu} maNV">`;
+        if (list[i].nhanVien == null) {
+            htmls += 'Admin';
+        } else {
+            htmls += list[i].nhanVien.ten;
+        }
+        htmls += `
+            </span>
             <span class="center-left col-2 row-${list[i].maPhieu} tenNCC">${list[i].nhaCungCap.tenNCC}</span>
-            <span class="center-left col-2 row-${list[i].maPhieu} ho">${list[i].nhanVien.ho} ${list[i].nhanVien.ten}</span>
+            <span class="center-left col-2 row-${list[i].maPhieu} ho">`;
+
+        if (list[i].nhanVien == null) {
+            htmls += 'Admin';
+        } else {
+            htmls += `${list[i].nhanVien.ho} ${list[i].nhanVien.ten}`;
+        }
+        htmls += `
+            </span>
             <span class="center col-2 row-${list[i].maPhieu} ngayNhap">${list[i].ngayNhap}</span>
             <span class="center col-2 row-${list[i].maPhieu} tongTien">${list[i].tongTien}</span>
             <div class="center col-2">
@@ -160,18 +183,34 @@ function hoaDonHTML(list) {
             <span class="center-left col-1">${list[i].khachHang.ho} ${list[i].khachHang.ten}</span>
             <span class="center col-1 row-${list[i].maHD} soDienThoai">${list[i].soDienThoai}</span>
             <span class="center-left col-3 row-${list[i].maHD} diaChi">${list[i].diaChi}</span>
-            <span class="center col-2 row-${list[i].maHD} ngayLapHoaDon">${list[i].ngayLapHoaDon}</span>
+            <span class="center col-1 row-${list[i].maHD} ngayLapHoaDon">${list[i].ngayLapHoaDon}</span>
             <span class="center col-1 row-${list[i].maHD} tongTien">${list[i].tongTien}</span>
-            <span class="center col-1 row-${list[i].maHD} tinhTrang">`;
+            <div class="center col-2">`;
 
-        if (list[i].tinhTrang == 0) {
-            htmls += `<input type="checkbox" class="check-tinhTrang hoadon-${list[i].maHD}" onclick="capNhatHoaDon(this)">`;
-        } else {
-            htmls += `<input type="checkbox" class="check-tinhTrang hoadon-${list[i].maHD}" onclick="capNhatHoaDon(this)" checked>`;
+        switch (parseInt(list[i].tinhTrang)) {
+            case 1: {
+                htmls += `<span class="center row-${list[i].maHD} bill-status-1 confirmed tinhTrang" onclick="openBillProgress(this)">Chưa giải quyết</span>`;
+                break;
+            }
+            case 2: {
+                htmls += `<span class="center row-${list[i].maHD} bill-status-2 confirmed tinhTrang" onclick="openBillProgress(this)">Đã xử lý</span>`;
+                break;
+            }
+            case 3: {
+                htmls += `<span class="center row-${list[i].maHD} bill-status-3 confirmed tinhTrang" onclick="openBillProgress(this)">Vận chuyển</span>`;
+                break;
+            }
+            case 4: {
+                htmls += `<span class="center row-${list[i].maHD} bill-status-4 confirmed tinhTrang" onclick="openBillProgress(this)">Hoàn thành</span>`;
+                break;
+            }
+            default: {
+                htmls += `<span class="center row-${list[i].maHD} tinhTrang" onclick="openBillProgress(this)"></span>`;
+                break;
+            }
         }
-
         htmls += `
-            </span>
+            </div>
             <div class="center ine-break col-1">
                 <button class="hoadon-${list[i].maHD} btn" onclick="deleteOne(this)"><i class="far fa-trash-alt"></i></button>
                 <button class="hoadon-${list[i].maHD} btn" onclick="openDetail(this)"><i class="fas fa-arrow-circle-right"></i></button>

@@ -99,9 +99,10 @@ class HoaDonController extends BaseController
     {
         if (
             $data['maHD']
-            && $data['tinhTrang'] != null
+            && $data['tinhTrang']
         ) {
             $this->hoaDonModel->capNhatTinhTrang($data);
+            return $this->get();
         } else {
             $this->alert->alert("Thiếu thông tin cần thiết để sửa đổi");
         }

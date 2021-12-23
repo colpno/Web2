@@ -49,6 +49,7 @@ class PhieuNhapHangController extends BaseController
             && $data['maNV']
             && $data['ngayNhap']
         ) {
+            $data['ngayNhap'] = "'" . $data['ngayNhap'] . "'";
             $values = $this->getValues($data);
             $this->phieuNhapHangModel->post($values);
             return $this->get();

@@ -29,19 +29,35 @@ if (isset($_SESSION['user'])) {
     if (!empty($hdArr)) {
         foreach ($hdArr as $key => $value) {
             $cthdArr = json_decode($cthd->listHD($value['maHD']), true);
-            echo '<tr data-toggle="collapse" data-target="#infocartlist' . $key . '" class="row-click">
+            echo '
+            <tr data-toggle="collapse" data-target="#infocartlist' . $key . '" class="row-click">
                             <th scope="row">' . ($key + 1) . '</th>
                             <td>' . $value['maHD'] . '</td>
                             <td>' . $value['ngayLapHoaDon'] . '</td>
                             <td>' . $value['diaChi'] . '</td>
                             <td>' . $value['tongTien'] . '</td>
                             ';
-            if ($value['tinhTrang'] == 1) {
-                echo '
-                            <td>Đã xử lý</td>';
-            } else {
-                echo '
-                            <td>Chưa xử lý</td>';
+            switch ($value['tinhTrang']) {
+                case 1: {
+                        echo '<td>Chưa giải quyết</td>';
+                        break;
+                    }
+                case 2: {
+                        echo '<td>Đã xử lý</td>';
+                        break;
+                    }
+                case 3: {
+                        echo '<td>Vận chuyển</td>';
+                        break;
+                    }
+                case 4: {
+                        echo '<td>Hoàn thành</td>';
+                        break;
+                    }
+                default: {
+                        echo '<td></td>';
+                        break;
+                    }
             }
             echo '
                             <td onclick="deleteHD(this,' . $value['tinhTrang'] . ')" class="hoadon-' . $value['maHD'] . '"><i class="far fa-trash-alt"></i></td>
@@ -81,7 +97,7 @@ if (isset($_SESSION['user'])) {
 <script src="/Web2/js/main.js"></script>
 <script>
     function deleteHD(ele, i) {
-        if (i == 0) {
+        if (i == 1) {
             if (window.confirm('Chắc chắn muốn xóa?')) {
                 const clas = ele.getAttribute('class');
                 const str = clas.substr(0, clas.lastIndexOf('-'));
@@ -101,7 +117,8 @@ if (isset($_SESSION['user'])) {
                     contentType: false,
                     processData: false,
                     success: function(data) {
-                        location.reload()
+                        // location.reload()
+                        console.log(data);
                     },
                 });
             }

@@ -10,12 +10,12 @@
                         <option value="tongthu">Lợi nhuận</option>
                         <option value="doanhthu">Thu từ hóa đơn</option>
                         <option value="taikhoan-report">Số lượng khách mới</option>
-                        <!-- <option value="sanphamban">Số lượng sản phẩm bán ra</option> -->
+                        <option value="sanphamban">Số lượng sản phẩm bán ra</option>
                     </select>
                 </div>
             </div>
         </div>
-        <div class="col-12 tongthu hidden">
+        <div class="col-12 tongthu">
             <div class="content-row">
                 <div class="chart-head">Lợi nhuận</div>
                 <div class="chart">
@@ -275,62 +275,160 @@
                 </div>
             </div>
         </div>
-        <!-- <div class="col-12 sanphamban">
-            <div class="content-row">
-                <div class="chart-head">Số lượng sản phẩm bán ra</div>
+        <div class="col-12 sanphamban ">
+            <div class="content-row" style="overflow: hidden;">
+                <div class="chart-head">Số sản phẩm bán ra</div>
                 <div class="title--border">
                     <div class="sanphamban__title row">
                         <h6 class="center sanphamban-item-title col-1">Mã SP</h6>
                         <h6 class="center sanphamban-item-title col-3">Tên sản phẩm</h6>
-                        <h6 class="center sanphamban-item-title col-2">5 ngày trước</h6>
-                        <h6 class="center sanphamban-item-title col-2">15 ngày trước</h6>
-                        <h6 class="center sanphamban-item-title col-2">30 ngày trước</h6>
-                        <h6 class="center sanphamban-item-title col-2">60 ngày trước</h6>
+                        <div class="col-8 row">
+                            <h6 class="center sanphamban-item-title col-1">Th1</h6>
+                            <h6 class="center sanphamban-item-title col-1">Th2</h6>
+                            <h6 class="center sanphamban-item-title col-1">Th3</h6>
+                            <h6 class="center sanphamban-item-title col-1">Th4</h6>
+                            <h6 class="center sanphamban-item-title col-1">Th5</h6>
+                            <h6 class="center sanphamban-item-title col-1">Th6</h6>
+                            <h6 class="center sanphamban-item-title col-1">Th7</h6>
+                            <h6 class="center sanphamban-item-title col-1">Th8</h6>
+                            <h6 class="center sanphamban-item-title col-1">Th9</h6>
+                            <h6 class="center sanphamban-item-title col-1">Th10</h6>
+                            <h6 class="center sanphamban-item-title col-1">Th11</h6>
+                            <h6 class="center sanphamban-item-title col-1">Th12</h6>
+                        </div>
                     </div>
                 </div>
-                <div class="sanphamban--show row"> -->
-        <?php
-        // echo '<pre>';
-        // print_r($_SESSION['get']['ChiTietHoaDon']);
-        // echo '</pre>';
-        // echo '<pre>';
-        // print_r($_SESSION['get']['HoaDon']);
-        // echo '</pre>';
-        // echo '<pre>';
-        // print_r($_SESSION['get']['SanPham']);
-        // echo '</pre>';
-        // if (isset($_SESSION['get']['ChiTietHoaDon']) && isset($_SESSION['get']['ChiTietHoaDon']) && isset($_SESSION['get']['ChiTietHoaDon'])) {
-        // }
-        //     $PhieuNhapHang = $_SESSION['get']['PhieuNhapHang']['Data']['data'];
-        //     $length = count($PhieuNhapHang);
+                <div class="sanphamban--show row">
 
-        //     for ($i = 0; $i < $length; $i++) {
-        //         echo '
-        //             <span class="hidden row-' . $PhieuNhapHang[$i]['maPhieu'] . ' maPhieu">' . $PhieuNhapHang[$i]['maPhieu'] . '</span>
-        //             <span class="hidden row-' . $PhieuNhapHang[$i]['maPhieu'] . ' maNCC">' . $PhieuNhapHang[$i]['nhaCungCap']['maNCC'] . '</span>
-        //             <span class="hidden row-' . $PhieuNhapHang[$i]['maPhieu'] . ' maNV">' . $PhieuNhapHang[$i]['nhanVien']['maNV'] . '</span>
-        //             <span class="center col-1 row-' . $PhieuNhapHang[$i]['maPhieu'] . '">' . $PhieuNhapHang[$i]['maPhieu'] . '</span>
-        //             <span class="center-left col-2">' . $PhieuNhapHang[$i]['nhaCungCap']['tenNCC'] . '</span>
-        //             <span class="center-left col-2">' . $PhieuNhapHang[$i]['nhanVien']['ho'] . ' ' . $PhieuNhapHang[$i]['nhanVien']['ten'] . '</span>
-        //             <span class="center col-2 row-' . $PhieuNhapHang[$i]['maPhieu'] . ' ngayNhap">' . $PhieuNhapHang[$i]['ngayNhap'] . '</span>
-        //             <span class="center col-2 row-' . $PhieuNhapHang[$i]['maPhieu'] . ' tongTien">' . $PhieuNhapHang[$i]['tongTien'] . '</span>
-        //             <div class="center col-2">
-        //                 <a href="#sua-phieunhaphang" class="phieunhaphang-' . $PhieuNhapHang[$i]['maPhieu'] . ' btn" onclick="updateOne(this)"><i class="far fa-edit"></i></a>
-        //                 <button class="phieunhaphang-' . $PhieuNhapHang[$i]['maPhieu'] . ' btn" onclick="deleteOne(this)"><i class="far fa-trash-alt"></i></button>
-        //                 <button class="phieunhaphang-' . $PhieuNhapHang[$i]['maPhieu'] . ' btn" onclick="openDetail(this)"><i class="fas fa-arrow-circle-right"></i></button>
-        //             </div>
-        //         ';
-        //     }
-        // }
+                    <!-- <div class="chart-layout">
+                        <?php
 
-        ?>
-        <!-- </div>
-                <div class="content-item__pagination row">
+                        // $max = max($doanhThu[$date]);
+                        // $thangMax = array_keys($doanhThu[$date], $max)[0];
+                        // foreach ($doanhThu[$date] as $thang => $tien) {
+                        //     $percent = 0;
+                        //     if ($thang != 0 && $thang != $thangMax) {
+                        //         if ($tien < 0 || $max < 0) {
+                        //             $tien = 0;
+                        //         }
+                        //         $formated = number_format($tien);
+                        //         if ($tien > 0 && $max > 0) {
+                        //             $percent = bcdiv($tien, $max, 2) * 100;
+                        //         }
+                        //         echo "
+                        //             <div class='chart-column'>
+                        //                 <div class='chart-layout__item thang-$thang' style='--percent: $percent%'><p>$formated</p></div>
+                        //                 <span>$thang</span>
+                        //             </div>";
+                        //     }
+                        //     if ($thang == $thangMax) {
+                        //         $formated = 0;
+                        //         if ($max > 0) {
+                        //             $formated = number_format($max);
+                        //             $percent = 100;
+                        //         }
+                        //         echo "
+                        //     <div class='chart-column'>
+                        //         <div class='chart-layout__item thang-$thangMax' style='--percent: $percent%'><p>$formated</p></div>
+                        //         <span>$thangMax</span>
+                        //     </div>";
+                        //     }
+                        // }
+
+                        // $tong = 0;
+                        // foreach ($doanhThu[$date] as $thang => $tien) {
+                        //     $tong += $tien;
+                        // }
+                        // $_SESSION['tongDoanhThu'] = number_format($tong);
+                        ?>
+                    </div>
+                    <div class="chart-info">
+                        <p>Năm:
+                            <select name="" id="doanhthu-chart" onchange="changeYear(this)">
+                                <?php
+                                // $year = date('Y');
+                                // for ($i = $year; $i >= 2015; $i--) {
+                                //     if ($i == $year) {
+                                //         echo "<option value=$i selected>$i</option>";
+                                //     } else {
+                                //         echo "<option value=$i>$i</option>";
+                                //     }
+                                // }
+                                ?>
+                            </select>
+                        </p>
+                        <p>Đơn vị tính: <span><?php echo $_SESSION['get']['SanPham']['Data'][0]['donViTinh'] ?></span></p>
+                        <p>Tổng: <span class="summary-doanhthu"><?php echo $_SESSION['tongDoanhThu'] ?></span></p>
+                    </div> -->
+                    <?php
+                    // echo '<pre>';
+                    // print_r($_SESSION['get']['chiTietHoaDon']);
+                    // echo '</pre>';
+                    // echo '<pre>';
+                    // print_r($_SESSION['get']['HoaDon']);
+                    // echo '</pre>';
+                    // echo '<pre>';
+                    // print_r($_SESSION['get']['SanPham']);
+                    // echo '</pre>';
+                    // $now = time();
+                    // $your_date = strtotime("2010-01-31");
+                    // $datediff = $now - $your_date;
+                    // round($datediff / (60 * 60 * 24));
+
+                    $SanPham = $_SESSION['get']['SanPham']['Data'];
+                    $HoaDon = $_SESSION['get']['HoaDon']['Data'];
+                    $ChiTietHoaDon = $_SESSION['get']['chiTietHoaDon']['Data'];
+
+                    $SoSanPham = [];
+                    $date = date("Y");
+                    for ($i = 2015; $i <= $date; $i++) {
+                        $SoSanPham[$i] = [];
+                        for ($j = 0; $j <= 12; $j++) {
+                            array_push($SoSanPham[$i], 0);
+                        }
+                        unset($SoSanPham[$i][0]);
+                    }
+
+                    foreach ($HoaDon as $key => $hd) {
+                        $thang = (int) substr($hd['ngayLapHoaDon'], strpos($hd['ngayLapHoaDon'], '-') + 1, 2);
+                        $nam = (int) substr($hd['ngayLapHoaDon'], 0, 4);
+                        foreach ($ChiTietHoaDon as $key => $cthd) {
+                            if ($cthd['maHD'] == $hd['maHD']) {
+                                $SoSanPham[$nam][$thang] =  $SoSanPham[$nam][$thang] + (int) $cthd['soLuong'];
+                            }
+                        }
+                    }
+
+                    $length = count($SanPham);
+                    for ($i = 0; $i < $length; $i++) {
+                        $style = $i % 2 == 1 ? 'style="background: #eaeaea"' : '';
+                        echo "
+                            <span class='center col-1 row-" . $SanPham[$i]["maSP"] . "' $style>" . $SanPham[$i]["maSP"] . "</span>
+                            <span class='center-left col-3 row-" . $SanPham[$i]["maSP"] . "' $style>" . $SanPham[$i]["tenSP"] . "</span>
+                            <div class='col-8 row'>
+                                <span class='center col-1 row-" . $SanPham[$i]["maSP"] . "' $style>Th1</span>
+                                <span class='center col-1 row-" . $SanPham[$i]["maSP"] . "' $style>Th2</span>
+                                <span class='center col-1 row-" . $SanPham[$i]["maSP"] . "' $style>Th3</span>
+                                <span class='center col-1 row-" . $SanPham[$i]["maSP"] . "' $style>Th4</span>
+                                <span class='center col-1 row-" . $SanPham[$i]["maSP"] . "' $style>Th5</span>
+                                <span class='center col-1 row-" . $SanPham[$i]["maSP"] . "' $style>Th6</span>
+                                <span class='center col-1 row-" . $SanPham[$i]["maSP"] . "' $style>Th7</span>
+                                <span class='center col-1 row-" . $SanPham[$i]["maSP"] . "' $style>Th8</span>
+                                <span class='center col-1 row-" . $SanPham[$i]["maSP"] . "' $style>Th9</span>
+                                <span class='center col-1 row-" . $SanPham[$i]["maSP"] . "' $style>Th10</span>
+                                <span class='center col-1 row-" . $SanPham[$i]["maSP"] . "' $style>Th11</span>
+                                <span class='center col-1 row-" . $SanPham[$i]["maSP"] . "' $style>Th12</span>
+                            </div>
+                        ";
+                    }
+                    ?>
+                </div>
+                <!-- <div class="content-item__pagination row">
                     <div>
                         <ul class="text-center center paginate">
                             <?php
-                            // if (isset($_SESSION['get']['PhieuNhapHang'])) {
-                            //     $length = $_SESSION['get']['PhieuNhapHang']['Data']['pages'];
+                            // if (isset($_SESSION['get']['SanPham'])) {
+                            //     $length = $_SESSION['get']['SanPham']['Data']['pages'];
                             //     for ($i = 1; $i <= $length; $i++) {
                             //         if ($i == 1)
                             //             echo '<li onclick="paginate(this)" class="sanphamban-' . $i . ' current-page">' . $i . '</li>';
@@ -341,13 +439,14 @@
                             ?>
                         </ul>
                     </div>
-                </div>
+                </div> -->
             </div>
-        </div> -->
+        </div>
         <div style="margin: 40px;"></div>
     </div>
 </div>
 
+<script src="/Web2/admin/public/scripts/Admin.js"></script>
 <script src="/Web2/admin/public/scripts/ThongKeAdmin.js"></script>
 <script>
     function changeYear(ele) {

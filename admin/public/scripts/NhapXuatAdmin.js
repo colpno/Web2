@@ -976,10 +976,10 @@ function ajaxXacNhanDuDoan() {
                     const json = JSON.parse(data),
                         hoaDon = json.HoaDon['Data'],
                         chiTietHoaDon = json.ChiTietHoaDon['Data'],
-                        sanPham = json.SanPham['Data'],
                         maSPh = $('.selectSanPham').val(),
-                        ngaySapToi = parseInt($('.selectNgayToi').val()),
-                        giongNhau = [];
+                        sanPham = json.SanPham['Data'].find((sp) => (sp.maSP = maSPh)),
+                        gia = sanPham.donGia,
+                        ngaySapToi = parseInt($('.selectNgayToi').val());
                     let tongSoLuong = 0;
 
                     hoaDon.forEach((don) => {
@@ -1009,6 +1009,8 @@ function ajaxXacNhanDuDoan() {
                                   ngaySapToi +
                                   ' ngày tới.',
                           );
+
+                    $('.chitietphieunhap-gia').val(soLuongNhap * gia + ' ' + sanPham.donViTinh);
                     closeDuDoan();
                 } else {
                     alert(data);
@@ -1016,6 +1018,83 @@ function ajaxXacNhanDuDoan() {
             },
         });
     }
+}
+
+function ajaxChangeBillState(ele) {
+    let today = new Date();
+    const that = $(ele),
+        clas = that.attr('class').replace(' ', '.'),
+        maHD = $('.bill-progress .maHoaDon').text(),
+        maNV = $('.bill-progress .user').text(),
+        dd = String(today.getDate()).padStart(2, '0'),
+        mm = String(today.getMonth() + 1).padStart(2, '0'),
+        yyyy = today.getFullYear(),
+        tongSoTinhTrang = $('.bill-progress__status__circle').length;
+    let tinhTrangCu = parseInt($('.bill-progress .tinhTrang').text()),
+        tinhTrang = clas.substring(
+            clas.lastIndexOf('bill-status-') + 'bill-status-'.length,
+            clas.lastIndexOf('-') + 2,
+        );
+
+    today = yyyy + '-' + mm + '-' + dd;
+
+    const fd = new FormData();
+    fd.append('table', 'hoadon');
+    fd.append('action', 'capNhatTinhTrang');
+    fd.append('maHD', maHD);
+    fd.append('tinhTrang', tinhTrang);
+    fd.append('maNV', maNV);
+    if (tinhTrang - tinhTrangCu >= 2) {
+        alert('Tiến trình không được bỏ giai đoạn. Phải tiếp tục trạng thái kế tiếp.');
+        return;
+    }
+    if (tinhTrang < tinhTrangCu) {
+        alert('Tiến trình chỉ được tiếp tục không được quay lại.');
+        return;
+    }
+    if (tinhTrang == tinhTrangCu) {
+        return;
+    }
+    switch (parseInt(tinhTrang)) {
+        case 2: {
+            fd.append('ngayXuLy', today);
+            break;
+        }
+        case 3: {
+            fd.append('ngayVanChuyen', today);
+            break;
+        }
+        case 4: {
+            fd.append('ngayHoanThanh', today);
+            break;
+        }
+        default: {
+            break;
+        }
+    }
+    $.ajax({
+        url: '/Web2/admin/app/index.php?controller=admin&action=nhapxuat',
+        type: 'post',
+        data: fd,
+        contentType: false,
+        processData: false,
+        success: function (data) {
+            if (isJson(data) && data != null) {
+                const json = JSON.parse(data);
+                if (json.data != null) {
+                    $(`.bill-progress .bill-status-${tinhTrang}`).addClass('confirmed');
+                    $(`.hoadon--show`).html(getHTML('hoadon', json.data));
+                    const parent = $(`.bill-status-${tinhTrang}`).parent().parent();
+                    parent[parent.length - 1].querySelector(
+                        '.bill-progress__status__confirm-date span',
+                    ).textContent = today;
+                    $('.bill-progress .tinhTrang').text(tinhTrangCu + 1);
+                }
+            } else {
+                alert(data);
+            }
+        },
+    });
 }
 
 function getHTML(table, data) {

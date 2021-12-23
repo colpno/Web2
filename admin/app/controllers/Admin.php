@@ -31,23 +31,23 @@ class admin
         $this->loai = new $components[1];
         $this->nhaSanXuat = new $components[2];
 
-        $returnBack = [
-            'SanPham' => [
-                'SPData' => $this->sanPham->get($this->getPage()),
-                'SPMin' => $this->sanPham->findMin('soLuong'),
-                'TongSoSanPham' => $this->sanPham->countRow('maSP'),
-                'selectDisplay' => $this->sanPham->selectDisplay(),
-            ],
-            'Loai' => [
-                'LoaiData' => $this->loai->get($this->getPage()),
-                'TongSoLoai' => $this->loai->countRow('maLoai'),
-                'selectDisplay' => $this->loai->selectDisplay(),
-            ],
-            'NhaSanXuat' => $this->nhaSanXuat->selectDisplay(),
-        ];
         if (isset($data['action'], $data['table'])) {
             $returnBack = $this->action($data['table'], $data['action'], $data);
-        }
+        } else
+            $returnBack = [
+                'SanPham' => [
+                    'SPData' => $this->sanPham->get($this->getPage()),
+                    'SPMin' => $this->sanPham->findMin('soLuong'),
+                    'TongSoSanPham' => $this->sanPham->countRow('maSP'),
+                    'selectDisplay' => $this->sanPham->selectDisplay(),
+                ],
+                'Loai' => [
+                    'LoaiData' => $this->loai->get($this->getPage()),
+                    'TongSoLoai' => $this->loai->countRow('maLoai'),
+                    'selectDisplay' => $this->loai->selectDisplay(),
+                ],
+                'NhaSanXuat' => $this->nhaSanXuat->selectDisplay(),
+            ];
 
         return $returnBack;
     }
@@ -66,19 +66,19 @@ class admin
         $this->nhaCungCap = new $components[0];
         $this->nhaSanXuat = new $components[1];
 
-        $returnBack = [
-            'NhaCungCap' => [
-                'Data' => $this->nhaCungCap->get($this->getPage()),
-                'TongSoNhaCungCap' => $this->nhaCungCap->countRow('maNCC'),
-            ],
-            'NhaSanXuat' => [
-                'Data' => $this->nhaSanXuat->get($this->getPage()),
-                'TongSoNhaSanXuat' => $this->nhaSanXuat->countRow('maNSX'),
-            ]
-        ];
         if (isset($data['action'], $data['table'])) {
             $returnBack = $this->action($data['table'], $data['action'], $data);
-        }
+        } else
+            $returnBack = [
+                'NhaCungCap' => [
+                    'Data' => $this->nhaCungCap->get($this->getPage()),
+                    'TongSoNhaCungCap' => $this->nhaCungCap->countRow('maNCC'),
+                ],
+                'NhaSanXuat' => [
+                    'Data' => $this->nhaSanXuat->get($this->getPage()),
+                    'TongSoNhaSanXuat' => $this->nhaSanXuat->countRow('maNSX'),
+                ]
+            ];
 
         return $returnBack;
     }
@@ -103,34 +103,34 @@ class admin
         $this->nhaCungCap = new $components[6];
         $this->sanPham = new $components[7];
 
-        $returnBack = [
-            'PhieuNhapHang' => [
-                'Data' => $this->phieuNhapHang->get($this->getPage()),
-                'TongSoPhieuNhapHang' => $this->phieuNhapHang->countRow('maPhieu'),
-                'HienThiSelect' => [
-                    'NhanVien' => $this->nhanVien->selectDisplay(),
-                    'NhaCungCap' => $this->nhaCungCap->selectDisplay(),
-                ]
-            ],
-            'ChiTietPhieuNhapHang' => [
-                'Data' => $this->chiTietPhieuNhapHang->get([], $this->getPage()),
-                'HienThiSelect' => $this->sanPham->selectDisplay(),
-            ],
-            'HoaDon' => [
-                'Data' => $this->hoaDon->get($this->getPage()),
-                'TongSoHoaDon' => $this->hoaDon->countRow('maHD'),
-                'HienThiSelect' => [
-                    'NhanVien' => $this->nhanVien->selectDisplay(),
-                    'KhachHang' => $this->khachHang->selectDisplay(),
-                ]
-            ],
-            'ChiTietHoaDon' => [
-                'Data' => $this->chiTietHoaDon->get([], $this->getPage()),
-            ]
-        ];
         if (isset($data['action'], $data['table'])) {
             $returnBack = $this->action($data['table'], $data['action'], $data);
-        }
+        } else
+            $returnBack = [
+                'PhieuNhapHang' => [
+                    'Data' => $this->phieuNhapHang->get($this->getPage()),
+                    'TongSoPhieuNhapHang' => $this->phieuNhapHang->countRow('maPhieu'),
+                    'HienThiSelect' => [
+                        'NhanVien' => $this->nhanVien->selectDisplay(),
+                        'NhaCungCap' => $this->nhaCungCap->selectDisplay(),
+                    ]
+                ],
+                'ChiTietPhieuNhapHang' => [
+                    'Data' => $this->chiTietPhieuNhapHang->get([], $this->getPage()),
+                    'HienThiSelect' => $this->sanPham->selectDisplay(),
+                ],
+                'HoaDon' => [
+                    'Data' => $this->hoaDon->get($this->getPage()),
+                    'TongSoHoaDon' => $this->hoaDon->countRow('maHD'),
+                    'HienThiSelect' => [
+                        'NhanVien' => $this->nhanVien->selectDisplay(),
+                        'KhachHang' => $this->khachHang->selectDisplay(),
+                    ]
+                ],
+                'ChiTietHoaDon' => [
+                    'Data' => $this->chiTietHoaDon->get([], $this->getPage()),
+                ]
+            ];
 
         return $returnBack;
     }
@@ -151,32 +151,32 @@ class admin
         $this->khachHang = new $components[2];
         $this->quyen = new $components[3];
 
-        $returnBack = [
-            'TaiKhoan' => [
-                'Data' => $this->taiKhoan->get($this->getPage()),
-                'TongSoTaiKhoan' => $this->taiKhoan->countRow('maTK'),
-                'HienThiSelect' => $this->quyen->selectDisplay(),
-            ],
-            'HienThiSelect' => $this->taiKhoan->selectDisplay(),
-            'NhanVien' => [
-                'Data' => $this->nhanVien->get($this->getPage()),
-                'TongSoNhanVien' => $this->nhanVien->countRow('maNV'),
-            ],
-            'KhachHang' => [
-                'Data' => $this->khachHang->get($this->getPage()),
-                'TongSoKhachHang' => $this->khachHang->countRow('maKH'),
-            ]
-        ];
         if (isset($data['action'], $data['table'])) {
             $returnBack = $this->action($data['table'], $data['action'], $data);
-        }
+        } else
+            $returnBack = [
+                'TaiKhoan' => [
+                    'Data' => $this->taiKhoan->get($this->getPage()),
+                    'TongSoTaiKhoan' => $this->taiKhoan->countRow('maTK'),
+                    'HienThiSelect' => $this->quyen->selectDisplay(),
+                ],
+                'HienThiSelect' => $this->taiKhoan->selectDisplay(),
+                'NhanVien' => [
+                    'Data' => $this->nhanVien->get($this->getPage()),
+                    'TongSoNhanVien' => $this->nhanVien->countRow('maNV'),
+                ],
+                'KhachHang' => [
+                    'Data' => $this->khachHang->get($this->getPage()),
+                    'TongSoKhachHang' => $this->khachHang->countRow('maKH'),
+                ]
+            ];
 
         return $returnBack;
     }
 
     public function thongke($data = [])
     {
-        $components = ['TaiKhoan',  'NhanVien', 'HoaDon', 'PhieuNhapHang', 'SanPham'];
+        $components = ['TaiKhoan',  'NhanVien', 'HoaDon', 'PhieuNhapHang', 'SanPham', 'ChiTietHoaDon'];
         foreach ($components as  $component) {
             require_once(__DIR__ . '/components/' . $component . 'Controller.php');
             require_once(__DIR__ . '/../models/' . $component . 'Model.php');
@@ -190,14 +190,8 @@ class admin
         $this->hoaDon = new $components[2];
         $this->phieuNhapHang = new $components[3];
         $this->sanPham = new $components[4];
+        $this->chiTietHoaDon = new $components[5];
 
-        $returnBack = [
-            'TaiKhoan' => $this->taiKhoan->thongke(null, null, 'thoiGianTao', 'maQuyen'),
-            'NhanVien' => $this->nhanVien->thongke(null, null, 'luong'),
-            'HoaDon' => $this->hoaDon->thongke(null, null, 'ngayLapHoaDon', 'tongTien'),
-            'PhieuNhapHang' => $this->phieuNhapHang->thongke(null, null, 'ngayNhap', 'tongTien'),
-            'SanPham' => $this->sanPham->thongke(null, null, 'donViTinh')
-        ];
         if (isset($data['action'], $data['table'])) {
             $returnBack = [
                 'TaiKhoan' => $this->taiKhoan->thongke($data['year'], 'thoiGianTao', 'maQuyen'),
@@ -205,8 +199,17 @@ class admin
                 'HoaDon' => $this->hoaDon->thongke($data['year'], 'ngayLapHoaDon', 'tongTien'),
                 'PhieuNhapHang' => $this->phieuNhapHang->thongke($data['year'], 'ngayNhap', 'tongTien'),
                 'SanPham' => $this->sanPham->thongke(null, null, 'donViTinh'),
+                'chiTietHoaDon' => $this->chiTietHoaDon->getAll(),
             ];
-        }
+        } else
+            $returnBack = [
+                'TaiKhoan' => $this->taiKhoan->thongke(null, null, 'thoiGianTao', 'maQuyen'),
+                'NhanVien' => $this->nhanVien->thongke(null, null, 'luong'),
+                'HoaDon' => $this->hoaDon->thongke(null, null, 'maHD', 'ngayLapHoaDon', 'tongTien'),
+                'PhieuNhapHang' => $this->phieuNhapHang->thongke(null, null, 'ngayNhap', 'tongTien'),
+                'SanPham' => $this->sanPham->thongke(null, null, 'donViTinh', 'maSP', 'tenSP'),
+                'chiTietHoaDon' => $this->chiTietHoaDon->getAll(),
+            ];
 
         return $returnBack;
     }
@@ -226,14 +229,14 @@ class admin
         $this->quyenChucNang = new $components[1];
         $this->chucNang = new $components[2];
 
-        $returnBack = [
-            'Quyen' => $this->quyen->get($this->getPage()),
-            'QuyenChucNang' => $this->quyenChucNang->get($this->getPage()),
-            'ChucNang' => $this->chucNang->get($this->getPage()),
-        ];
         if (isset($data['action'], $data['table'])) {
             $returnBack = $this->action($data['table'], $data['action'], $data);
-        }
+        } else
+            $returnBack = [
+                'Quyen' => $this->quyen->get($this->getPage()),
+                'QuyenChucNang' => $this->quyenChucNang->get($this->getPage()),
+                'ChucNang' => $this->chucNang->get($this->getPage()),
+            ];
 
         return $returnBack;
     }
@@ -256,7 +259,7 @@ class admin
         $returnBack = [
             'HoaDon' => $this->hoaDon->getAll(),
             'ChiTietHoaDon' => $this->chiTietHoaDon->getAll(),
-            'SanPham' => $this->sanPham->thongke(null, null, 'maSP', 'tenSP', 'soLuong'),
+            'SanPham' => $this->sanPham->thongke(null, null, 'maSP', 'tenSP', 'soLuong', 'donGia', 'donViTinh'),
         ];
 
         return $returnBack;

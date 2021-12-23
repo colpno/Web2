@@ -182,7 +182,7 @@ class BaseModel extends Database
         }
 
         $dataStringValues = array_map(function ($value) {
-            return "'$value'";
+            return $value;
         }, array_values($data));
         $values = implode(",", array_values($dataStringValues));
         $columns = implode(",", array_keys($data));
@@ -313,6 +313,21 @@ class BaseModel extends Database
         $colSet = isset($data['tinhTrang']) ? array_search($data['tinhTrang'], $data) : array_search($data['trangThai'], $data);
         $colCondition = isset($data['maHD']) ? array_search($data['maHD'], $data) : array_search($data['maTK'], $data);
         $sql = "UPDATE $tableName SET $arrKeys[3] = " . $data[$colSet] . " WHERE $colCondition = " . $data[$colCondition];
+        if ($tableName == 'hoadon') {
+            $sql = "UPDATE $tableName SET $arrKeys[3] = " . $data[$colSet] . ', ';
+            $length = count($arrKeys);
+            for ($i = 4; $i < $length; $i++) {
+                if ($data[$arrKeys[4]]) {
+                    $moreCols = $arrKeys[$i] . " = " . $data[$arrKeys[$i]] . ", ";
+                } else {
+                    $moreCols = $arrKeys[$i] . " = '" . $data[$arrKeys[$i]] . "', ";
+                }
+                $sql = $sql . $moreCols;
+            }
+            $sql = rtrim($sql, ", ");
+            $sql = $sql . " WHERE $colCondition = " . $data[$colCondition];
+        }
+        // echo $sql;
         if ($this->conn->query($sql) or die($this->conn->error)) {
             return;
         } else {
@@ -401,26 +416,30 @@ class BaseModel extends Database
         if (strpos($data['id'], ',')) {
             $idArr = explode(',', $data['id']);
             for ($i = 0; $i < sizeof($idArr); $i++) {
+                if (
+                    $tableName == 'hoadon' || $tableName == 'chitiethoadon'
+
+                ) {
+                    $this->updateHoaDonSoluong($idArr[$i]);
+                }
                 $sql = 'DELETE FROM ' . $FKTableName . ' WHERE ' . $col . ' = ' . $idArr[$i];
                 $this->conn->query($sql) or die($this->conn->error);
 
                 $sql = 'DELETE FROM ' . $tableName . ' WHERE ' . $col . ' = ' . $idArr[$i];
                 $this->conn->query($sql) or die($this->conn->error);
-
-                if ($tableName == 'hoadon') {
-                    $this->updateHoaDonSoluong($idArr[$i]);
-                }
             }
         } else {
+            if (
+                $tableName == 'hoadon' || $tableName == 'chitiethoadon'
+
+            ) {
+                $this->updateHoaDonSoluong($id);
+            }
             $sql = 'DELETE FROM ' . $FKTableName . ' WHERE ' . $col . ' = ' . $id;
             $this->conn->query($sql) or die($this->conn->error);
 
             $sql = 'DELETE FROM ' . $tableName . ' WHERE ' . $col . ' = ' . $id;
             $this->conn->query($sql) or die($this->conn->error);
-
-            if ($tableName == 'hoadon') {
-                $this->updateHoaDonSoluong($id);
-            }
         }
 
         return;
@@ -723,7 +742,7 @@ class BaseModel extends Database
         $tong += $data['soLuong'];
 
         $sql = 'UPDATE sanpham  SET soLuong = ' . $tong . ' WHERE maSP = ' . $data['maSP'];
-        $this->conn->query($sql);
+        $this->conn->query($sql) or die($this->conn->error);;
     }
 
     private function updateHoaDonSoluong($maHD)
