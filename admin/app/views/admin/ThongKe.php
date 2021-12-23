@@ -379,45 +379,94 @@
                     $HoaDon = $_SESSION['get']['HoaDon']['Data'];
                     $ChiTietHoaDon = $_SESSION['get']['chiTietHoaDon']['Data'];
 
+                    // Khoi tao mang
                     $SoSanPham = [];
-                    $date = date("Y");
-                    for ($i = 2015; $i <= $date; $i++) {
+                    $crYear = date("Y");
+                    for ($i = 2015; $i <= $crYear; $i++) {
                         $SoSanPham[$i] = [];
-                        for ($j = 0; $j <= 12; $j++) {
+                        $length = count($SanPham);
+                        for ($j = 0; $j <= $length; $j++) {
                             array_push($SoSanPham[$i], 0);
+                            $SoSanPham[$i][$j] = [];
+                            for ($k = 0; $k <= 12; $k++) {
+                                array_push($SoSanPham[$i][$j], 0);
+                            }
+                            unset($SoSanPham[$i][$j][0]);
                         }
                         unset($SoSanPham[$i][0]);
                     }
 
+                    // Tinh toan so luong
                     foreach ($HoaDon as $key => $hd) {
                         $thang = (int) substr($hd['ngayLapHoaDon'], strpos($hd['ngayLapHoaDon'], '-') + 1, 2);
                         $nam = (int) substr($hd['ngayLapHoaDon'], 0, 4);
-                        foreach ($ChiTietHoaDon as $key => $cthd) {
-                            if ($cthd['maHD'] == $hd['maHD']) {
-                                $SoSanPham[$nam][$thang] =  $SoSanPham[$nam][$thang] + (int) $cthd['soLuong'];
+                        foreach ($SanPham as $key => $sp) {
+                            foreach ($ChiTietHoaDon as $key => $cthd) {
+                                if ($cthd['maHD'] == $hd['maHD'] && $cthd['maSP'] == $sp['maSP']) {
+                                    $SoSanPham[$nam][$sp['maSP']][$thang] += (int) $cthd['soLuong'];
+                                }
                             }
                         }
                     }
 
+                    // echo '<pre>';
+                    // print_r($SoSanPham[2021]);
+                    // echo '</pre>';
+
                     $length = count($SanPham);
                     for ($i = 0; $i < $length; $i++) {
-                        $style = $i % 2 == 1 ? 'style="background: #eaeaea"' : '';
+                        $style = $i % 2 == 1 ? 'style="background: #eaeaea;' : 'style="';
                         echo "
-                            <span class='center col-1 row-" . $SanPham[$i]["maSP"] . "' $style>" . $SanPham[$i]["maSP"] . "</span>
-                            <span class='center-left col-3 row-" . $SanPham[$i]["maSP"] . "' $style>" . $SanPham[$i]["tenSP"] . "</span>
+                            <span class='center col-1 row-" . $SanPham[$i]["maSP"] . "' $style\">" . $SanPham[$i]["maSP"] . "</span>
+                            <span class='center-left col-3 row-" . $SanPham[$i]["maSP"] . "' $style\">" . $SanPham[$i]["tenSP"] . "</span>
                             <div class='col-8 row'>
-                                <span class='center col-1 row-" . $SanPham[$i]["maSP"] . "' $style>Th1</span>
-                                <span class='center col-1 row-" . $SanPham[$i]["maSP"] . "' $style>Th2</span>
-                                <span class='center col-1 row-" . $SanPham[$i]["maSP"] . "' $style>Th3</span>
-                                <span class='center col-1 row-" . $SanPham[$i]["maSP"] . "' $style>Th4</span>
-                                <span class='center col-1 row-" . $SanPham[$i]["maSP"] . "' $style>Th5</span>
-                                <span class='center col-1 row-" . $SanPham[$i]["maSP"] . "' $style>Th6</span>
-                                <span class='center col-1 row-" . $SanPham[$i]["maSP"] . "' $style>Th7</span>
-                                <span class='center col-1 row-" . $SanPham[$i]["maSP"] . "' $style>Th8</span>
-                                <span class='center col-1 row-" . $SanPham[$i]["maSP"] . "' $style>Th9</span>
-                                <span class='center col-1 row-" . $SanPham[$i]["maSP"] . "' $style>Th10</span>
-                                <span class='center col-1 row-" . $SanPham[$i]["maSP"] . "' $style>Th11</span>
-                                <span class='center col-1 row-" . $SanPham[$i]["maSP"] . "' $style>Th12</span>
+                                <span class='center col-1 row-" . $SanPham[$i]["maSP"] . "' $style";
+                        echo $SoSanPham[$crYear][$i + 1][1] == 0 ? 'color: #c0c0c0' : '';
+                        echo "\">" . $SoSanPham[$crYear][$i + 1][1] . "</span>
+
+                                <span class='center col-1 row-" . $SanPham[$i]["maSP"] . "' $style";
+                        echo $SoSanPham[$crYear][$i + 1][2] == 0 ? 'color: #c0c0c0' : '';
+                        echo "\">" . $SoSanPham[$crYear][$i + 1][2] . "</span>
+
+                                <span class='center col-1 row-" . $SanPham[$i]["maSP"] . "' $style";
+                        echo $SoSanPham[$crYear][$i + 1][3] == 0 ? 'color: #c0c0c0' : '';
+                        echo "\">" . $SoSanPham[$crYear][$i + 1][3] . "</span>
+
+                                <span class='center col-1 row-" . $SanPham[$i]["maSP"] . "' $style";
+                        echo $SoSanPham[$crYear][$i + 1][4] == 0 ? 'color: #c0c0c0' : '';
+                        echo "\">" . $SoSanPham[$crYear][$i + 1][4] . "</span>
+
+                                <span class='center col-1 row-" . $SanPham[$i]["maSP"] . "' $style";
+                        echo $SoSanPham[$crYear][$i + 1][5] == 0 ? 'color: #c0c0c0' : '';
+                        echo "\">" . $SoSanPham[$crYear][$i + 1][5] . "</span>
+
+                                <span class='center col-1 row-" . $SanPham[$i]["maSP"] . "' $style";
+                        echo $SoSanPham[$crYear][$i + 1][6] == 0 ? 'color: #c0c0c0' : '';
+                        echo "\">" . $SoSanPham[$crYear][$i + 1][6] . "</span>
+
+                                <span class='center col-1 row-" . $SanPham[$i]["maSP"] . "' $style";
+                        echo $SoSanPham[$crYear][$i + 1][7] == 0 ? 'color: #c0c0c0' : '';
+                        echo "\">" . $SoSanPham[$crYear][$i + 1][7] . "</span>
+
+                                <span class='center col-1 row-" . $SanPham[$i]["maSP"] . "' $style";
+                        echo $SoSanPham[$crYear][$i + 1][8] == 0 ? 'color: #c0c0c0' : '';
+                        echo "\">" . $SoSanPham[$crYear][$i + 1][8] . "</span>
+
+                                <span class='center col-1 row-" . $SanPham[$i]["maSP"] . "' $style";
+                        echo $SoSanPham[$crYear][$i + 1][9] == 0 ? 'color: #c0c0c0' : '';
+                        echo "\">" . $SoSanPham[$crYear][$i + 1][9] . "</span>
+
+                                <span class='center col-1 row-" . $SanPham[$i]["maSP"] . "' $style";
+                        echo $SoSanPham[$crYear][$i + 1][10] == 0 ? 'color: #c0c0c0' : '';
+                        echo "\">" . $SoSanPham[$crYear][$i + 1][10] . "</span>
+
+                                <span class='center col-1 row-" . $SanPham[$i]["maSP"] . "' $style";
+                        echo $SoSanPham[$crYear][$i + 1][11] == 0 ? 'color: #c0c0c0' : '';
+                        echo "\">" . $SoSanPham[$crYear][$i + 1][11] . "</span>
+
+                                <span class='center col-1 row-" . $SanPham[$i]["maSP"] . "' $style";
+                        echo $SoSanPham[$crYear][$i + 1][12] == 0 ? 'color: #c0c0c0' : '';
+                        echo "\">" . $SoSanPham[$crYear][$i + 1][12] . "</span>
                             </div>
                         ";
                     }
