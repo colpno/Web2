@@ -196,9 +196,9 @@ class admin
             $returnBack = [
                 'TaiKhoan' => $this->taiKhoan->thongke($data['year'], 'thoiGianTao', 'maQuyen'),
                 'NhanVien' => $this->nhanVien->thongke(null, null, 'luong'),
-                'HoaDon' => $this->hoaDon->thongke($data['year'], 'ngayLapHoaDon', 'tongTien'),
+                'HoaDon' => $this->hoaDon->thongke($data['year'], 'ngayLapHoaDon', 'tongTien', 'maHD'),
                 'PhieuNhapHang' => $this->phieuNhapHang->thongke($data['year'], 'ngayNhap', 'tongTien'),
-                'SanPham' => $this->sanPham->thongke(null, null, 'donViTinh'),
+                'SanPham' => $this->sanPham->thongke(null, null, 'donViTinh', 'maSP', 'tenSP'),
                 'chiTietHoaDon' => $this->chiTietHoaDon->getAll(),
             ];
         } else

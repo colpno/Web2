@@ -93,4 +93,9 @@ class ChiTietHoaDonModel extends BaseModel
         $sortValues['value'] = $sortValues['maHD'];
         return $this->sortChiTietMethod(self::TABLE_NAME,  $sortValues, $page);
     }
+
+    public function thongke($year, $yearCol, ...$cols)
+    {
+        return $this->thongkeMethod(self::TABLE_NAME, $year, $yearCol, ...$cols);
+    }
 }

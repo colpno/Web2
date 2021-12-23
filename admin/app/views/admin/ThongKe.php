@@ -278,6 +278,43 @@
         <div class="col-12 sanphamban ">
             <div class="content-row" style="overflow: hidden;">
                 <div class="chart-head">Số sản phẩm bán ra</div>
+                <div class="asd" style="display: flex;justify-content: space-between;align-items: flex-end;padding: 0 50px 20px 20px">
+                    <div class="search-wrapper">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="sanphamban-search-input" name="search" placeholder="Search" oninput="thongKeSanPhamSearch()">
+                        <select name="item-search" id="sanphamban-search-select">
+                            <?php
+                            $SanPham = [
+                                [
+                                    'value' => 'tenSP',
+                                    'display' => 'Tên bánh'
+                                ],
+                                [
+                                    'value' => 'maSP',
+                                    'display' => 'Mã sản phẩm'
+                                ],
+                            ];
+                            foreach ($SanPham as $key => $value) {
+                                echo '<option value="' . $value['value'] . '">' . $value['display'] . '</option>';
+                            }
+                            ?>
+                        </select>
+                    </div>
+                    <span>Năm:
+                        <select name="" id="sanphamban-nam-select" onchange="changeYear(this)">
+                            <?php
+                            $year = date('Y');
+                            for ($i = $year; $i >= 2015; $i--) {
+                                if ($i == $year) {
+                                    echo "<option value=$i selected>$i</option>";
+                                } else {
+                                    echo "<option value=$i>$i</option>";
+                                }
+                            }
+                            ?>
+                        </select>
+                    </span>
+                </div>
                 <div class="title--border">
                     <div class="sanphamban__title row">
                         <h6 class="center sanphamban-item-title col-1">Mã SP</h6>
@@ -299,82 +336,7 @@
                     </div>
                 </div>
                 <div class="sanphamban--show row">
-
-                    <!-- <div class="chart-layout">
-                        <?php
-
-                        // $max = max($doanhThu[$date]);
-                        // $thangMax = array_keys($doanhThu[$date], $max)[0];
-                        // foreach ($doanhThu[$date] as $thang => $tien) {
-                        //     $percent = 0;
-                        //     if ($thang != 0 && $thang != $thangMax) {
-                        //         if ($tien < 0 || $max < 0) {
-                        //             $tien = 0;
-                        //         }
-                        //         $formated = number_format($tien);
-                        //         if ($tien > 0 && $max > 0) {
-                        //             $percent = bcdiv($tien, $max, 2) * 100;
-                        //         }
-                        //         echo "
-                        //             <div class='chart-column'>
-                        //                 <div class='chart-layout__item thang-$thang' style='--percent: $percent%'><p>$formated</p></div>
-                        //                 <span>$thang</span>
-                        //             </div>";
-                        //     }
-                        //     if ($thang == $thangMax) {
-                        //         $formated = 0;
-                        //         if ($max > 0) {
-                        //             $formated = number_format($max);
-                        //             $percent = 100;
-                        //         }
-                        //         echo "
-                        //     <div class='chart-column'>
-                        //         <div class='chart-layout__item thang-$thangMax' style='--percent: $percent%'><p>$formated</p></div>
-                        //         <span>$thangMax</span>
-                        //     </div>";
-                        //     }
-                        // }
-
-                        // $tong = 0;
-                        // foreach ($doanhThu[$date] as $thang => $tien) {
-                        //     $tong += $tien;
-                        // }
-                        // $_SESSION['tongDoanhThu'] = number_format($tong);
-                        ?>
-                    </div>
-                    <div class="chart-info">
-                        <p>Năm:
-                            <select name="" id="doanhthu-chart" onchange="changeYear(this)">
-                                <?php
-                                // $year = date('Y');
-                                // for ($i = $year; $i >= 2015; $i--) {
-                                //     if ($i == $year) {
-                                //         echo "<option value=$i selected>$i</option>";
-                                //     } else {
-                                //         echo "<option value=$i>$i</option>";
-                                //     }
-                                // }
-                                ?>
-                            </select>
-                        </p>
-                        <p>Đơn vị tính: <span><?php echo $_SESSION['get']['SanPham']['Data'][0]['donViTinh'] ?></span></p>
-                        <p>Tổng: <span class="summary-doanhthu"><?php echo $_SESSION['tongDoanhThu'] ?></span></p>
-                    </div> -->
                     <?php
-                    // echo '<pre>';
-                    // print_r($_SESSION['get']['chiTietHoaDon']);
-                    // echo '</pre>';
-                    // echo '<pre>';
-                    // print_r($_SESSION['get']['HoaDon']);
-                    // echo '</pre>';
-                    // echo '<pre>';
-                    // print_r($_SESSION['get']['SanPham']);
-                    // echo '</pre>';
-                    // $now = time();
-                    // $your_date = strtotime("2010-01-31");
-                    // $datediff = $now - $your_date;
-                    // round($datediff / (60 * 60 * 24));
-
                     $SanPham = $_SESSION['get']['SanPham']['Data'];
                     $HoaDon = $_SESSION['get']['HoaDon']['Data'];
                     $ChiTietHoaDon = $_SESSION['get']['chiTietHoaDon']['Data'];
@@ -408,10 +370,6 @@
                             }
                         }
                     }
-
-                    // echo '<pre>';
-                    // print_r($SoSanPham[2021]);
-                    // echo '</pre>';
 
                     $length = count($SanPham);
                     for ($i = 0; $i < $length; $i++) {
@@ -504,5 +462,10 @@
 
     function changeReport(ele) {
         ajaxChangeReport(ele)
+
+    }
+
+    function thongKeSanPhamSearch() {
+
     }
 </script>

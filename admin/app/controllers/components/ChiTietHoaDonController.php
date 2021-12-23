@@ -230,4 +230,12 @@ class ChiTietHoaDonController extends BaseController
             'limit' => $this->limit
         ];
     }
+
+    public function thongke($year = null, $yearCol = null, ...$cols)
+    {
+        // return $this->chiTietHoaDonModel->thongke($year, $yearCol, ...$cols);
+        echo '<pre>';
+        print_r($this->chiTietHoaDonModel->thongke($year, $yearCol, ...$cols));
+        echo '</pre>';
+    }
 }
