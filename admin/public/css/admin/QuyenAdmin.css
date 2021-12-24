@@ -1,0 +1,72 @@
+:root {
+    --bgColor: #fff0f0;
+}
+
+.phanquyen__row {
+    min-height: 50vh;
+    font-size: 18px;
+    margin-top: var(--padding-main-top);
+}
+
+.phanquyen__row input[type='checkbox'],
+.phanquyen__row input[type='radio'] {
+    width: 20px;
+    height: 20px;
+    margin-right: 20px;
+}
+
+.chonQuyen {
+    margin: 10px 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.section {
+    border: 1px solid black;
+    margin: 20px 0;
+    padding: 20px;
+    background-color: var(--bgColor);
+}
+
+.section div {
+    display: flex;
+    align-items: center;
+}
+
+.section [for='radioQuyen'] {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.chonChucNang {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 10px 0;
+    color: var(--text-grey);
+    border-top: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.chonChucNang div {
+    width: 20%;
+}
+
+.phanquyen-header {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+    padding: 10px 0;
+    font-weight: 600;
+    font-size: 1.2rem;
+}
+
+#sua-phanquyenchucnang input[type='submit'] {
+    background-color: var(--primary-color);
+    width: 100px;
+    height: 30px;
+    border-radius: 10px;
+    outline: none;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    color: #fff;
+    margin: 10px 0 30px 0;
+}

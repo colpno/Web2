@@ -1,0 +1,3 @@
+ban 60 ngay truoc	ban 30 ngay truoc	ban 15 ngay truoc	ban 5 ngay truoc	ton kho		|	maSP	tenSP
+131			55			24			6			36		|	1	Cupcake Vanilla
+----------------------------------------------------------------------------------------------------------

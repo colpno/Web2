@@ -1,0 +1,146 @@
+:root {
+    --color: #ff6b6b;
+    --bgColor: #fff0f0;
+}
+
+.chart-header div {
+    background-color: #fff;
+    min-height: 100px;
+    padding: 25px;
+}
+
+.chart-header div div {
+    background-color: var(--bgColor);
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.chart-header__item span {
+    font-weight: 600;
+    font-size: 20px;
+    color: var(--primary-color);
+}
+
+.chart-header__item span i {
+    font-size: 24px;
+    margin: 0 15px 10px 0;
+}
+
+.chart-header__item select {
+    height: 40px;
+    border-radius: 8px;
+}
+
+.chart-header select {
+    width: 300px;
+}
+
+.chart {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.chart-layout {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-around;
+    height: 60vh;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    background-color: var(--bgColor);
+    text-align: center;
+    padding: 60px 10px 0 10px;
+}
+
+.chart-layout span {
+    color: red;
+}
+
+.chart-layout__item {
+    width: 50px;
+    height: var(--percent);
+    background-color: var(--color);
+    animation: growUp 0.5s;
+    margin: 0 10px;
+    border-bottom: 1px solid #000;
+    position: relative;
+    display: flex;
+    justify-content: center;
+}
+
+.chart-info {
+    background-color: var(--bgColor);
+    padding: 20px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    max-width: 200px;
+}
+
+.chart-info p {
+    font-size: 18px;
+}
+
+.chart-info p span {
+    color: red;
+    font-weight: bold;
+}
+
+.chart-layout__item p {
+    position: absolute;
+    top: -23px;
+}
+
+.sanphamban--show span {
+    height: 40px;
+}
+
+@keyframes growUp {
+    from {
+        opacity: 0;
+        height: calc(var(--percent) - 50%);
+    }
+    to {
+        opacity: 1;
+        height: var(--percent);
+    }
+}
+
+.content-row {
+    margin: 20px 0;
+    padding: 40px 0;
+}
+
+.chart-head {
+    text-align: center;
+    font-size: 24px;
+    font-weight: 400;
+    margin-bottom: 20px;
+    color: var(--text-grey);
+}
+
+@media screen and (max-width: 1450px) {
+    .chart {
+        flex-direction: column;
+        margin: 0 20px;
+    }
+    .chart-info {
+        margin-top: 20px;
+    }
+
+    @media screen and (max-width: 1250px) {
+        .chart-layout__item {
+            width: 30px;
+        }
+    }
+
+    @media screen and (max-width: 1000px) {
+        .chart-layout__item {
+            width: 20px;
+        }
+    }
+
+    @media screen and (max-width: 900px) {
+        .chart-layout__item {
+            width: 10px;
+        }
+    }
+}
